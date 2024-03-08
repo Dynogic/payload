@@ -1,15 +1,20 @@
 #!/usr/bin/env node
+/* eslint-disable @typescript-eslint/no-var-requires */
 
-const { getTsconfig } = require('get-tsconfig')
-const path = require('path')
-const swcRegister = require('@swc/register')
+import swcRegister from '@swc/register'
+import { getTsconfig } from 'get-tsconfig'
+import path from 'path'
+
+import bin from './dist/bin/index.js'
+import { loadEnv } from './dist/bin/loadEnv.js'
+import findConfig from './dist/config/find.js'
 
 const tsConfig = getTsconfig()
 
 const swcOptions = {
   ignore: [/.*[\\/]node_modules[\\/].*/],
   jsc: {
-    baseUrl: path.resolve(),
+    baseUrl: path.resolve('../../'),
     parser: {
       syntax: 'typescript',
       tsx: true,
@@ -21,6 +26,7 @@ const swcOptions = {
   },
   sourceMaps: 'inline',
 }
+
 if (tsConfig?.config?.compilerOptions?.paths) {
   swcOptions.jsc.paths = tsConfig.config.compilerOptions.paths
   if (tsConfig?.config?.compilerOptions?.baseUrl) {
@@ -34,8 +40,15 @@ if (process.env.DISABLE_SWC !== 'true') {
   swcRegister(swcOptions)
 }
 
-const bin = async () => {
-  await import('./dist/bin/index.js')
+loadEnv()
+const configPath = findConfig()
+
+const start = async () => {
+  const sanitized = configPath.replace('.ts', '.js')
+  const configPromise = await import(sanitized)
+  const config = await configPromise
+
+  bin(config)
 }
 
-bin()
+start()
