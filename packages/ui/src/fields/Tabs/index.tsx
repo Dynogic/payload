@@ -83,30 +83,15 @@ const TabsFieldComponent: TabsFieldClientComponent = (props) => {
   const getTabIndexFromHash = useCallback((currentTabStates?: Array<{ index: number; passesCondition: boolean; tab: ClientTab }>) => {
     // Only handle hash navigation for root-level tabs and when in browser environment
     if (!isRootLevelTabs || typeof window === 'undefined') {
-      console.log('[Tabs] Skipping hash navigation - not root level tabs (parentPath:', parentPath, ', path:', path, ') or SSR')
       return null
     }
     
-    // Debug: Log available tabs and their hash values
-    console.log('[Tabs] Available tabs for hash navigation:', tabs.map((tab, index) => ({
-      canUseHash: !!(tab as any).hash,
-      hash: (tab as any).hash || 'no-hash',
-      hasHash: !!(tab as any).hash,
-      index
-    })))
-    
-    const tabsWithHashes = tabs.filter(tab => !!(tab as any).hash)
-    console.log('[Tabs] Only tabs with hash values can use hash navigation:', tabsWithHashes.length, 'of', tabs.length)
-    
     if (typeof window !== 'undefined' && window.location.hash) {
       const hashTabValue = window.location.hash.substring(1) // Remove the # symbol
-      console.log('[Tabs] Checking hash navigation for tab hash:', hashTabValue)
       
       const foundTabIndex = tabs.findIndex((tab) => 
         (tab as any).hash && (tab as any).hash === hashTabValue
       )
-      
-      console.log('[Tabs] Found tab index:', foundTabIndex, 'for hash:', hashTabValue)
       
       if (foundTabIndex !== -1) {
         // Check if the tab passes condition using provided tabStates or fallback to true
@@ -114,15 +99,10 @@ const TabsFieldComponent: TabsFieldClientComponent = (props) => {
           ? currentTabStates[foundTabIndex]?.passesCondition ?? true
           : true
         
-        console.log('[Tabs] Tab passes condition:', passesCondition)
-        
         if (passesCondition) {
-          console.log('[Tabs] Selecting tab from hash:', foundTabIndex)
           return foundTabIndex
         }
       }
-    } else {
-      console.log('[Tabs] No hash in URL or not in browser environment')
     }
     return null
   }, [tabs, isRootLevelTabs, parentPath, path])
@@ -156,7 +136,6 @@ const TabsFieldComponent: TabsFieldClientComponent = (props) => {
 
   const handleTabChange = useCallback(
     async (incomingTabIndex: number): Promise<void> => {
-      console.log('[Tabs] Manual tab change to index:', incomingTabIndex)
       setActiveTabIndex(incomingTabIndex)
 
       setActiveTabPath(
@@ -170,18 +149,15 @@ const TabsFieldComponent: TabsFieldClientComponent = (props) => {
       if (isRootLevelTabs && typeof window !== 'undefined') {
         const selectedTab = tabs[incomingTabIndex]
         if ((selectedTab as any).hash) {
-          console.log('[Tabs] Updating URL hash to:', (selectedTab as any).hash)
           window.history.replaceState(null, '', `#${(selectedTab as any).hash}`)
         } else {
           // Clear hash if tab has no hash value
-          console.log('[Tabs] Clearing URL hash - selected tab has no hash value')
           window.history.replaceState(null, '', window.location.pathname + window.location.search)
         }
       }
 
       // Save tab selection to user preferences
       if (preferencesKey) {
-        console.log('[Tabs] Saving tab preference. Tab index:', incomingTabIndex, 'Preference key:', path || tabsPrefKey)
         const existingPreferences: DocumentPreferences = await getPreference(preferencesKey)
 
         await setPreference(preferencesKey, {
@@ -206,9 +182,6 @@ const TabsFieldComponent: TabsFieldClientComponent = (props) => {
                 },
               }),
         })
-        console.log('[Tabs] Tab preference saved successfully')
-      } else {
-        console.log('[Tabs] No preference key - skipping preference save')
       }
     },
     [
@@ -240,14 +213,10 @@ const TabsFieldComponent: TabsFieldClientComponent = (props) => {
       return
     }
 
-    console.log('[Tabs] Initial tab selection. isRootLevelTabs:', isRootLevelTabs, 'activeTabIndex:', activeTabIndex)
-    
     // First check URL hash for tab selection (with proper condition checking)
     const hashTabIndex = getTabIndexFromHash(tabStates)
     if (hashTabIndex !== null) {
-      console.log('[Tabs] Initial hash-based tab selection:', hashTabIndex)
       if (activeTabIndex !== hashTabIndex) {
-        console.log('[Tabs] Switching to hash-based tab:', hashTabIndex)
         setActiveTabIndex(hashTabIndex)
         setActiveTabPath(generateTabPath({ activeTabConfig: tabs[hashTabIndex], path: parentPath }))
         setActiveTabSchemaPath(
@@ -260,27 +229,21 @@ const TabsFieldComponent: TabsFieldClientComponent = (props) => {
 
     // If no hash, use preferences or fall back to first visible tab
     if (preferencesKey) {
-      console.log('[Tabs] Using preferences for initial tab selection. Preference key:', preferencesKey)
       const getInitialPref = async () => {
         const existingPreferences: DocumentPreferences = await getPreference(preferencesKey)
-        console.log('[Tabs] Loaded preferences:', existingPreferences)
         
         const initialIndex = path
           ? existingPreferences?.fields?.[path]?.tabIndex
           : existingPreferences?.fields?.[tabsPrefKey]?.tabIndex
 
         const preferredIndex = initialIndex || 0
-        console.log('[Tabs] Preferred tab index from preferences:', preferredIndex, '(raw value:', initialIndex, ')')
         
         // Make sure the preferred tab is visible, otherwise use first visible
         const finalIndex = tabStates[preferredIndex]?.passesCondition 
           ? preferredIndex 
           : tabStates.find(({ passesCondition }) => passesCondition)?.index ?? 0
 
-        console.log('[Tabs] Final tab index after condition check:', finalIndex)
-
         if (activeTabIndex !== finalIndex) {
-          console.log('[Tabs] Switching to preference-based tab:', finalIndex)
           setActiveTabIndex(finalIndex)
           setActiveTabPath(generateTabPath({ activeTabConfig: tabs[finalIndex], path: parentPath }))
           setActiveTabSchemaPath(
@@ -293,10 +256,8 @@ const TabsFieldComponent: TabsFieldClientComponent = (props) => {
     } else {
       // No preferences, just use first visible tab
       const firstVisibleIndex = tabStates.find(({ passesCondition }) => passesCondition)?.index ?? 0
-      console.log('[Tabs] No preferences, using first visible tab:', firstVisibleIndex)
       
       if (activeTabIndex !== firstVisibleIndex) {
-        console.log('[Tabs] Switching to first visible tab:', firstVisibleIndex)
         setActiveTabIndex(firstVisibleIndex)
         setActiveTabPath(generateTabPath({ activeTabConfig: tabs[firstVisibleIndex], path: parentPath }))
         setActiveTabSchemaPath(
@@ -319,10 +280,8 @@ const TabsFieldComponent: TabsFieldClientComponent = (props) => {
   // Listen for hash changes to update active tab
   useEffect(() => {
     const handleHashChange = () => {
-      console.log('[Tabs] Hash change detected. isRootLevelTabs:', isRootLevelTabs)
       const hashTabIndex = getTabIndexFromHash(tabStates)
       if (hashTabIndex !== null && hashTabIndex !== activeTabIndex) {
-        console.log('[Tabs] Hash change - switching to tab:', hashTabIndex)
         setActiveTabIndex(hashTabIndex)
         setActiveTabPath(generateTabPath({ activeTabConfig: tabs[hashTabIndex], path: parentPath }))
         setActiveTabSchemaPath(
@@ -332,10 +291,8 @@ const TabsFieldComponent: TabsFieldClientComponent = (props) => {
     }
 
     if (typeof window !== 'undefined' && isRootLevelTabs) {
-      console.log('[Tabs] Setting up hash change listener for root-level tabs')
       window.addEventListener('hashchange', handleHashChange)
       return () => {
-        console.log('[Tabs] Cleaning up hash change listener')
         window.removeEventListener('hashchange', handleHashChange)
       }
     }
