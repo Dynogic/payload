@@ -314,6 +314,7 @@ export const updateDocument = async <
       collection: collectionConfig,
       docWithLocales: result,
       draft: shouldSaveDraft,
+      operation: 'update',
       payload,
       publishSpecificLocale,
       req,
@@ -383,6 +384,7 @@ export const updateDocument = async <
         (await hook({
           collection: collectionConfig,
           context: req.context,
+          data,
           doc: result,
           operation: 'update',
           previousDoc: originalDoc,

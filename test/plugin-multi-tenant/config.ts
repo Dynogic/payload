@@ -31,17 +31,29 @@ export default buildConfigWithDefaults({
   onInit: seed,
   plugins: [
     multiTenantPlugin<ConfigType>({
+      debug: true,
       userHasAccessToAllTenants: (user) => Boolean(user.roles?.includes('admin')),
+      useTenantsCollectionAccess: false,
       tenantField: {
         access: {},
       },
       collections: {
-        [menuItemsSlug]: {},
+        [menuItemsSlug]: {
+          useTenantAccess: false,
+        },
         [menuSlug]: {
           isGlobal: true,
         },
       },
-      tenantSelectorLabel: { en: 'Site', es: 'Site in es' },
+      i18n: {
+        translations: {
+          en: {
+            'field-assignedTenant-label': 'Currently Assigned Site',
+            'nav-tenantSelector-label': 'Filter By Site',
+            'confirm-modal-tenant-switch--heading': 'Confirm Site Change',
+          },
+        },
+      },
     }),
   ],
   typescript: {
