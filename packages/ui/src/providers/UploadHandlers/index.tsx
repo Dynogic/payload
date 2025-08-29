@@ -6,6 +6,7 @@ import React, { useState } from 'react'
 type UploadHandler = (args: {
   file: File
   updateFilename: (filename: string) => void
+  formData?: Record<string, any>
 }) => Promise<unknown>
 
 export type UploadHandlersContext = {

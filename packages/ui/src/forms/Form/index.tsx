@@ -521,6 +521,7 @@ export const Form: React.FC<FormProps> = (props) => {
             updateFilename: (value) => {
               filename = value
             },
+            formData: data,
           })
 
           file = JSON.stringify({

@@ -26,6 +26,7 @@ export async function createFormData(
       updateFilename: (value) => {
         filename = value
       },
+      formData: data,
     })
 
     file = JSON.stringify({
