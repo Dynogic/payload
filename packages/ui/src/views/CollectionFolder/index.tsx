@@ -341,6 +341,18 @@ function CollectionFolderViewInContext(props: CollectionFolderViewInContextProps
           {totalDocsAndSubfolders === 0 && (
             <NoListResults
               Actions={[
+                allowCreateCollectionSlugs.includes(collectionSlug) && (
+                  <ListCreateNewDocInFolderButton
+                    buttonLabel={`${t('general:create')} ${getTranslation(labels?.singular, i18n).toLowerCase()}`}
+                    collectionSlugs={[collectionSlug]}
+                    folderAssignedCollections={
+                      Array.isArray(folderType) ? folderType : [collectionSlug]
+                    }
+                    key="create-document"
+                    onCreateSuccess={clearRouteCache}
+                    slugPrefix="create-document--no-results"
+                  />
+                ),
                 allowCreateCollectionSlugs.includes(folderCollectionSlug) && (
                   <ListCreateNewDocInFolderButton
                     buttonLabel={`${t('general:create')} ${getTranslation(folderCollectionConfig.labels?.singular, i18n).toLowerCase()}`}
@@ -351,18 +363,6 @@ function CollectionFolderViewInContext(props: CollectionFolderViewInContextProps
                     key="create-folder"
                     onCreateSuccess={clearRouteCache}
                     slugPrefix="create-folder--no-results"
-                  />
-                ),
-                allowCreateCollectionSlugs.includes(collectionSlug) && (
-                  <ListCreateNewDocInFolderButton
-                    buttonLabel={`${t('general:create')} ${t('general:document').toLowerCase()}`}
-                    collectionSlugs={[collectionSlug]}
-                    folderAssignedCollections={
-                      Array.isArray(folderType) ? folderType : [collectionSlug]
-                    }
-                    key="create-document"
-                    onCreateSuccess={clearRouteCache}
-                    slugPrefix="create-document--no-results"
                   />
                 ),
               ].filter(Boolean)}
