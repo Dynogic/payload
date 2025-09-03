@@ -73,5 +73,10 @@ export const UploadPlugin: PluginComponent<UploadFeaturePropsClient> = ({ client
     )
   }, [editor])
 
-  return <UploadDrawer enabledCollectionSlugs={collections.map(({ slug }) => slug)} />
+  return (
+    <UploadDrawer
+      enabledCollectionSlugs={collections.map(({ slug }) => slug)}
+      filterOptions={clientProps?.filterOptions}
+    />
+  )
 }

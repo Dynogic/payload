@@ -16,6 +16,7 @@ export type UploadFeaturePropsClient = {
       hasExtraFields: boolean
     }
   }
+  filterOptions?: Record<string, any>
 }
 
 export const UploadFeatureClient = createClientFeature<UploadFeaturePropsClient>({
