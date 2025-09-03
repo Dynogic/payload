@@ -15,6 +15,7 @@ import { Popup } from '../../Popup/index.js'
 import { Thumbnail } from '../../Thumbnail/index.js'
 import { ColoredFolderIcon } from '../ColoredFolderIcon/index.js'
 import { DraggableWithClick } from '../DraggableWithClick/index.js'
+import { getFileIcon } from './getFileIcon.js'
 import './index.scss'
 
 const baseClass = 'folder-file-card'
@@ -28,6 +29,7 @@ type Props = {
   readonly isFocused?: boolean
   readonly isSelected?: boolean
   readonly itemKey: string
+  readonly mimeType?: string
   readonly onClick?: (e: React.MouseEvent) => void
   readonly onKeyDown?: (e: React.KeyboardEvent) => void
   readonly PopupActions?: React.ReactNode
@@ -46,6 +48,7 @@ export function FolderFileCard({
   isFocused = false,
   isSelected = false,
   itemKey,
+  mimeType,
   onClick,
   onKeyDown,
   PopupActions,
@@ -110,7 +113,7 @@ export function FolderFileCard({
 
       <div className={`${baseClass}__titlebar-area`}>
         <div className={`${baseClass}__icon-wrap`}>
-          {type === 'file' ? <DocumentIcon /> : <ColoredFolderIcon />}
+          {type === 'file' ? getFileIcon(mimeType) : <ColoredFolderIcon />}
         </div>
         <div className={`${baseClass}__titlebar-labels`}>
           <p className={`${baseClass}__name`} title={title}>
@@ -183,6 +186,7 @@ export function ContextFolderFileCard({ type, className, index, item }: ContextC
       isFocused={focusedRowIndex === index}
       isSelected={isSelected}
       itemKey={item.itemKey}
+      mimeType={item.value.mimeType}
       onClick={(event) => {
         void onItemClick({ event, index, item })
       }}
