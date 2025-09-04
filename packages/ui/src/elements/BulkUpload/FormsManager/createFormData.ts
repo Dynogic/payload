@@ -10,6 +10,7 @@ export async function createFormData(
   overrides: Record<string, any> = {},
   collectionSlug: CollectionSlug,
   uploadHandler: ReturnType<UploadHandlersContext['getUploadHandler']>,
+  onProgress?: (progress: number) => void,
 ) {
   const data = reduceFieldsToValues(formState, true)
   let file = data?.file
@@ -27,6 +28,7 @@ export async function createFormData(
         filename = value
       },
       formData: data,
+      onProgress,
     })
 
     file = JSON.stringify({

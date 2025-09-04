@@ -7,6 +7,7 @@ type UploadHandler = (args: {
   file: File
   updateFilename: (filename: string) => void
   formData?: Record<string, any>
+  onProgress?: (progress: number) => void
 }) => Promise<unknown>
 
 export type UploadHandlersContext = {
