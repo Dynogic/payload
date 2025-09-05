@@ -1,4 +1,4 @@
-import type { Data, FormState, Operation } from 'payload'
+import type { Data, FilterOptionsResult, FormState, Operation } from 'payload'
 import type React from 'react'
 import type { HTMLAttributes } from 'react'
 
@@ -10,6 +10,7 @@ export type DocumentDrawerProps = {
   readonly collectionSlug: string
   readonly disableActions?: boolean
   readonly drawerSlug?: string
+  readonly filterOptions?: FilterOptionsResult
   readonly id?: null | number | string
   readonly initialData?: Data
   /**
@@ -48,6 +49,10 @@ export type UseDocumentDrawer = (args: {
    * The slug of the collection to which the document belongs.
    */
   collectionSlug: string
+  /**
+   * Filter options to pass to the document drawer, used to restrict field values.
+   */
+  filterOptions?: FilterOptionsResult
   /**
    * The ID of the document to be edited.
    * When provided, will be fetched and displayed in the drawer.

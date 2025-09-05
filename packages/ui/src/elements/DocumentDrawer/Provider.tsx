@@ -1,10 +1,11 @@
-import type { ClientCollectionConfig, Data, FormState, TypeWithID } from 'payload'
+import type { ClientCollectionConfig, Data, FilterOptionsResult, FormState, TypeWithID } from 'payload'
 
 import { createContext, use } from 'react'
 
 export type DocumentDrawerContextProps = {
   readonly clearDoc?: () => void
   readonly drawerSlug: string
+  readonly filterOptions?: FilterOptionsResult
   readonly onDelete?: (args: {
     collectionConfig?: ClientCollectionConfig
     id: string

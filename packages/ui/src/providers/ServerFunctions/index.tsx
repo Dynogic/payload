@@ -5,6 +5,7 @@ import type {
   Data,
   DocumentPreferences,
   DocumentSlots,
+  FilterOptionsResult,
   FormState,
   GetFolderResultsComponentAndDataArgs,
   Locale,
@@ -54,6 +55,7 @@ type RenderDocumentBaseArgs = {
   disableActions?: boolean
   docID: number | string
   drawerSlug?: string
+  filterOptions?: FilterOptionsResult
   initialData?: Data
   initialState?: FormState
   locale?: Locale

@@ -105,6 +105,7 @@ export const RelationshipInput: React.FC<RelationshipInputProps> = (props) => {
   const [DocumentDrawer, , { isDrawerOpen, openDrawer }] = useDocumentDrawer({
     id: currentlyOpenRelationship.id,
     collectionSlug: currentlyOpenRelationship.collectionSlug,
+    filterOptions,
   })
 
   // Filter selected values from displaying in the list drawer
@@ -842,6 +843,7 @@ export const RelationshipInput: React.FC<RelationshipInputProps> = (props) => {
             />
             {!readOnly && allowCreate && (
               <AddNewRelation
+                filterOptions={filterOptions}
                 path={path}
                 relationTo={relationTo}
                 {...(hasMany === true
