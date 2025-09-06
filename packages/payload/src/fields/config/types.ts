@@ -368,6 +368,14 @@ type Admin = {
   position?: 'sidebar'
   readOnly?: boolean
   style?: CSSProperties
+  /**
+   * Allow this field to be set via URL query parameters on document creation.
+   * If true, uses the field name as the query param name.
+   * If string, uses the string as the query param name.
+   * @example urlParam: true // ?fieldName=value
+   * @example urlParam: 'customParam' // ?customParam=value
+   */
+  urlParam?: boolean | string
   width?: CSSProperties['width']
 }
 
@@ -392,6 +400,14 @@ export type AdminClient = {
   position?: 'sidebar'
   readOnly?: boolean
   style?: { '--field-width'?: CSSProperties['width'] } & CSSProperties
+  /**
+   * Allow this field to be set via URL query parameters on document creation.
+   * If true, uses the field name as the query param name.
+   * If string, uses the string as the query param name.
+   * @example urlParam: true // ?fieldName=value
+   * @example urlParam: 'customParam' // ?customParam=value
+   */
+  urlParam?: boolean | string
   width?: CSSProperties['width']
 }
 

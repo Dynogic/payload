@@ -184,6 +184,12 @@ export const renderDocument = async ({
 
   const operation = (collectionSlug && idFromArgs) || globalSlug ? 'update' : 'create'
 
+  // Pass all query params for create operation - field config will determine which are used
+  let defaultValues: Record<string, any> | undefined
+  if (operation === 'create' && !drawerSlug && searchParams) {
+    defaultValues = searchParams as Record<string, any>
+  }
+
   const [
     { hasPublishedDoc, mostRecentVersionIsAutosaved, unpublishedVersionCount, versionCount },
     { state: formState },
@@ -202,6 +208,7 @@ export const renderDocument = async ({
       id: idFromArgs,
       collectionSlug,
       data: doc,
+      defaultValues,
       docPermissions,
       docPreferences,
       fallbackLocale: false,
