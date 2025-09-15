@@ -17,7 +17,16 @@ export function isolateObjectProperty<T extends object>(object: T, key: (keyof T
       return Reflect.deleteProperty(keys.includes(p as keyof T) ? delegate : target, p)
     },
     get(target, p, receiver) {
-      return Reflect.get(keys.includes(p as keyof T) ? delegate : target, p, receiver)
+      if (keys.includes(p as keyof T)) {
+        return Reflect.get(delegate, p, receiver)
+      }
+      
+      // Special case for headers to avoid private field issue
+      if (p === 'headers') {
+        return target[p as keyof T]
+      }
+      
+      return Reflect.get(target, p, receiver)
     },
     has(target, p) {
       return Reflect.has(keys.includes(p as keyof T) ? delegate : target, p)
