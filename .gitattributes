@@ -1,3 +1,4 @@
 # Auto detect text files and perform LF normalization
 * text=auto eol=lf
+packed/*.tgz filter=lfs diff=lfs merge=lfs -text
 packed/*.tgz !text !filter !merge !diff
