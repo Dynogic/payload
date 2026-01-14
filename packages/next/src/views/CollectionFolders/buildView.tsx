@@ -14,7 +14,7 @@ import { formatAdminURL } from '@payloadcms/ui/shared'
 import { redirect } from 'next/navigation.js'
 import React from 'react'
 
-// import { renderFolderViewSlots } from './renderFolderViewSlots.js'
+import { renderFolderViewSlots } from './renderFolderViewSlots.js'
 
 export type BuildCollectionFolderViewStateArgs = {
   disableBulkDelete?: boolean
@@ -148,20 +148,28 @@ export const buildCollectionFolderView = async (
       user,
     }
 
-    // We could support slots in the folder view in the future
-    // const folderViewSlots = renderFolderViewSlots({
-    //   clientProps: {
-    //     collectionSlug,
-    //     hasCreatePermission,
-    //     newDocumentURL,
-    //   },
-    //   collectionConfig,
-    //   description: typeof collectionConfig.admin.description === 'function'
-    //   ? collectionConfig.admin.description({ t: i18n.t })
-    //   : collectionConfig.admin.description,
-    //   payload,
-    //   serverProps,
-    // })
+    const hasCreatePermission = permissions?.collections?.[collectionSlug]?.create
+    const newDocumentURL = formatAdminURL({
+      adminRoute,
+      path: `/collections/${collectionSlug}/create`,
+      serverURL: config.serverURL,
+    })
+
+    const staticDescription = typeof collectionConfig.admin.description === 'function'
+      ? collectionConfig.admin.description({ t: i18n.t })
+      : collectionConfig.admin.description
+
+    const folderViewSlots = renderFolderViewSlots({
+      clientProps: {
+        collectionSlug,
+        hasCreatePermission: !!hasCreatePermission,
+        newDocumentURL,
+      },
+      collectionConfig,
+      description: staticDescription,
+      payload,
+      serverProps,
+    })
 
     const search = query?.search as string
 
@@ -171,7 +179,7 @@ export const buildCollectionFolderView = async (
           <HydrateAuthProvider permissions={permissions} />
           {RenderServerComponent({
             clientProps: {
-              // ...folderViewSlots,
+              ...folderViewSlots,
               allCollectionFolderSlugs: [config.folders.slug, collectionSlug],
               allowCreateCollectionSlugs: [
                 permissions?.collections?.[config.folders.slug]?.create

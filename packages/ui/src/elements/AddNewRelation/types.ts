@@ -1,7 +1,8 @@
-import type { ValueWithRelation } from 'payload'
+import type { FilterOptionsResult, ValueWithRelation } from 'payload'
 
 export type Props = {
   readonly Button?: React.ReactNode
+  readonly filterOptions?: FilterOptionsResult
   readonly path: string
   readonly relationTo: string | string[]
   readonly unstyled?: boolean

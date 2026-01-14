@@ -27,6 +27,7 @@ type Args = {
   clientFieldSchemaMap?: ClientFieldSchemaMap
   collectionSlug?: string
   data?: Data
+  defaultValues?: Record<string, any>
   /**
    * If this is undefined, the `data` passed to this function will serve as `fullData` and `data` when iterating over
    * the top-level-fields to generate form state.
@@ -85,6 +86,7 @@ export const fieldSchemasToFormState = async ({
   clientFieldSchemaMap,
   collectionSlug,
   data = {},
+  defaultValues,
   documentData,
   fields,
   fieldSchemaMap,
@@ -126,6 +128,33 @@ export const fieldSchemasToFormState = async ({
       siblingData: dataWithDefaultValues,
       user: req.user,
     })
+
+    // Apply query param defaults for create operation
+    if (operation === 'create' && defaultValues && fields) {
+      // Build a map of allowed query params to field names
+      const urlParamToFieldName: Record<string, string> = {}
+      
+      fields.forEach(field => {
+        // Only process fields that have a name property and admin config
+        if ('name' in field && 'admin' in field && field.admin) {
+          const adminConfig = field.admin as any
+          if (adminConfig.urlParam) {
+            const paramName = typeof adminConfig.urlParam === 'string' 
+              ? adminConfig.urlParam 
+              : field.name
+            urlParamToFieldName[paramName] = field.name
+          }
+        }
+      })
+      
+      // Apply defaults only for fields that have urlParam enabled
+      Object.entries(defaultValues).forEach(([paramName, value]) => {
+        const fieldName = urlParamToFieldName[paramName]
+        if (fieldName && (dataWithDefaultValues[fieldName] === undefined || dataWithDefaultValues[fieldName] === null)) {
+          dataWithDefaultValues[fieldName] = value
+        }
+      })
+    }
 
     let fullData = dataWithDefaultValues
 

@@ -267,6 +267,9 @@ function createTextFormatTransformersIndex(
     }
   }
 
+  // Sort tags by length (longest first) so ~~ matches before ~
+  openTagsRegExp.sort((a, b) => b.length - a.length)
+
   return {
     // Reg exp to find open tag + content + close tag
     fullMatchRegExpByTag,
