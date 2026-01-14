@@ -115,10 +115,15 @@ const UploadDrawerComponentFallback: React.FC = () => {
   return null
 }
 
-export const UploadDrawer = ({ enabledCollectionSlugs }: Props): React.ReactNode => {
+export const UploadDrawer = ({ enabledCollectionSlugs, filterOptions }: Props): React.ReactNode => {
   if (!enabledCollectionSlugs?.length) {
     return <UploadDrawerComponentFallback />
   }
 
-  return <UploadDrawerComponent enabledCollectionSlugs={enabledCollectionSlugs} />
+  return (
+    <UploadDrawerComponent
+      enabledCollectionSlugs={enabledCollectionSlugs}
+      filterOptions={filterOptions}
+    />
+  )
 }

@@ -41,8 +41,6 @@ const TabsFieldComponent: TabsFieldClientComponent = (props) => {
     schemaPath = '',
   } = props
 
-
-
   const { i18n } = useTranslation()
   const { isWithinCollapsible } = useCollapsible()
 
@@ -58,90 +56,41 @@ const TabsFieldComponent: TabsFieldClientComponent = (props) => {
     })
   })
 
-  // Only apply hash-based navigation for root-level tabs (collection tabs)
-  // Nested tabs within fields should not respond to URL hash changes
-  // Root level tabs have simple indexPath like '0', '1', etc.
-  // Nested tabs have complex indexPath like '1-2-0', '0-1-2', etc.
-  const isRootLevelTabs = !indexPath.includes('-')
+  // Helper function to get tab index from URL hash (single-level matching)
+  const getTabIndexFromHash = useCallback(
+    (currentTabStates?: Array<{ index: number; passesCondition: boolean; tab: ClientTab }>) => {
+      if (typeof window === 'undefined' || !window.location.hash) {
+        return null
+      }
 
-  // Helper function to get tab index from URL hash
-  const getTabIndexFromHash = useCallback((currentTabStates?: Array<{ index: number; passesCondition: boolean; tab: ClientTab }>) => {
-    // Only handle hash navigation for root-level tabs and when in browser environment
-    if (!isRootLevelTabs || typeof window === 'undefined') {
-      return null
-    }
-    
-    if (typeof window !== 'undefined' && window.location.hash) {
-      const fullHash = window.location.hash.substring(1) // Remove the # symbol
-      
-      // For two-level hashes like "settings-advanced", we want to match just the first part for root tabs
-      // For nested tabs, we'll handle the second part separately
-      const [mainTabHash, subTabHash] = fullHash.split('-', 2)
-      const hashTabValue = isRootLevelTabs ? mainTabHash : fullHash
-      
-      const foundTabIndex = tabs.findIndex((tab) => 
-        (tab as any).hash && (tab as any).hash === hashTabValue
-      )
-      
+      const hash = window.location.hash.substring(1) // Remove the # symbol
+
+      const foundTabIndex = tabs.findIndex((tab) => (tab as any).hash && (tab as any).hash === hash)
+
       if (foundTabIndex !== -1) {
-        // Check if the tab passes condition using provided tabStates or fallback to true
-        const passesCondition = currentTabStates 
-          ? currentTabStates[foundTabIndex]?.passesCondition ?? true
+        const passesCondition = currentTabStates
+          ? (currentTabStates[foundTabIndex]?.passesCondition ?? true)
           : true
-        
+
         if (passesCondition) {
           return foundTabIndex
         }
       }
-    }
-    return null
-  }, [tabs, isRootLevelTabs])
 
-  // Helper function to get sub-tab hash for nested tabs
-  const getSubTabHashFromURL = useCallback(() => {
-    if (isRootLevelTabs || typeof window === 'undefined' || !window.location.hash) {
       return null
-    }
-    
-    const fullHash = window.location.hash.substring(1)
-    const [mainTabHash, subTabHash] = fullHash.split('-', 2)
-    
-    return subTabHash || null
-  }, [isRootLevelTabs])
+    },
+    [tabs],
+  )
 
-  // For nested tabs, check if there's a sub-tab hash to use
-  const getNestedTabIndexFromHash = useCallback((currentTabStates?: Array<{ index: number; passesCondition: boolean; tab: ClientTab }>) => {
-    if (isRootLevelTabs) {
-      return null
-    }
-    
-    const subTabHash = getSubTabHashFromURL()
-    if (!subTabHash) {
-      return null
-    }
-    
-    const foundTabIndex = tabs.findIndex((tab) => 
-      (tab as any).hash && (tab as any).hash === subTabHash
-    )
-    
-    if (foundTabIndex !== -1) {
-      const passesCondition = currentTabStates 
-        ? currentTabStates[foundTabIndex]?.passesCondition ?? true
-        : true
-      
-      if (passesCondition) {
-        return foundTabIndex
-      }
-    }
-    
-    return null
-  }, [isRootLevelTabs, getSubTabHashFromURL, tabs])
-
-  const [activeTabIndex, setActiveTabIndex] = useState<number>(0)
+  // Initialize with first visible tab (same on server and client to avoid hydration mismatch)
+  // Hash-based selection happens in useEffect after hydration
+  const [activeTabIndex, setActiveTabIndex] = useState<number>(
+    () => tabStates.filter(({ passesCondition }) => passesCondition)?.[0]?.index ?? 0,
+  )
 
   const activeTabInfo = tabStates[activeTabIndex]
   const activeTabConfig = activeTabInfo?.tab
-  const activeTabDescription = activeTabConfig.admin?.description ?? activeTabConfig.description
+  const activeTabDescription = activeTabConfig?.admin?.description ?? activeTabConfig?.description
 
   const activeTabStaticDescription =
     typeof activeTabDescription === 'function'
@@ -154,63 +103,32 @@ const TabsFieldComponent: TabsFieldClientComponent = (props) => {
     (incomingTabIndex: number): void => {
       setActiveTabIndex(incomingTabIndex)
 
-      // Update URL hash
+      // Update URL hash if tab has a hash value
       if (typeof window !== 'undefined') {
         const selectedTab = tabs[incomingTabIndex]
         const selectedTabHash = (selectedTab as any).hash
 
-        if (isRootLevelTabs) {
-          // For root level tabs, set the main hash (preserve any existing sub-hash)
-          if (selectedTabHash) {
-            const currentHash = window.location.hash.substring(1)
-            const [, existingSubHash] = currentHash.split('-', 2)
-
-            const newHash = existingSubHash ? `${selectedTabHash}-${existingSubHash}` : selectedTabHash
-            window.history.replaceState(null, '', `#${newHash}`)
-          } else {
-            // Clear hash if tab has no hash value
-            window.history.replaceState(null, '', window.location.pathname + window.location.search)
-          }
+        if (selectedTabHash) {
+          window.history.replaceState(null, '', `#${selectedTabHash}`)
         } else {
-          // For nested tabs, update the sub-hash part
-          if (selectedTabHash) {
-            const currentHash = window.location.hash.substring(1)
-            const [existingMainHash] = currentHash.split('-', 2)
-
-            if (existingMainHash) {
-              const newHash = `${existingMainHash}-${selectedTabHash}`
-              window.history.replaceState(null, '', `#${newHash}`)
-            } else {
-              // Fallback: just set the sub-hash
-              window.history.replaceState(null, '', `#${selectedTabHash}`)
-            }
-          }
+          // Clear hash if tab has no hash value
+          window.history.replaceState(null, '', window.location.pathname + window.location.search)
         }
       }
     },
-    [tabs, isRootLevelTabs],
+    [tabs],
   )
 
   // Track if we've done initial setup to avoid overriding manual tab changes
   const [hasInitialized, setHasInitialized] = useState(false)
-  const [isHydrated, setIsHydrated] = useState(false)
-
-  // Handle hydration
-  useEffect(() => {
-    setIsHydrated(true)
-  }, [])
 
   // Handle initial tab selection based on hash or first visible tab
   useEffect(() => {
-    // Only run initial setup once when tabStates are available and we're hydrated
-    if (hasInitialized || tabStates.length === 0 || !isHydrated) {
+    if (hasInitialized || tabStates.length === 0) {
       return
     }
 
-    // Check for hash-based tab selection
-    const hashTabIndex = isRootLevelTabs
-      ? getTabIndexFromHash(tabStates)
-      : getNestedTabIndexFromHash(tabStates)
+    const hashTabIndex = getTabIndexFromHash(tabStates)
 
     if (hashTabIndex !== null) {
       if (activeTabIndex !== hashTabIndex) {
@@ -227,7 +145,7 @@ const TabsFieldComponent: TabsFieldClientComponent = (props) => {
       setActiveTabIndex(firstVisibleIndex)
     }
     setHasInitialized(true)
-  }, [tabStates, tabs, getTabIndexFromHash, getNestedTabIndexFromHash, activeTabIndex, isRootLevelTabs, hasInitialized, isHydrated])
+  }, [tabStates, getTabIndexFromHash, activeTabIndex, hasInitialized])
 
   useEffect(() => {
     if (activeTabInfo?.passesCondition === false) {
@@ -241,9 +159,7 @@ const TabsFieldComponent: TabsFieldClientComponent = (props) => {
   // Listen for hash changes to update active tab
   useEffect(() => {
     const handleHashChange = () => {
-      const hashTabIndex = isRootLevelTabs
-        ? getTabIndexFromHash(tabStates)
-        : getNestedTabIndexFromHash(tabStates)
+      const hashTabIndex = getTabIndexFromHash(tabStates)
 
       if (hashTabIndex !== null && hashTabIndex !== activeTabIndex) {
         setActiveTabIndex(hashTabIndex)
@@ -256,17 +172,15 @@ const TabsFieldComponent: TabsFieldClientComponent = (props) => {
         window.removeEventListener('hashchange', handleHashChange)
       }
     }
-  }, [getTabIndexFromHash, getNestedTabIndexFromHash, activeTabIndex, tabStates, isRootLevelTabs])
+  }, [getTabIndexFromHash, activeTabIndex, tabStates])
 
   // Also check hash on every render (for Next.js navigation that doesn't trigger hashchange)
   useEffect(() => {
-    if (!isHydrated || tabStates.length === 0 || typeof window === 'undefined') {
+    if (tabStates.length === 0 || typeof window === 'undefined') {
       return
     }
 
-    const hashTabIndex = isRootLevelTabs
-      ? getTabIndexFromHash(tabStates)
-      : getNestedTabIndexFromHash(tabStates)
+    const hashTabIndex = getTabIndexFromHash(tabStates)
 
     if (hashTabIndex !== null && hashTabIndex !== activeTabIndex) {
       setActiveTabIndex(hashTabIndex)
