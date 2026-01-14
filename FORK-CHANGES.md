@@ -14,11 +14,17 @@ Fixed tab condition state tracking for nested tabs. Previously used just `field.
 
 The "Create Document" and "Create Folder" buttons were swapped/mislabeled in the empty folder state. Fixed so correct labels match correct actions.
 
+### 3. Strikethrough Markdown Not Working
+
+**File:** `packages/richtext-lexical/src/packages/@lexical/markdown/MarkdownImport.ts`
+
+Strikethrough (`~~text~~`) wasn't being parsed because single `~` (subscript) was matching first. Fixed by sorting tags by length (longest first) so `~~` matches before `~`.
+
 ---
 
 ## Features
 
-### 3. Hash-Based Tab Navigation
+### 4. Hash-Based Tab Navigation
 
 **File:** `packages/ui/src/fields/Tabs/index.tsx`
 
@@ -29,7 +35,7 @@ The "Create Document" and "Create Folder" buttons were swapped/mislabeled in the
 - SSR-safe: initializes to first visible tab, then switches to hash-selected tab after hydration
 - Removed dependency on `usePreferences` and `useDocumentInfo`
 
-### 4. Dynamic Routes for Multi-Tenant
+### 5. Dynamic Routes for Multi-Tenant
 
 **Files:** `packages/payload/src/config/createDynamicRoutes.ts`, `packages/payload/src/config/defaults.ts`
 
@@ -37,14 +43,14 @@ The "Create Document" and "Create Folder" buttons were swapped/mislabeled in the
 - Fixed `defaults.ts` to preserve getters when merging routes (spread was resolving them prematurely)
 - Useful for multi-tenant setups where admin/api routes vary by request context
 
-### 5. Field-Level URL Parameter Defaults
+### 6. Field-Level URL Parameter Defaults
 
 **Files:** `packages/payload/src/fields/config/types.ts`, `packages/payload/src/admin/forms/Form.ts`, `packages/next/src/views/Document/index.tsx`
 
 - New `urlParam` field config option to populate default values from URL query parameters
 - Passes search params as `defaultValues` during document creation
 
-### 6. MIME Type Validation for Uploads
+### 7. MIME Type Validation for Uploads
 
 **File:** `packages/ui/src/elements/Upload/index.tsx`, `packages/ui/src/fields/Upload/index.tsx`
 
@@ -53,7 +59,7 @@ The "Create Document" and "Create Folder" buttons were swapped/mislabeled in the
 - Validates file types client-side before upload begins
 - Supports wildcard patterns like `audio/*`, `image/*`
 
-### 7. Upload filterOptions in Lexical Rich Text
+### 8. Upload filterOptions in Lexical Rich Text
 
 **Files:** `packages/richtext-lexical/src/features/upload/server/index.ts`, `packages/richtext-lexical/src/features/upload/client/drawer/index.tsx`, `packages/ui/src/elements/DocumentDrawer/*`
 
@@ -61,7 +67,7 @@ The "Create Document" and "Create Folder" buttons were swapped/mislabeled in the
 - Allows filtering upload collections based on context (user, field values, etc.)
 - Passes through DocumentDrawer for filtered upload selection
 
-### 8. File Type Icons in Folder View
+### 9. File Type Icons in Folder View
 
 **Files:** `packages/ui/src/elements/FolderView/FolderFileCard/index.tsx`, `packages/ui/src/elements/FolderView/FolderFileCard/getFileIcon.tsx`, `packages/ui/src/icons/*`
 
@@ -69,21 +75,21 @@ The "Create Document" and "Create Folder" buttons were swapped/mislabeled in the
 - Folder view now shows appropriate icon based on file MIME type
 - Images show image icon, videos show video icon, others show generic file icon
 
-### 9. Upload Progress in UI
+### 10. Upload Progress in UI
 
 **Files:** `packages/translations/src/languages/*.ts` (43 files)
 
 - Upload status now shows percentage: `"Uploading ({{progress}}%)"`
 - Bulk upload shows: `"Uploading {{current}} of {{total}} ({{progress}}%)"`
 
-### 10. Upload Handler Enhancements
+### 11. Upload Handler Enhancements
 
 **Files:** `packages/plugin-cloud-storage/src/client/createClientUploadHandler.tsx`, `packages/ui/src/providers/UploadHandlers/index.tsx`
 
 - Extended upload handlers with `formData` and `onProgress` callback support
 - Enables progress tracking for cloud storage uploads
 
-### 11. Markdown Paste Support in Lexical
+### 12. Markdown Paste Support in Lexical
 
 **Files:** `packages/richtext-lexical/src/lexical/plugins/MarkdownPaste/index.tsx`, `packages/richtext-lexical/src/lexical/LexicalEditor.tsx`
 
@@ -92,11 +98,21 @@ The "Create Document" and "Create Folder" buttons were swapped/mislabeled in the
 - Cmd+Shift+V (or Ctrl+Shift+V) pastes without markdown formatting
 - Detects markdown patterns to avoid false positives on regular text
 
+### 13. HighlightFeature and Extended Markdown Transformers
+
+**Files:** `packages/richtext-lexical/src/features/format/highlight/*`, `packages/richtext-lexical/src/features/format/subscript/markdownTransformers.ts`, `packages/richtext-lexical/src/features/format/superscript/markdownTransformers.ts`, `packages/richtext-lexical/src/features/format/underline/markdownTransformers.ts`
+
+- New `HighlightFeature` with `==text==` markdown syntax
+- Added markdown transformers to existing features:
+  - Subscript: `~text~`
+  - Superscript: `^text^`
+  - Underline: `++text++`
+
 ---
 
 ## Configuration/Documentation
 
-### 12. Fork Development Workflow
+### 14. Fork Development Workflow
 
 **Files:** `FORK-DEVELOPMENT.md`, `.gitattributes`, `.gitignore`
 
@@ -109,6 +125,6 @@ The "Create Document" and "Create Folder" buttons were swapped/mislabeled in the
 
 | Category      | Count |
 | ------------- | ----- |
-| Bug Fixes     | 2     |
-| Features      | 9     |
+| Bug Fixes     | 3     |
+| Features      | 10    |
 | Documentation | 1     |
