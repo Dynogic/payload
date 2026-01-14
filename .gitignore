@@ -153,6 +153,8 @@ web_modules/
 
 # Output of 'npm pack'
 *.tgz
+# But track packed folder
+!/packed/*.tgz
 
 # Yarn Integrity file
 .yarn-integrity

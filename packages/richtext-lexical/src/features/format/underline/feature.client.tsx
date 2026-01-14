@@ -8,6 +8,7 @@ import type { ToolbarGroup } from '../../toolbars/types.js'
 import { UnderlineIcon } from '../../../lexical/ui/icons/Underline/index.js'
 import { createClientFeature } from '../../../utilities/createClientFeature.js'
 import { toolbarFormatGroupWithItems } from '../shared/toolbarFormatGroup.js'
+import { UNDERLINE } from './markdownTransformers.js'
 
 const toolbarGroups: ToolbarGroup[] = [
   toolbarFormatGroupWithItems([
@@ -30,6 +31,7 @@ const toolbarGroups: ToolbarGroup[] = [
 
 export const UnderlineFeatureClient = createClientFeature({
   enableFormats: ['underline'],
+  markdownTransformers: [UNDERLINE],
   toolbarFixed: {
     groups: toolbarGroups,
   },

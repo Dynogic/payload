@@ -19,6 +19,7 @@ import { DecoratorPlugin } from './plugins/DecoratorPlugin/index.js'
 import { AddBlockHandlePlugin } from './plugins/handles/AddBlockHandlePlugin/index.js'
 import { DraggableBlockPlugin } from './plugins/handles/DraggableBlockPlugin/index.js'
 import { InsertParagraphAtEndPlugin } from './plugins/InsertParagraphAtEnd/index.js'
+import { MarkdownPastePlugin } from './plugins/MarkdownPaste/index.js'
 import { MarkdownShortcutPlugin } from './plugins/MarkdownShortcut/index.js'
 import { NormalizeSelectionPlugin } from './plugins/NormalizeSelection/index.js'
 import { SelectAllPlugin } from './plugins/SelectAllPlugin/index.js'
@@ -170,7 +171,12 @@ export const LexicalEditor: React.FC<
         {isEditable && (
           <React.Fragment>
             <HistoryPlugin />
-            {editorConfig?.features?.markdownTransformers?.length > 0 && <MarkdownShortcutPlugin />}
+            {editorConfig?.features?.markdownTransformers?.length > 0 && (
+              <React.Fragment>
+                <MarkdownShortcutPlugin />
+                <MarkdownPastePlugin />
+              </React.Fragment>
+            )}
           </React.Fragment>
         )}
         {editorConfig.features.plugins?.map((plugin) => {
