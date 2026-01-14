@@ -119,6 +119,11 @@ export const MarkdownPastePlugin: React.FC = () => {
             return
           }
 
+          // Remove selected content first (this is what was missing!)
+          if (!selection.isCollapsed()) {
+            selection.removeText()
+          }
+
           // Get the anchor node and find the top-level element
           const anchorNode = selection.anchor.getNode()
           let topLevelElement: LexicalNode | null = anchorNode
