@@ -3,35 +3,33 @@
 import { $isTableSelection } from '@lexical/table'
 import { $isRangeSelection, FORMAT_TEXT_COMMAND } from 'lexical'
 
-import type { ToolbarGroup } from '../../toolbars/types.js'
-
-import { UnderlineIcon } from '../../../lexical/ui/icons/Underline/index.js'
+import { HighlightIcon } from '../../../lexical/ui/icons/Highlight/index.js'
 import { createClientFeature } from '../../../utilities/createClientFeature.js'
 import { toolbarFormatGroupWithItems } from '../shared/toolbarFormatGroup.js'
-import { UNDERLINE } from './markdownTransformers.js'
+import { HIGHLIGHT } from './markdownTransformers.js'
 
-const toolbarGroups: ToolbarGroup[] = [
+const toolbarGroups = [
   toolbarFormatGroupWithItems([
     {
-      ChildComponent: UnderlineIcon,
+      ChildComponent: HighlightIcon,
       isActive: ({ selection }) => {
         if ($isRangeSelection(selection) || $isTableSelection(selection)) {
-          return selection.hasFormat('underline')
+          return selection.hasFormat('highlight')
         }
         return false
       },
-      key: 'underline',
+      key: 'highlight',
       onSelect: ({ editor }) => {
-        editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'underline')
+        editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'highlight')
       },
-      order: 3,
+      order: 5,
     },
   ]),
 ]
 
-export const UnderlineFeatureClient = createClientFeature({
-  enableFormats: ['underline'],
-  markdownTransformers: [UNDERLINE],
+export const HighlightFeatureClient = createClientFeature({
+  enableFormats: ['highlight'],
+  markdownTransformers: [HIGHLIGHT],
   toolbarFixed: {
     groups: toolbarGroups,
   },
