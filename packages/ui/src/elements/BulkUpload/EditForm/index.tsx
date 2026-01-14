@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useCallback, useEffect, useMemo } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef } from 'react'
 
 import type { EditFormProps } from './types.js'
 
@@ -114,6 +114,7 @@ export function EditForm({
     }
   }, [])
 
+
   return (
     <OperationProvider operation="create">
       <Form
@@ -167,13 +168,46 @@ export function EditForm({
 }
 
 function GetFieldProxy() {
-  const { getField, getFields } = useForm()
+  const { dispatchFields, getField, getFields, setModified } = useForm()
   const { getFormDataRef } = useFormsManager()
+  const { initialState, isInitializing } = useDocumentInfo()
 
   useEffect(() => {
     // eslint-disable-next-line react-compiler/react-compiler -- TODO: fix
     getFormDataRef.current = getFields
   }, [getFields, getField, getFormDataRef])
+
+  // Use a ref to track if we've already triggered to avoid double-triggering in StrictMode
+  const hasTriggeredRef = React.useRef(false)
+  
+  // Trigger initial validation when form mounts with a file
+  // This ensures server-side conditions can see the file immediately
+  useEffect(() => {
+    if (initialState?.file && !isInitializing) {
+      // Use requestAnimationFrame to ensure Form's initial effects (like locale) complete first
+      const frameId = requestAnimationFrame(() => {
+        // Check the ref inside the callback to survive StrictMode cleanup
+        if (!hasTriggeredRef.current) {
+          hasTriggeredRef.current = true
+          
+          // Dispatch an UPDATE for the file field with all properties
+          // This will both set modified=true AND change the formState, triggering onChange
+          dispatchFields({
+            type: 'UPDATE',
+            path: 'file',
+            value: initialState.file.value,
+            initialValue: initialState.file.initialValue || initialState.file.value,
+            valid: true,
+          })
+          
+          // Also set modified directly to ensure it's true
+          setModified(true)
+        }
+      })
+      
+      return () => cancelAnimationFrame(frameId)
+    }
+  }, []) // Only run once on mount
 
   return null
 }

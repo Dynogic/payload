@@ -102,6 +102,7 @@ export type FormStateWithoutComponents = {
 
 export type BuildFormStateArgs = {
   data?: Data
+  defaultValues?: Record<string, any>
   docPermissions: SanitizedDocumentPermissions | undefined
   docPreferences: DocumentPreferences
   /**

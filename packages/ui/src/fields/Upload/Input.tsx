@@ -47,6 +47,7 @@ type PopulatedDocs = { relationTo: string; value: JsonObject }[]
 export type UploadInputProps = {
   readonly AfterInput?: React.ReactNode
   readonly allowCreate?: boolean
+  readonly allowedMimeTypes?: string[]
   /**
    * Controls the visibility of the "Create new collection" button
    */
@@ -69,6 +70,7 @@ export type UploadInputProps = {
   readonly localized?: boolean
   readonly maxRows?: number
   readonly onChange?: (e) => void
+  readonly onInvalidFile?: (file: File, allowedTypes: string[]) => void
   readonly path: string
   readonly readOnly?: boolean
   readonly relationTo: UploadFieldType['relationTo']
@@ -83,6 +85,7 @@ export function UploadInput(props: UploadInputProps) {
   const {
     AfterInput,
     allowCreate,
+    allowedMimeTypes,
     api,
     BeforeInput,
     className,
@@ -98,6 +101,7 @@ export function UploadInput(props: UploadInputProps) {
     localized,
     maxRows,
     onChange: onChangeFromProps,
+    onInvalidFile,
     path,
     readOnly,
     relationTo,
@@ -207,6 +211,7 @@ export function UploadInput(props: UploadInputProps) {
     { closeDrawer: closeCreateDocDrawer, openDrawer: openCreateDocDrawer },
   ] = useDocumentDrawer({
     collectionSlug: activeRelationTo,
+    filterOptions: filterOptionsFromProps,
   })
 
   /**
@@ -229,6 +234,7 @@ export function UploadInput(props: UploadInputProps) {
 
     return false
   }, [activeRelationTo, permissions, allowCreate])
+
 
   const onChange = React.useCallback(
     (newValue) => {
@@ -379,6 +385,28 @@ export function UploadInput(props: UploadInputProps) {
         dataTransfer.items.add(fileList[0])
         fileListToUse = dataTransfer.files
       }
+      
+      // Validate mime types if restrictions are set
+      if (fileListToUse && fileListToUse.length > 0 && allowedMimeTypes?.length > 0) {
+        for (const file of fileListToUse) {
+          const isValidType = allowedMimeTypes.some(mimeType => {
+            // Handle wildcard patterns like "audio/*"
+            if (mimeType.endsWith('/*')) {
+              const category = mimeType.slice(0, -2)
+              return file.type.startsWith(category + '/')
+            }
+            return file.type === mimeType
+          })
+          
+          if (!isValidType) {
+            if (onInvalidFile) {
+              onInvalidFile(file, allowedMimeTypes)
+            }
+            return // Don't proceed with invalid files
+          }
+        }
+      }
+      
       if (fileListToUse) {
         setInitialFiles(fileListToUse)
       }
@@ -397,7 +425,9 @@ export function UploadInput(props: UploadInputProps) {
       openModal(drawerSlug)
     },
     [
+      allowedMimeTypes,
       hasMany,
+      onInvalidFile,
       relationTo,
       activeRelationTo,
       setCollectionSlug,

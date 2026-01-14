@@ -907,7 +907,9 @@ export const addFieldStatePromise = async (args: AddFieldStatePromiseArgs): Prom
     }
 
     if (field?.id) {
-      state[field.id] = {
+      // For array items, include the parent path in the state key
+      const stateKey = parentPath ? `${parentPath}.${field.id}` : field.id
+      state[stateKey] = {
         passesCondition: tabPassesCondition,
       }
     }
