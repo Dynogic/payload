@@ -6,6 +6,23 @@ import { foldersSlug, parentFolderFieldName } from '../folders/constants.js'
 import { databaseKVAdapter } from '../kv/adapters/DatabaseKVAdapter.js'
 
 /**
+ * Merges source object properties into target, preserving getters/setters.
+ * Unlike spread, this doesn't resolve getters - it copies them as-is.
+ */
+const mergePreservingGetters = <T extends object>(target: T, source?: object): T => {
+  if (!source) {
+    return target
+  }
+  for (const key of Object.keys(source)) {
+    const descriptor = Object.getOwnPropertyDescriptor(source, key)
+    if (descriptor) {
+      Object.defineProperty(target, key, descriptor)
+    }
+  }
+  return target
+}
+
+/**
  * @deprecated - remove in 4.0. This is error-prone, as mutating this object will affect any objects that use the defaults as a base.
  */
 export const defaults: Omit<Config, 'db' | 'editor' | 'secret'> = {
@@ -148,13 +165,15 @@ export const addDefaultsToConfig = (config: Config): Config => {
   } as JobsConfig
   config.localization = config.localization ?? false
   config.maxDepth = config.maxDepth ?? 10
-  config.routes = {
-    admin: '/admin',
-    api: '/api',
-    graphQL: '/graphql',
-    graphQLPlayground: '/graphql-playground',
-    ...(config.routes || {}),
-  }
+  config.routes = mergePreservingGetters(
+    {
+      admin: '/admin',
+      api: '/api',
+      graphQL: '/graphql',
+      graphQLPlayground: '/graphql-playground',
+    },
+    config.routes,
+  )
   config.serverURL = config.serverURL ?? ''
   config.telemetry = config.telemetry ?? true
   config.typescript = {

@@ -8,6 +8,7 @@ import type { ToolbarGroup } from '../../toolbars/types.js'
 import { SuperscriptIcon } from '../../../lexical/ui/icons/Superscript/index.js'
 import { createClientFeature } from '../../../utilities/createClientFeature.js'
 import { toolbarFormatGroupWithItems } from '../shared/toolbarFormatGroup.js'
+import { SUPERSCRIPT } from './markdownTransformers.js'
 
 const toolbarGroups: ToolbarGroup[] = [
   toolbarFormatGroupWithItems([
@@ -30,6 +31,7 @@ const toolbarGroups: ToolbarGroup[] = [
 
 export const SuperscriptFeatureClient = createClientFeature({
   enableFormats: ['superscript'],
+  markdownTransformers: [SUPERSCRIPT],
   toolbarFixed: {
     groups: toolbarGroups,
   },

@@ -926,6 +926,7 @@ export { TestRecorderFeature } from './features/debug/testRecorder/server/index.
 export { TreeViewFeature } from './features/debug/treeView/server/index.js'
 export { EXPERIMENTAL_TableFeature } from './features/experimental_table/server/index.js'
 export { BoldFeature } from './features/format/bold/feature.server.js'
+export { HighlightFeature } from './features/format/highlight/feature.server.js'
 export { InlineCodeFeature } from './features/format/inlineCode/feature.server.js'
 
 export { ItalicFeature } from './features/format/italic/feature.server.js'

@@ -1,4 +1,4 @@
-import type { Data, DefaultDocumentIDType, FormState, Operation } from 'payload'
+import type { Data, DefaultDocumentIDType, FilterOptionsResult, FormState, Operation } from 'payload'
 import type React from 'react'
 import type { HTMLAttributes } from 'react'
 
@@ -13,6 +13,7 @@ export type DocumentDrawerProps = {
   readonly collectionSlug: string
   readonly disableActions?: boolean
   readonly drawerSlug?: string
+  readonly filterOptions?: FilterOptionsResult
   /**
    * The ID of the document to be edited.
    * When provided, will be fetched and displayed in the drawer.
@@ -52,7 +53,7 @@ export type UseDocumentDrawerContext = {
 }
 
 export type UseDocumentDrawer = (
-  args: Pick<DocumentDrawerProps, 'collectionSlug' | 'id' | 'overrideEntityVisibility'>,
+  args: Pick<DocumentDrawerProps, 'collectionSlug' | 'filterOptions' | 'id' | 'overrideEntityVisibility'>,
 ) => [
   // drawer
   React.FC<

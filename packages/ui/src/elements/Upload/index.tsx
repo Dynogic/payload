@@ -106,10 +106,12 @@ export const UploadActions = ({
 }
 
 export type UploadProps = {
+  readonly allowedMimeTypes?: string[]
   readonly collectionSlug: string
   readonly customActions?: React.ReactNode[]
   readonly initialState?: FormState
   readonly onChange?: (file?: File) => void
+  readonly onInvalidFile?: (file: File, allowedTypes: string[]) => void
   readonly uploadConfig: SanitizedCollectionConfig['upload']
   readonly UploadControls?: React.ReactNode
 }
@@ -136,10 +138,12 @@ export type UploadProps_v4 = {
 
 export const Upload_v4: React.FC<UploadProps_v4> = (props) => {
   const {
+    allowedMimeTypes,
     collectionSlug,
     customActions,
     initialState,
     onChange,
+    onInvalidFile,
     resetUploadEdits,
     updateUploadEdits,
     uploadConfig,
@@ -226,9 +230,30 @@ export const Upload_v4: React.FC<UploadProps_v4> = (props) => {
   const handleFileSelection = useCallback(
     (files: FileList) => {
       const fileToUpload = files?.[0]
+      
+      // Validate mime type if restrictions are set
+      const mimeTypes = allowedMimeTypes || uploadConfig?.mimeTypes
+      if (fileToUpload && mimeTypes?.length > 0) {
+        const isValidType = mimeTypes.some(mimeType => {
+          // Handle wildcard patterns like "audio/*"
+          if (mimeType.endsWith('/*')) {
+            const category = mimeType.slice(0, -2)
+            return fileToUpload.type.startsWith(category + '/')
+          }
+          return fileToUpload.type === mimeType
+        })
+        
+        if (!isValidType) {
+          if (onInvalidFile) {
+            onInvalidFile(fileToUpload, mimeTypes)
+          }
+          return
+        }
+      }
+      
       handleFileChange({ file: fileToUpload })
     },
-    [handleFileChange],
+    [allowedMimeTypes, handleFileChange, onInvalidFile, uploadConfig],
   )
 
   const handleFileRemoval = useCallback(() => {
@@ -353,7 +378,7 @@ export const Upload_v4: React.FC<UploadProps_v4> = (props) => {
 
   const showFocalPoint = focalPoint && (hasImageSizes || hasResizeOptions || focalPointEnabled)
 
-  const acceptMimeTypes = uploadConfig.mimeTypes?.join(', ')
+  const acceptMimeTypes = (allowedMimeTypes || uploadConfig.mimeTypes)?.join(', ')
 
   const imageCacheTag = uploadConfig?.cacheTags && data?.updatedAt
 
