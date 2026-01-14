@@ -1,4 +1,4 @@
-import type { Data, FilterOptionsResult, FormState, Operation } from 'payload'
+import type { Data, DefaultDocumentIDType, FilterOptionsResult, FormState, Operation } from 'payload'
 import type React from 'react'
 import type { HTMLAttributes } from 'react'
 
@@ -7,11 +7,19 @@ import type { DocumentDrawerContextProps } from './Provider.js'
 
 export type DocumentDrawerProps = {
   readonly AfterFields?: React.ReactNode
+  /**
+   * The slug of the collection to which the document belongs.
+   */
   readonly collectionSlug: string
   readonly disableActions?: boolean
   readonly drawerSlug?: string
   readonly filterOptions?: FilterOptionsResult
-  readonly id?: null | number | string
+  /**
+   * The ID of the document to be edited.
+   * When provided, will be fetched and displayed in the drawer.
+   * If omitted, will render the "create new" view for the given collection.
+   */
+  readonly id?: DefaultDocumentIDType | null
   readonly initialData?: Data
   /**
    * @deprecated
@@ -44,23 +52,9 @@ export type UseDocumentDrawerContext = {
   toggleDrawer: () => void
 }
 
-export type UseDocumentDrawer = (args: {
-  /**
-   * The slug of the collection to which the document belongs.
-   */
-  collectionSlug: string
-  /**
-   * Filter options to pass to the document drawer, used to restrict field values.
-   */
-  filterOptions?: FilterOptionsResult
-  /**
-   * The ID of the document to be edited.
-   * When provided, will be fetched and displayed in the drawer.
-   * If omitted, will render the "create new" view for the given collection.
-   */
-  id?: number | string
-  overrideEntityVisibility?: boolean
-}) => [
+export type UseDocumentDrawer = (
+  args: Pick<DocumentDrawerProps, 'collectionSlug' | 'filterOptions' | 'id' | 'overrideEntityVisibility'>,
+) => [
   // drawer
   React.FC<
     {

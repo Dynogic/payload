@@ -13,13 +13,16 @@ export const updateJobs: UpdateJobs = async function updateMany(
   this: DrizzleAdapter,
   { id, data, limit: limitArg, req, returning, sort: sortArg, where: whereArg },
 ) {
-  if (!(data?.log as object[])?.length) {
+  if (
+    !(data?.log as object[])?.length &&
+    !(data.log && typeof data.log === 'object' && '$push' in data.log)
+  ) {
     delete data.log
   }
+
   const whereToUse: Where = id ? { id: { equals: id } } : whereArg
   const limit = id ? 1 : limitArg
 
-  const db = await getTransaction(this, req)
   const collection = this.payload.collections['payload-jobs'].config
   const tableName = this.tableNameMap.get(toSnakeCase(collection.slug))
   const sort = sortArg !== undefined && sortArg !== null ? sortArg : collection.defaultSort
@@ -30,9 +33,12 @@ export const updateJobs: UpdateJobs = async function updateMany(
   })
 
   if (useOptimizedUpsertRow && id) {
+    const db = await getTransaction(this, req)
+
     const result = await upsertRow({
       id,
       adapter: this,
+      collectionSlug: 'payload-jobs',
       data,
       db,
       fields: collection.flattenedFields,
@@ -60,6 +66,8 @@ export const updateJobs: UpdateJobs = async function updateMany(
     return []
   }
 
+  const db = await getTransaction(this, req)
+
   const results = []
 
   // TODO: We need to batch this to reduce the amount of db calls. This can get very slow if we are updating a lot of rows.
@@ -74,6 +82,7 @@ export const updateJobs: UpdateJobs = async function updateMany(
     const result = await upsertRow({
       id: job.id,
       adapter: this,
+      collectionSlug: 'payload-jobs',
       data: updateData,
       db,
       fields: collection.flattenedFields,

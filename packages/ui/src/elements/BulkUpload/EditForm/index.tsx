@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useCallback, useEffect, useRef } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef } from 'react'
 
 import type { EditFormProps } from './types.js'
 
@@ -43,7 +43,7 @@ export function EditForm({
     Upload: CustomUpload,
   } = useDocumentInfo()
 
-  const { onSave: onSaveFromContext } = useDocumentDrawerContext()
+  const { drawerSlug, onSave: onSaveFromContext } = useDocumentDrawerContext()
 
   const { getFormState } = useServerFunctions()
 
@@ -64,7 +64,10 @@ export function EditForm({
   const onSave = useCallback(
     (json) => {
       reportUpdate({
+        doc: json?.doc || json?.result,
+        drawerSlug,
         entitySlug: collectionSlug,
+        operation: 'create',
         updatedAt: json?.result?.updatedAt || new Date().toISOString(),
       })
 
@@ -76,7 +79,7 @@ export function EditForm({
       }
       resetUploadEdits()
     },
-    [collectionSlug, onSaveFromContext, reportUpdate, resetUploadEdits],
+    [collectionSlug, onSaveFromContext, reportUpdate, resetUploadEdits, drawerSlug],
   )
 
   const onChange: NonNullable<FormProps['onChange']>[0] = useCallback(
@@ -165,14 +168,14 @@ export function EditForm({
 }
 
 function GetFieldProxy() {
-  const { getFields, setModified, dispatchFields } = useForm()
+  const { dispatchFields, getField, getFields, setModified } = useForm()
   const { getFormDataRef } = useFormsManager()
   const { initialState, isInitializing } = useDocumentInfo()
 
   useEffect(() => {
     // eslint-disable-next-line react-compiler/react-compiler -- TODO: fix
     getFormDataRef.current = getFields
-  }, [getFields, getFormDataRef])
+  }, [getFields, getField, getFormDataRef])
 
   // Use a ref to track if we've already triggered to avoid double-triggering in StrictMode
   const hasTriggeredRef = React.useRef(false)
@@ -211,18 +214,28 @@ function GetFieldProxy() {
 
 function ReportAllErrors() {
   const { docConfig } = useDocumentInfo()
-  const { activeIndex, setFormTotalErrorCount } = useFormsManager()
+  const { activeIndex, forms, setFormTotalErrorCount } = useFormsManager()
   const errorCountRef = React.useRef(0)
 
+  const fileIsValid = useMemo(() => {
+    const currentForm = forms[activeIndex]
+    return currentForm?.formState?.file?.valid ?? true
+  }, [activeIndex, forms])
+
   const reportFormErrorCount = React.useCallback(
-    (errorCount) => {
-      if (errorCount === errorCountRef.current) {
+    (fieldErrorCount: number) => {
+      let newErrorCount = fieldErrorCount
+      // If the file is invalid, count that as an error
+      if (!fileIsValid) {
+        newErrorCount += 1
+      }
+      if (newErrorCount === errorCountRef.current) {
         return
       }
-      setFormTotalErrorCount({ errorCount, index: activeIndex })
-      errorCountRef.current = errorCount
+      setFormTotalErrorCount({ errorCount: newErrorCount, index: activeIndex })
+      errorCountRef.current = newErrorCount
     },
-    [activeIndex, setFormTotalErrorCount],
+    [activeIndex, setFormTotalErrorCount, fileIsValid],
   )
 
   if (!docConfig) {

@@ -2,6 +2,8 @@
 
 import { $isNodeSelection } from 'lexical'
 
+import type { ExclusiveUploadFeatureProps } from '../server/index.js'
+
 import { UploadIcon } from '../../../lexical/ui/icons/Upload/index.js'
 import { createClientFeature } from '../../../utilities/createClientFeature.js'
 import { slashMenuBasicGroupWithItems } from '../../shared/slashMenu/basicGroup.js'
@@ -17,7 +19,7 @@ export type UploadFeaturePropsClient = {
     }
   }
   filterOptions?: Record<string, any>
-}
+} & ExclusiveUploadFeatureProps
 
 export const UploadFeatureClient = createClientFeature<UploadFeaturePropsClient>({
   nodes: [UploadNode],

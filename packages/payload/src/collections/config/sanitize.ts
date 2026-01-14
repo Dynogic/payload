@@ -158,7 +158,12 @@ export const sanitizeCollection = async (
     }
   }
 
-  sanitized.labels = sanitized.labels || formatLabels(sanitized.slug)
+  const defaultLabels = formatLabels(sanitized.slug)
+
+  sanitized.labels = {
+    plural: sanitized.labels?.plural || defaultLabels.plural,
+    singular: sanitized.labels?.singular || defaultLabels.singular,
+  }
 
   if (sanitized.versions) {
     if (sanitized.versions === true) {
@@ -192,6 +197,8 @@ export const sanitizeCollection = async (
 
       sanitized.fields = mergeBaseFields(sanitized.fields, baseVersionFields)
     }
+  } else {
+    delete sanitized.versions
   }
 
   if (sanitized.folders === true) {

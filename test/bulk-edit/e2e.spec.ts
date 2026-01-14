@@ -3,6 +3,8 @@ import type { PayloadTestSDK } from 'helpers/sdk/index.js'
 
 import { expect, test } from '@playwright/test'
 import { addArrayRow } from 'helpers/e2e/fields/array/index.js'
+import { addListFilter } from 'helpers/e2e/filters/index.js'
+import { selectInput } from 'helpers/e2e/selectInput.js'
 import { toggleBlockOrArrayRow } from 'helpers/e2e/toggleCollapsible.js'
 import * as path from 'path'
 import { wait } from 'payload/shared'
@@ -21,7 +23,7 @@ import {
 import { AdminUrlUtil } from '../helpers/adminUrlUtil.js'
 import { initPayloadE2ENoConfig } from '../helpers/initPayloadE2ENoConfig.js'
 import { TEST_TIMEOUT_LONG } from '../playwright.config.js'
-import { postsSlug } from './shared.js'
+import { postsSlug, tabsSlug } from './shared.js'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -33,11 +35,13 @@ let serverURL: string
 test.describe('Bulk Edit', () => {
   let page: Page
   let postsUrl: AdminUrlUtil
+  let tabsUrl: AdminUrlUtil
 
   test.beforeAll(async ({ browser }, testInfo) => {
     testInfo.setTimeout(TEST_TIMEOUT_LONG)
     ;({ payload, serverURL } = await initPayloadE2ENoConfig({ dirname }))
     postsUrl = new AdminUrlUtil(serverURL, postsSlug)
+    tabsUrl = new AdminUrlUtil(serverURL, tabsSlug)
 
     context = await browser.newContext()
     page = await context.newPage()
@@ -71,7 +75,6 @@ test.describe('Bulk Edit', () => {
     // Deselect the first row
     await page.locator('.row-1 input').click()
 
-    // eslint-disable-next-line jest-dom/prefer-checked
     await expect(page.locator('input#select-all')).not.toHaveAttribute('checked', '')
   })
 
@@ -615,6 +618,102 @@ test.describe('Bulk Edit', () => {
         page.locator(`table tbody tr .row-${i} input[type="checkbox"][checked]`),
       ).toBeHidden()
     }
+  })
+
+  test('should not delete nested un-named tab array data', async () => {
+    const originalDoc = await payload.create({
+      collection: tabsSlug,
+      data: {
+        title: 'Tab Title',
+        tabTab: {
+          tabTabArray: [
+            {
+              tabTabArrayText: 'nestedText',
+            },
+          ],
+        },
+      },
+    })
+
+    await page.goto(tabsUrl.list)
+    await addListFilter({
+      page,
+      fieldLabel: 'ID',
+      operatorLabel: 'equals',
+      value: originalDoc.id,
+    })
+
+    // select first item
+    await page.locator('table tbody tr.row-1 input[type="checkbox"]').check()
+    // open bulk edit drawer
+    await page
+      .locator('.list-selection__actions .btn', {
+        hasText: 'Edit',
+      })
+      .click()
+
+    const bulkEditForm = page.locator('form.edit-many__form')
+    await expect(bulkEditForm).toBeVisible()
+
+    await selectInput({
+      selectLocator: bulkEditForm.locator('.react-select'),
+      options: ['Title'],
+      multiSelect: true,
+    })
+
+    await bulkEditForm.locator('#field-title').fill('Updated Tab Title')
+    await bulkEditForm.locator('button[type="submit"]').click()
+
+    await expect(bulkEditForm).toBeHidden()
+
+    const updatedDocQuery = await payload.find({
+      collection: tabsSlug,
+      where: {
+        id: {
+          equals: originalDoc.id,
+        },
+      },
+    })
+    const updatedDoc = updatedDocQuery.docs[0]
+    await expect.poll(() => updatedDoc?.title).toEqual('Updated Tab Title')
+    await expect.poll(() => updatedDoc?.tabTab?.tabTabArray?.length).toBe(1)
+
+    await expect
+      .poll(() => updatedDoc?.tabTab?.tabTabArray?.[0]?.tabTabArrayText)
+      .toEqual('nestedText')
+  })
+
+  test('should preserve beforeInput components when selecting multiple fields', async () => {
+    await deleteAllPosts()
+    await createPost({ title: 'Post 1' })
+
+    await page.goto(postsUrl.list)
+
+    const { modal } = await selectAllAndEditMany(page)
+
+    // Select multiple fields with beforeInput components
+    await selectInput({
+      selectLocator: modal.locator('.field-select'),
+      options: [
+        'Field With Before Input A1',
+        'Field With Before Input A2',
+        'Field With Before Input B',
+      ],
+      multiSelect: true,
+    })
+
+    // All fields should be visible
+    await expect(modal.locator('#field-fieldWithBeforeInputA1')).toBeVisible()
+    await expect(modal.locator('#field-fieldWithBeforeInputA2')).toBeVisible()
+    await expect(modal.locator('#field-fieldWithBeforeInputB')).toBeVisible()
+
+    // All beforeInput components should be visible (2 of type A, 1 of type B)
+    const beforeInputsA = modal.locator('[data-testid="before-input-a"]')
+    await expect(beforeInputsA).toHaveCount(2)
+
+    const beforeInputB = modal.locator('[data-testid="before-input-b"]')
+    await expect(beforeInputB).toHaveCount(1)
+    await expect(beforeInputB).toBeVisible()
   })
 })
 

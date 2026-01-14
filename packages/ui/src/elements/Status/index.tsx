@@ -1,5 +1,6 @@
 'use client'
 import { useModal } from '@faceless-ui/modal'
+import { formatAdminURL } from 'payload/shared'
 import React, { useCallback } from 'react'
 import { toast } from 'sonner'
 
@@ -35,7 +36,6 @@ export const Status: React.FC = () => {
   const {
     config: {
       routes: { api },
-      serverURL,
     },
   } = useConfig()
 
@@ -75,12 +75,18 @@ export const Status: React.FC = () => {
       }
 
       if (collectionSlug) {
-        url = `${serverURL}${api}/${collectionSlug}/${id}?locale=${locale}&fallback-locale=null&depth=0`
+        url = formatAdminURL({
+          apiRoute: api,
+          path: `/${collectionSlug}/${id}?locale=${locale}&fallback-locale=null&depth=0`,
+        })
         method = 'patch'
       }
 
       if (globalSlug) {
-        url = `${serverURL}${api}/globals/${globalSlug}?locale=${locale}&fallback-locale=null&depth=0`
+        url = formatAdminURL({
+          apiRoute: api,
+          path: `/globals/${globalSlug}?locale=${locale}&fallback-locale=null&depth=0`,
+        })
         method = 'post'
       }
 
@@ -151,7 +157,6 @@ export const Status: React.FC = () => {
       incrementVersionCount,
       locale,
       resetForm,
-      serverURL,
       setUnpublishedVersionCount,
       setMostRecentVersionIsAutosaved,
       t,
@@ -190,7 +195,7 @@ export const Status: React.FC = () => {
               />
             </React.Fragment>
           )}
-          {!isTrashed && canUpdate && statusToRender === 'changed' && (
+          {!isTrashed && canUpdate && hasPublishedDoc && statusToRender === 'changed' && (
             <React.Fragment>
               &nbsp;&mdash;&nbsp;
               <Button

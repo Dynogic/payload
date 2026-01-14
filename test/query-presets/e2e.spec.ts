@@ -2,8 +2,9 @@ import type { BrowserContext, Page } from '@playwright/test'
 
 import { expect, test } from '@playwright/test'
 import { devUser } from 'credentials.js'
-import { openListColumns } from 'helpers/e2e/openListColumns.js'
-import { toggleColumn } from 'helpers/e2e/toggleColumn.js'
+import { openListColumns, toggleColumn } from 'helpers/e2e/columns/index.js'
+import { addListFilter, openListFilters } from 'helpers/e2e/filters/index.js'
+import { addGroupBy, clearGroupBy } from 'helpers/e2e/groupBy/index.js'
 import { openNav } from 'helpers/e2e/toggleNav.js'
 import * as path from 'path'
 import { fileURLToPath } from 'url'
@@ -16,7 +17,6 @@ import {
   exactText,
   initPageConsoleErrorCatch,
   saveDocAndAssert,
-  // throttleTest,
 } from '../helpers.js'
 import { AdminUrlUtil } from '../helpers/adminUrlUtil.js'
 import { initPayloadE2ENoConfig } from '../helpers/initPayloadE2ENoConfig.js'
@@ -148,6 +148,65 @@ describe('Query Presets', () => {
     } catch (error) {
       console.error('Error in beforeEach:', error)
     }
+  })
+
+  test('can create and view preset with no filters or columns', async () => {
+    await page.goto(pagesUrl.list)
+
+    const presetTitle = 'Empty Preset'
+
+    // Create a new preset without setting any filters or columns
+    await page.locator('#create-new-preset').click()
+    const modal = page.locator('[id^=doc-drawer_payload-query-presets_0_]')
+    await expect(modal).toBeVisible()
+    await modal.locator('input[name="title"]').fill(presetTitle)
+
+    const currentURL = page.url()
+    await saveDocAndAssert(page)
+    await expect(modal).toBeHidden()
+
+    await page.waitForURL(() => page.url() !== currentURL)
+
+    await expect(
+      page.locator('button#select-preset', {
+        hasText: exactText(presetTitle),
+      }),
+    ).toBeVisible()
+
+    // Open the edit modal to verify where/columns fields handle null values
+    await page.locator('#edit-preset').click()
+    const editModal = page.locator('[id^=doc-drawer_payload-query-presets_0_]')
+    await expect(editModal).toBeVisible()
+
+    // Verify the Where field displays "No where query" instead of crashing
+    const whereFieldContent = editModal.locator('.query-preset-where-field .value-wrapper')
+    await expect(whereFieldContent).toBeVisible()
+    await expect(whereFieldContent).toContainText('No where query')
+
+    // Verify the Columns field displays "No columns selected" instead of crashing
+    const columnsFieldContent = editModal.locator('.query-preset-columns-field .value-wrapper')
+    await expect(columnsFieldContent).toBeVisible()
+    await expect(columnsFieldContent).toContainText('No columns selected')
+
+    await editModal.locator('button.doc-drawer__header-close').click()
+    await expect(editModal).toBeHidden()
+
+    await openQueryPresetDrawer({ page })
+    const drawer = page.locator('[id^=list-drawer_0_]')
+    await expect(drawer).toBeVisible()
+
+    const presetRow = drawer.locator('tbody tr', {
+      has: page.locator(`button:has-text("${presetTitle}")`),
+    })
+
+    await expect(presetRow).toBeVisible()
+
+    // Column order: title (0), isShared (1), access (2), where (3), columns (4)
+    const whereCell = presetRow.locator('td').nth(3)
+    await expect(whereCell).toContainText('No where query')
+
+    const columnsCell = presetRow.locator('td').nth(4)
+    await expect(columnsCell).toContainText('No columns selected')
   })
 
   test('should select preset and apply filters', async () => {
@@ -408,5 +467,284 @@ describe('Query Presets', () => {
     await openQueryPresetDrawer({ page })
     await expect(drawer.locator('.table table > tbody > tr')).toHaveCount(3)
     await drawer.locator('.collection-list__no-results').isHidden()
+  })
+
+  test('should display single relationship value in query preset modal', async () => {
+    await page.goto(pagesUrl.list)
+
+    // Get a post to use for filtering
+    const posts = await payload.find({
+      collection: 'posts',
+      limit: 1,
+    })
+    const testPost = posts.docs[0]
+
+    await addListFilter({
+      page,
+      fieldLabel: 'Posts Relationship',
+      operatorLabel: 'is in',
+      value: testPost?.text ?? '',
+    })
+
+    // Create a new preset with this filter
+    await page.locator('#create-new-preset').click()
+    const modal = page.locator('[id^=doc-drawer_payload-query-presets_0_]')
+    await expect(modal).toBeVisible()
+
+    const presetTitle = 'Single Relationship Filter Test'
+    await modal.locator('input[name="title"]').fill(presetTitle)
+
+    await saveDocAndAssert(page)
+    await expect(modal).toBeHidden()
+
+    // Wait for URL to update with the new preset
+    await page.waitForURL((url) => url.searchParams.has('preset'))
+
+    // Open the edit preset modal to check the filter display
+    await page.locator('#edit-preset').click()
+    const editModal = page.locator('[id^=doc-drawer_payload-query-presets_0_]')
+    await expect(editModal).toBeVisible()
+
+    // Check that the Where field properly displays the relationship filter
+    const whereFieldContent = editModal.locator('.query-preset-where-field .value-wrapper')
+    await expect(whereFieldContent).toBeVisible()
+
+    // Verify that the filter shows the relationship field, operator, and post value
+    await expect(whereFieldContent).toContainText('Posts Relationship')
+    await expect(whereFieldContent).toContainText('in')
+
+    // Check that the post ID is displayed
+    await expect(whereFieldContent).toContainText(testPost?.id ?? '')
+  })
+
+  test('should display multiple relationship values in query preset modal', async () => {
+    await page.goto(pagesUrl.list)
+
+    // Get posts to use for filtering
+    const posts = await payload.find({
+      collection: 'posts',
+      limit: 2,
+    })
+    const [testPost1, testPost2] = posts.docs
+
+    await openListFilters(page, {})
+
+    const whereBuilder = page.locator('.where-builder')
+    const addFirst = whereBuilder.locator('.where-builder__add-first-filter')
+
+    await addFirst.click()
+
+    const condition = whereBuilder.locator('.where-builder__or-filters > li').first()
+
+    // Select field
+    await condition.locator('.condition__field .rs__control').click()
+    await page.locator('.rs__option:has-text("Posts Relationship")').click()
+
+    // Select operator
+    await condition.locator('.condition__operator .rs__control').click()
+    await page.locator('.rs__option:has-text("is in")').click()
+
+    // Select multiple values
+    const valueSelect = condition.locator('.condition__value')
+
+    // Select first post
+    await valueSelect.locator('.rs__control').click()
+    await page.locator(`.rs__option:has-text("${testPost1?.text}")`).click()
+
+    // Reopen dropdown and select second post
+    await valueSelect.locator('.rs__control').click()
+    await page.locator(`.rs__option:has-text("${testPost2?.text}")`).click()
+
+    // Wait for network response
+    await page.waitForResponse(
+      (response) =>
+        response.url().includes(encodeURIComponent('where[or')) && response.status() === 200,
+    )
+
+    // Create a new preset with this filter
+    await page.locator('#create-new-preset').click()
+    const modal = page.locator('[id^=doc-drawer_payload-query-presets_0_]')
+    await expect(modal).toBeVisible()
+
+    const presetTitle = 'Multiple Relationship Filter Test'
+    await modal.locator('input[name="title"]').fill(presetTitle)
+
+    await saveDocAndAssert(page)
+    await expect(modal).toBeHidden()
+
+    // Wait for URL to update with the new preset
+    await page.waitForURL((url) => url.searchParams.has('preset'))
+
+    // Open the edit preset modal to check the filter display
+    await page.locator('#edit-preset').click()
+    const editModal = page.locator('[id^=doc-drawer_payload-query-presets_0_]')
+    await expect(editModal).toBeVisible()
+
+    const whereFieldContent = editModal.locator('.query-preset-where-field .value-wrapper')
+    await expect(whereFieldContent).toBeVisible()
+
+    await expect(whereFieldContent).toContainText('Posts Relationship')
+    await expect(whereFieldContent).toContainText('in')
+
+    // Check that both post IDs are displayed (comma-separated)
+    await expect(whereFieldContent).toContainText(testPost1?.id ?? '')
+    await expect(whereFieldContent).toContainText(testPost2?.id ?? '')
+    await expect(whereFieldContent).toContainText(',')
+  })
+
+  test('should save groupBy when creating a new preset', async () => {
+    const postsUrl = new AdminUrlUtil(serverURL, 'posts')
+    await page.goto(postsUrl.list)
+
+    await addGroupBy(page, { fieldLabel: 'Text', fieldPath: 'text' })
+
+    // Create a new preset
+    await page.locator('#create-new-preset').click()
+    const modal = page.locator('[id^=doc-drawer_payload-query-presets_0_]')
+    await expect(modal).toBeVisible()
+
+    const presetTitle = 'GroupBy Test Preset'
+    await modal.locator('input[name="title"]').fill(presetTitle)
+
+    // Verify groupBy field displays the current groupBy value (read-only)
+    const groupByField = modal.locator('.query-preset-group-by-field .value-wrapper')
+    await expect(groupByField).toBeVisible()
+    await expect(groupByField).toContainText('Text')
+    await expect(groupByField).toContainText('ascending')
+
+    await saveDocAndAssert(page)
+    await expect(modal).toBeHidden()
+
+    await expect(page).toHaveURL(/groupBy=text/)
+  })
+
+  test('should apply groupBy when selecting a preset', async () => {
+    const postsUrl = new AdminUrlUtil(serverURL, 'posts')
+
+    // First, create a preset with groupBy
+    await page.goto(postsUrl.list)
+    await addGroupBy(page, { fieldLabel: 'Text', fieldPath: 'text' })
+
+    await page.locator('#create-new-preset').click()
+    const modal = page.locator('[id^=doc-drawer_payload-query-presets_0_]')
+    await expect(modal).toBeVisible()
+
+    const presetTitle = 'GroupBy Apply Test'
+    await modal.locator('input[name="title"]').fill(presetTitle)
+    await saveDocAndAssert(page)
+    await expect(modal).toBeHidden()
+
+    // Clear the preset
+    await clearSelectedPreset({ page })
+
+    await page.goto(postsUrl.list)
+    await expect(page).not.toHaveURL(/groupBy=/)
+
+    await selectPreset({ page, presetTitle })
+
+    await expect(page).toHaveURL(/groupBy=text/)
+
+    await expect(page.locator('.group-by-header').first()).toBeVisible()
+  })
+
+  test('should clear groupBy when deselecting a preset', async () => {
+    const postsUrl = new AdminUrlUtil(serverURL, 'posts')
+
+    // Create a preset with groupBy
+    await page.goto(postsUrl.list)
+    await addGroupBy(page, { fieldLabel: 'Text', fieldPath: 'text' })
+
+    await page.locator('#create-new-preset').click()
+    const modal = page.locator('[id^=doc-drawer_payload-query-presets_0_]')
+    await expect(modal).toBeVisible()
+
+    const presetTitle = 'GroupBy Clear Test'
+    await modal.locator('input[name="title"]').fill(presetTitle)
+    await saveDocAndAssert(page)
+    await expect(modal).toBeHidden()
+
+    // Verify groupBy is in URL and grouped view is active
+    await expect(page).toHaveURL(/groupBy=text/)
+    await expect(page.locator('.group-by-header').first()).toBeVisible()
+
+    await clearSelectedPreset({ page })
+
+    // Verify groupBy is removed from URL and grouped view is gone
+    await expect(page).not.toHaveURL(/groupBy=/)
+    await expect(page.locator('.group-by-header')).toHaveCount(0)
+  })
+
+  test('should update groupBy when saving changes to an active preset', async () => {
+    const postsUrl = new AdminUrlUtil(serverURL, 'posts')
+
+    // Create a preset without groupBy
+    await page.goto(postsUrl.list)
+
+    await page.locator('#create-new-preset').click()
+    const modal = page.locator('[id^=doc-drawer_payload-query-presets_0_]')
+    await expect(modal).toBeVisible()
+
+    const presetTitle = 'GroupBy Update Test'
+    await modal.locator('input[name="title"]').fill(presetTitle)
+
+    await saveDocAndAssert(page)
+    await expect(modal).toBeHidden()
+
+    await addGroupBy(page, { fieldLabel: 'Text', fieldPath: 'text' })
+
+    await page.locator('#save-preset').click()
+
+    // Wait for the modified indicator to disappear (indicates save completed)
+    await expect(page.locator('.list-controls__modified')).toBeHidden()
+
+    // Clear and reselect the preset to verify groupBy was saved
+    await clearSelectedPreset({ page })
+    await page.goto(postsUrl.list)
+    await selectPreset({ page, presetTitle })
+
+    // Verify groupBy is applied from the preset
+    await expect(page).toHaveURL(/groupBy=text/)
+    await expect(page.locator('.group-by-header').first()).toBeVisible()
+  })
+
+  test('should reset groupBy when clicking reset button on modified preset', async () => {
+    const postsUrl = new AdminUrlUtil(serverURL, 'posts')
+
+    // Create a preset with groupBy
+    await page.goto(postsUrl.list)
+    await addGroupBy(page, { fieldLabel: 'Text', fieldPath: 'text' })
+
+    await page.locator('#create-new-preset').click()
+    const modal = page.locator('[id^=doc-drawer_payload-query-presets_0_]')
+    await expect(modal).toBeVisible()
+
+    const presetTitle = 'GroupBy Reset Test'
+    await modal.locator('input[name="title"]').fill(presetTitle)
+    await saveDocAndAssert(page)
+    await expect(modal).toBeHidden()
+
+    // Verify groupBy is in URL and grouped view is visible
+    await expect(page).toHaveURL(/groupBy=text/)
+    await expect(page.locator('.group-by-header').first()).toBeVisible()
+
+    // Verify reset button is not visible initially
+    await expect(page.locator('#reset-preset')).toBeHidden()
+
+    // Clear the groupBy (modify the preset)
+    await clearGroupBy(page)
+    await expect(page).not.toHaveURL(/groupBy=/)
+    await expect(page.locator('.group-by-header')).toHaveCount(0)
+
+    // Verify reset button becomes visible after modification
+    await expect(page.locator('#reset-preset')).toBeVisible()
+
+    await page.locator('#reset-preset').click()
+
+    // Verify groupBy is restored from preset
+    await expect(page).toHaveURL(/groupBy=text/)
+    await expect(page.locator('.group-by-header').first()).toBeVisible()
+
+    // Verify reset button is hidden again after reset
+    await expect(page.locator('#reset-preset')).toBeHidden()
   })
 })

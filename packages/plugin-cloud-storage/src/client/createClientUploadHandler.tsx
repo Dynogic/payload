@@ -11,7 +11,7 @@ type ClientUploadHandlerProps<T extends Record<string, unknown>> = {
   enabled?: boolean
   extra: T
   prefix?: string
-  serverHandlerPath: string
+  serverHandlerPath: `/${string}`
 }
 
 export const createClientUploadHandler = <T extends Record<string, unknown>>({
@@ -25,7 +25,7 @@ export const createClientUploadHandler = <T extends Record<string, unknown>>({
     formData?: Record<string, any>
     onProgress?: (progress: number) => void
     prefix?: string
-    serverHandlerPath: string
+    serverHandlerPath: `/${string}`
     serverURL: string
     updateFilename: (value: string) => void
   }) => Promise<unknown>

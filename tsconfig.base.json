@@ -27,8 +27,7 @@
       "ES2022"
     ],
     "types": [
-      "node",
-      "jest"
+      "node"
     ],
     "incremental": true,
     "isolatedModules": true,
@@ -39,7 +38,7 @@
     ],
     "paths": {
       "@payload-config": [
-        "./test/form-state/config.ts"
+        "./test/plugin-import-export/config.ts"
       ],
       "@payloadcms/admin-bar": [
         "./packages/admin-bar/src"
@@ -80,6 +79,15 @@
       "@payloadcms/richtext-slate/rsc": [
         "./packages/richtext-slate/src/exports/server/rsc.ts"
       ],
+      "@payloadcms/plugin-ecommerce/ui": [
+        "./packages/plugin-ecommerce/src/exports/ui.ts"
+      ],
+      "@payloadcms/plugin-ecommerce/react": [
+        "./packages/plugin-ecommerce/src/exports/react.ts"
+      ],
+      "@payloadcms/plugin-ecommerce/types": [
+        "./packages/plugin-ecommerce/src/exports/types.ts"
+      ],
       "@payloadcms/richtext-slate/client": [
         "./packages/richtext-slate/src/exports/client/index.ts"
       ],
@@ -100,6 +108,9 @@
       ],
       "@payloadcms/plugin-import-export/rsc": [
         "./packages/plugin-import-export/src/exports/rsc.ts"
+      ],
+      "@payloadcms/plugin-mcp": [
+        "./packages/plugin-mcp/src/index.ts"
       ],
       "@payloadcms/plugin-multi-tenant/rsc": [
         "./packages/plugin-multi-tenant/src/exports/rsc.ts"

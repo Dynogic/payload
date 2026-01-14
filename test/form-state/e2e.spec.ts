@@ -1,18 +1,12 @@
 import type { BrowserContext, CDPSession, Page } from '@playwright/test'
-import type { PayloadTestSDK } from 'helpers/sdk/index.js'
 import type { FormState } from 'payload'
 
 import { expect, test } from '@playwright/test'
-import { assertElementStaysVisible } from 'helpers/e2e/assertElementStaysVisible.js'
-import { assertNetworkRequests } from 'helpers/e2e/assertNetworkRequests.js'
-import { assertRequestBody } from 'helpers/e2e/assertRequestBody.js'
-import { addArrayRowAsync, removeArrayRow } from 'helpers/e2e/fields/array/index.js'
-import { addBlock } from 'helpers/e2e/fields/blocks/index.js'
-import { waitForAutoSaveToRunAndComplete } from 'helpers/e2e/waitForAutoSaveToRunAndComplete.js'
 import * as path from 'path'
-import { wait } from 'payload/shared'
+import { formatAdminURL, wait } from 'payload/shared'
 import { fileURLToPath } from 'url'
 
+import type { PayloadTestSDK } from '../helpers/sdk/index.js'
 import type { Config, Post } from './payload-types.js'
 
 import {
@@ -22,6 +16,17 @@ import {
   throttleTest,
 } from '../helpers.js'
 import { AdminUrlUtil } from '../helpers/adminUrlUtil.js'
+import { assertElementStaysVisible } from '../helpers/e2e/assertElementStaysVisible.js'
+import { assertNetworkRequests } from '../helpers/e2e/assertNetworkRequests.js'
+import { assertRequestBody } from '../helpers/e2e/assertRequestBody.js'
+import {
+  addArrayRow,
+  addArrayRowAsync,
+  duplicateArrayRow,
+  removeArrayRow,
+} from '../helpers/e2e/fields/array/index.js'
+import { addBlock } from '../helpers/e2e/fields/blocks/index.js'
+import { waitForAutoSaveToRunAndComplete } from '../helpers/e2e/waitForAutoSaveToRunAndComplete.js'
 import { initPayloadE2ENoConfig } from '../helpers/initPayloadE2ENoConfig.js'
 import { TEST_TIMEOUT, TEST_TIMEOUT_LONG } from '../playwright.config.js'
 import { autosavePostsSlug } from './collections/Autosave/index.js'
@@ -55,7 +60,11 @@ test.describe('Form State', () => {
   })
 
   test.beforeEach(async () => {
-    // await throttleTest({ page, context, delay: 'Fast 3G' })
+    // await throttleTest({
+    //   page,
+    //   context,
+    //   delay: 'Slow 4G',
+    // })
   })
 
   test('should disable fields during initialization', async () => {
@@ -169,7 +178,7 @@ test.describe('Form State', () => {
       expect: (body) =>
         Boolean(
           body?.[0]?.args?.formState?.['array'] &&
-            body[0].args.formState['array'].lastRenderedPath === 'array',
+          body[0].args.formState['array'].lastRenderedPath === 'array',
         ),
     })
 
@@ -188,9 +197,9 @@ test.describe('Form State', () => {
       expect: (body) =>
         Boolean(
           body?.[0]?.args?.formState?.['array'] &&
-            body[0].args.formState['array'].lastRenderedPath === 'array' &&
-            body[0].args.formState['array.0.customTextField']?.lastRenderedPath ===
-              'array.0.customTextField',
+          body[0].args.formState['array'].lastRenderedPath === 'array' &&
+          body[0].args.formState['array.0.customTextField']?.lastRenderedPath ===
+            'array.0.customTextField',
         ),
     })
 
@@ -210,11 +219,11 @@ test.describe('Form State', () => {
       expect: (body) =>
         Boolean(
           body?.[0]?.args?.formState?.['array'] &&
-            body[0].args.formState['array'].lastRenderedPath &&
-            body[0].args.formState['array.0.customTextField']?.lastRenderedPath ===
-              'array.0.customTextField' &&
-            body[0].args.formState['array.1.customTextField']?.lastRenderedPath ===
-              'array.1.customTextField',
+          body[0].args.formState['array'].lastRenderedPath &&
+          body[0].args.formState['array.0.customTextField']?.lastRenderedPath ===
+            'array.0.customTextField' &&
+          body[0].args.formState['array.1.customTextField']?.lastRenderedPath ===
+            'array.1.customTextField',
         ),
     })
   })
@@ -232,6 +241,7 @@ test.describe('Form State', () => {
     await page.route(postsUrl.create, async (route) => {
       if (route.request().method() === 'POST' && route.request().url() === postsUrl.create) {
         await route.abort()
+        return
       }
 
       await route.continue()
@@ -312,22 +322,18 @@ test.describe('Form State', () => {
 
     // Now test array rows, as their merge logic is different
 
-    await page.locator('#field-array #array-row-0').isVisible()
+    await page.locator('#field-computedArray #computedArray-row-0').isVisible()
 
-    await removeArrayRow(page, { fieldName: 'array' })
+    await removeArrayRow(page, { fieldName: 'computedArray' })
 
-    await page.locator('#field-array .array-row-0').isHidden()
+    await page.locator('#field-computedArray #computedArray-row-0').isHidden()
 
     await saveDocAndAssert(page)
 
-    await expect(page.locator('#field-array #array-row-0')).toBeVisible()
+    await expect(page.locator('#field-computedArray #computedArray-row-0')).toBeVisible()
 
     await expect(
-      page.locator('#field-array #array-row-0 #field-array__0__customTextField'),
-    ).toHaveValue('This is a computed value.')
-
-    await expect(
-      page.locator('#field-array #array-row-0 #field-array__0__defaultTextField'),
+      page.locator('#field-computedArray #computedArray-row-0 #field-computedArray__0__text'),
     ).toHaveValue('This is a computed value.')
   })
 
@@ -339,7 +345,7 @@ test.describe('Form State', () => {
 
     await assertNetworkRequests(
       page,
-      `${serverURL}/api/posts/access/${doc.id}`,
+      formatAdminURL({ apiRoute: '/api', path: `/posts/access/${doc.id}`, serverURL }),
       async () => {
         await titleField.fill('Updated Title')
         await wait(500)
@@ -354,7 +360,7 @@ test.describe('Form State', () => {
 
     await assertNetworkRequests(
       page,
-      `${serverURL}/api/posts/access/${doc.id}`,
+      formatAdminURL({ apiRoute: '/api', path: `/posts/access/${doc.id}`, serverURL }),
       async () => {
         await titleField.fill('Updated Title 2')
         await wait(500)
@@ -382,7 +388,11 @@ test.describe('Form State', () => {
 
     await assertNetworkRequests(
       page,
-      `${serverURL}/api/${autosavePostsSlug}/access/${doc.id}`,
+      formatAdminURL({
+        apiRoute: '/api',
+        path: `/${autosavePostsSlug}/access/${doc.id}`,
+        serverURL,
+      }),
       async () => {
         await titleField.fill('Updated Title')
       },
@@ -394,7 +404,11 @@ test.describe('Form State', () => {
 
     await assertNetworkRequests(
       page,
-      `${serverURL}/api/${autosavePostsSlug}/access/${doc.id}`,
+      formatAdminURL({
+        apiRoute: '/api',
+        path: `/${autosavePostsSlug}/access/${doc.id}`,
+        serverURL,
+      }),
       async () => {
         await titleField.fill('Updated Title Again')
       },
@@ -407,7 +421,11 @@ test.describe('Form State', () => {
     // save manually and ensure the permissions are fetched again
     await assertNetworkRequests(
       page,
-      `${serverURL}/api/${autosavePostsSlug}/access/${doc.id}`,
+      formatAdminURL({
+        apiRoute: '/api',
+        path: `/${autosavePostsSlug}/access/${doc.id}`,
+        serverURL,
+      }),
       async () => {
         await page.click('#action-save', { delay: 100 })
       },
@@ -458,6 +476,82 @@ test.describe('Form State', () => {
     await expect(computedTitleField).toHaveValue('Test Title 2')
   })
 
+  test('array and block rows and maintain consistent row IDs across duplication', async () => {
+    await page.goto(postsUrl.create)
+    await addArrayRow(page, { fieldName: 'array' })
+
+    const row0 = page.locator('#field-array #array-row-0')
+
+    await expect(row0.locator('#custom-array-row-label')).toHaveAttribute('data-id')
+
+    await expect(row0.locator('#field-array__0__id')).toHaveValue(
+      (await row0.locator('#custom-array-row-label').getAttribute('data-id'))!,
+    )
+
+    await duplicateArrayRow(page, { fieldName: 'array' })
+
+    const row1 = page.locator('#field-array #array-row-1')
+
+    await expect(row1.locator('#custom-array-row-label')).toHaveAttribute('data-id')
+
+    await expect(row1.locator('#custom-array-row-label')).not.toHaveAttribute(
+      'data-id',
+      (await row0.locator('#custom-array-row-label').getAttribute('data-id'))!,
+    )
+
+    await expect(row1.locator('#field-array__1__id')).toHaveValue(
+      (await row1.locator('#custom-array-row-label').getAttribute('data-id'))!,
+    )
+  })
+
+  test('onChange events are queued even while autosave is in-flight', async () => {
+    const autosavePost = await payload.create({
+      collection: autosavePostsSlug,
+      data: {
+        title: 'Initial Title',
+      },
+    })
+
+    await page.goto(autosavePostsUrl.edit(autosavePost.id))
+    const field = page.locator('#field-title')
+    await expect(field).toBeEnabled()
+
+    const cdpSession = await throttleTest({
+      page,
+      context,
+      delay: 'Slow 3G',
+    })
+
+    try {
+      await assertNetworkRequests(
+        page,
+        `/api/${autosavePostsSlug}/${autosavePost.id}`,
+        async () => {
+          // Type a partial word, then pause for longer than debounce rate to trigger first onChange
+          await field.fill('Tes')
+          await wait(250) // wait for debounce to elapse, but not long enough for the autosave network request to complete
+          // Finish the word, which importantly, should trigger a second onChange while the autosave is still in-flight
+          await field.press('t')
+        },
+        {
+          allowedNumberOfRequests: 2,
+          minimumNumberOfRequests: 2,
+          timeout: 10000,
+        },
+      )
+    } finally {
+      // Ensure throttling is always cleaned up, even if the test fails
+      await cdpSession.send('Network.emulateNetworkConditions', {
+        offline: false,
+        latency: 0,
+        downloadThroughput: -1,
+        uploadThroughput: -1,
+      })
+
+      await cdpSession.detach()
+    }
+  })
+
   describe('Throttled tests', () => {
     let cdpSession: CDPSession
 
@@ -465,6 +559,7 @@ test.describe('Form State', () => {
       await page.goto(postsUrl.create)
       const field = page.locator('#field-title')
       await field.fill('Test')
+      await expect(field).toBeEnabled()
 
       cdpSession = await throttleTest({
         page,
@@ -551,6 +646,7 @@ test.describe('Form State', () => {
         },
         {
           allowedNumberOfRequests: 2,
+          minimumNumberOfRequests: 2,
           timeout: 10000, // watch network for 10 seconds to allow requests to build up
         },
       )

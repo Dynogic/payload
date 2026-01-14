@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/ban-ts-comment */
 import type { ExecutionResult, GraphQLSchema, ValidationRule } from 'graphql'
 import type { Request as graphQLRequest, OperationArgs } from 'graphql-http'
 import type { Logger } from 'pino'
@@ -45,6 +44,7 @@ import type { InitializedEmailAdapter } from './email/types.js'
 import type { DataFromGlobalSlug, Globals, SelectFromGlobalSlug } from './globals/config/types.js'
 import type {
   ApplyDisableErrors,
+  DraftTransformCollectionWithSelect,
   JsonObject,
   SelectType,
   TransformCollectionWithSelect,
@@ -119,11 +119,13 @@ import {
   type Options as UpdateGlobalOptions,
 } from './globals/operations/local/update.js'
 export type * from './admin/types.js'
+export { EntityType } from './admin/views/dashboard.js'
 import type { SupportedLanguages } from '@payloadcms/translations'
 
 import { Cron } from 'croner'
 
 import type { ClientConfig } from './config/client.js'
+import type { KVAdapter } from './kv/index.js'
 import type { BaseJob } from './queues/config/types/workflowTypes.js'
 import type { TypeWithVersion } from './versions/types.js'
 
@@ -138,6 +140,7 @@ import { consoleEmailAdapter } from './email/consoleEmailAdapter.js'
 import { fieldAffectsData, type FlattenedBlock } from './fields/config/types.js'
 import { getJobsLocalAPI } from './queues/localAPI.js'
 import { _internal_jobSystemGlobals } from './queues/utilities/getCurrentDate.js'
+import { formatAdminURL } from './utilities/formatAdminURL.js'
 import { isNextBuild } from './utilities/isNextBuild.js'
 import { getLogger } from './utilities/logger.js'
 import { serverInit as serverInitTelemetry } from './utilities/telemetry/events/serverInit.js'
@@ -161,8 +164,35 @@ export { extractAccessFromPermission } from './auth/extractAccessFromPermission.
 export { getAccessResults } from './auth/getAccessResults.js'
 export { getFieldsToSign } from './auth/getFieldsToSign.js'
 export { getLoginOptions } from './auth/getLoginOptions.js'
-export interface GeneratedTypes {
-  authUntyped: {
+
+/**
+ * Shape constraint for PayloadTypes.
+ * Matches the structure of generated Config types.
+ *
+ * By defining the actual shape, we can use simple property access (T['collections'])
+ * instead of conditional types throughout the codebase.
+ */
+export interface PayloadTypesShape {
+  auth: Record<string, unknown>
+  blocks: Record<string, unknown>
+  collections: Record<string, unknown>
+  collectionsJoins: Record<string, unknown>
+  collectionsSelect: Record<string, unknown>
+  db: { defaultIDType: unknown }
+  fallbackLocale: unknown
+  globals: Record<string, unknown>
+  globalsSelect: Record<string, unknown>
+  jobs: unknown
+  locale: unknown
+  user: unknown
+}
+
+/**
+ * Untyped fallback types. Uses the SAME property names as generated types.
+ * PayloadTypes merges GeneratedTypes with these fallbacks.
+ */
+export interface UntypedPayloadTypes {
+  auth: {
     [slug: string]: {
       forgotPassword: {
         email: string
@@ -180,33 +210,31 @@ export interface GeneratedTypes {
       }
     }
   }
-
-  blocksUntyped: {
+  blocks: {
     [slug: string]: JsonObject
   }
-  collectionsJoinsUntyped: {
-    [slug: string]: {
-      [schemaPath: string]: CollectionSlug
-    }
-  }
-  collectionsSelectUntyped: {
-    [slug: string]: SelectType
-  }
-
-  collectionsUntyped: {
+  collections: {
     [slug: string]: JsonObject & TypeWithID
   }
-  dbUntyped: {
-    defaultIDType: number | string
+  collectionsJoins: {
+    [slug: string]: {
+      [schemaPath: string]: string
+    }
   }
-  globalsSelectUntyped: {
+  collectionsSelect: {
     [slug: string]: SelectType
   }
-
-  globalsUntyped: {
+  db: {
+    defaultIDType: number | string
+  }
+  fallbackLocale: 'false' | 'none' | 'null' | ({} & string)[] | ({} & string) | false | null
+  globals: {
     [slug: string]: JsonObject
   }
-  jobsUntyped: {
+  globalsSelect: {
+    [slug: string]: SelectType
+  }
+  jobs: {
     tasks: {
       [slug: string]: {
         input?: JsonObject
@@ -219,106 +247,89 @@ export interface GeneratedTypes {
       }
     }
   }
-  localeUntyped: null | string
-  userUntyped: UntypedUser
+  locale: null | string
+  user: UntypedUser
 }
 
-// Helper type to resolve the correct type using conditional types
-type ResolveCollectionType<T> = 'collections' extends keyof T
-  ? T['collections']
-  : // @ts-expect-error
-    T['collectionsUntyped']
+/**
+ * Interface to be module-augmented by the `payload-types.ts` file.
+ * When augmented, its properties take precedence over UntypedPayloadTypes.
+ */
+export interface GeneratedTypes {}
 
-type ResolveBlockType<T> = 'blocks' extends keyof T
-  ? T['blocks']
-  : // @ts-expect-error
-    T['blocksUntyped']
+/**
+ * Check if GeneratedTypes has been augmented (has any keys).
+ */
+type IsAugmented = keyof GeneratedTypes extends never ? false : true
 
-type ResolveCollectionSelectType<T> = 'collectionsSelect' extends keyof T
-  ? T['collectionsSelect']
-  : // @ts-expect-error
-    T['collectionsSelectUntyped']
+/**
+ * PayloadTypes merges GeneratedTypes with UntypedPayloadTypes.
+ * - When augmented: uses augmented properties, fills gaps with untyped fallbacks
+ * - When not augmented: uses only UntypedPayloadTypes
+ */
+export type PayloadTypes = IsAugmented extends true
+  ? GeneratedTypes & Omit<UntypedPayloadTypes, keyof GeneratedTypes>
+  : UntypedPayloadTypes
 
-type ResolveCollectionJoinsType<T> = 'collectionsJoins' extends keyof T
-  ? T['collectionsJoins']
-  : // @ts-expect-error
-    T['collectionsJoinsUntyped']
+export type TypedCollection<T extends PayloadTypesShape = PayloadTypes> = T['collections']
 
-type ResolveGlobalType<T> = 'globals' extends keyof T
-  ? T['globals']
-  : // @ts-expect-error
-    T['globalsUntyped']
+export type TypedBlock = PayloadTypes['blocks']
 
-type ResolveGlobalSelectType<T> = 'globalsSelect' extends keyof T
-  ? T['globalsSelect']
-  : // @ts-expect-error
-    T['globalsSelectUntyped']
-
-// Applying helper types to GeneratedTypes
-export type TypedCollection = ResolveCollectionType<GeneratedTypes>
-
-export type TypedBlock = ResolveBlockType<GeneratedTypes>
-
-export type TypedUploadCollection = NonNever<{
-  [K in keyof TypedCollection]:
+export type TypedUploadCollection<T extends PayloadTypesShape = PayloadTypes> = NonNever<{
+  [TSlug in keyof T['collections']]:
     | 'filename'
     | 'filesize'
     | 'mimeType'
-    | 'url' extends keyof TypedCollection[K]
-    ? TypedCollection[K]
+    | 'url' extends keyof T['collections'][TSlug]
+    ? T['collections'][TSlug]
     : never
 }>
 
-export type TypedCollectionSelect = ResolveCollectionSelectType<GeneratedTypes>
+export type TypedCollectionSelect<T extends PayloadTypesShape = PayloadTypes> =
+  T['collectionsSelect']
 
-export type TypedCollectionJoins = ResolveCollectionJoinsType<GeneratedTypes>
+export type TypedCollectionJoins<T extends PayloadTypesShape = PayloadTypes> = T['collectionsJoins']
 
-export type TypedGlobal = ResolveGlobalType<GeneratedTypes>
+export type TypedGlobal<T extends PayloadTypesShape = PayloadTypes> = T['globals']
 
-export type TypedGlobalSelect = ResolveGlobalSelectType<GeneratedTypes>
+export type TypedGlobalSelect<T extends PayloadTypesShape = PayloadTypes> = T['globalsSelect']
 
 // Extract string keys from the type
 export type StringKeyOf<T> = Extract<keyof T, string>
 
 // Define the types for slugs using the appropriate collections and globals
-export type CollectionSlug = StringKeyOf<TypedCollection>
+export type CollectionSlug<T extends PayloadTypesShape = PayloadTypes> = StringKeyOf<
+  T['collections']
+>
 
 export type BlockSlug = StringKeyOf<TypedBlock>
 
-export type UploadCollectionSlug = StringKeyOf<TypedUploadCollection>
+export type UploadCollectionSlug<T extends PayloadTypesShape = PayloadTypes> = StringKeyOf<
+  TypedUploadCollection<T>
+>
 
-type ResolveDbType<T> = 'db' extends keyof T
-  ? T['db']
-  : // @ts-expect-error
-    T['dbUntyped']
+export type DefaultDocumentIDType = PayloadTypes['db']['defaultIDType']
 
-export type DefaultDocumentIDType = ResolveDbType<GeneratedTypes>['defaultIDType']
-export type GlobalSlug = StringKeyOf<TypedGlobal>
+export type GlobalSlug<T extends PayloadTypesShape = PayloadTypes> = StringKeyOf<T['globals']>
 
-// now for locale and user
+export type TypedLocale<T extends PayloadTypesShape = PayloadTypes> = T['locale']
 
-// @ts-expect-error
-type ResolveLocaleType<T> = 'locale' extends keyof T ? T['locale'] : T['localeUntyped']
-// @ts-expect-error
-type ResolveUserType<T> = 'user' extends keyof T ? T['user'] : T['userUntyped']
-
-export type TypedLocale = ResolveLocaleType<GeneratedTypes>
+export type TypedFallbackLocale = PayloadTypes['fallbackLocale']
 
 /**
  * @todo rename to `User` in 4.0
  */
-export type TypedUser = ResolveUserType<GeneratedTypes>
+export type TypedUser = PayloadTypes['user']
 
-// @ts-expect-error
-type ResolveAuthOperationsType<T> = 'auth' extends keyof T ? T['auth'] : T['authUntyped']
-export type TypedAuthOperations = ResolveAuthOperationsType<GeneratedTypes>
+export type TypedAuthOperations<T extends PayloadTypesShape = PayloadTypes> = T['auth']
 
-// @ts-expect-error
-type ResolveJobOperationsType<T> = 'jobs' extends keyof T ? T['jobs'] : T['jobsUntyped']
-export type TypedJobs = ResolveJobOperationsType<GeneratedTypes>
+export type AuthCollectionSlug<T extends PayloadTypesShape> = StringKeyOf<T['auth']>
 
-type HasPayloadJobsType = 'collections' extends keyof GeneratedTypes
-  ? 'payload-jobs' extends keyof TypedCollection
+export type TypedJobs = PayloadTypes['jobs']
+
+// Check if payload-jobs exists in the AUGMENTED types (not the fallback with index signature)
+type HasPayloadJobsType = GeneratedTypes extends { collections: infer C }
+  ? 'payload-jobs' extends keyof C
     ? true
     : false
   : false
@@ -448,10 +459,22 @@ export class BasePayload {
    * @param options
    * @returns documents satisfying query
    */
-  find = async <TSlug extends CollectionSlug, TSelect extends SelectFromCollectionSlug<TSlug>>(
-    options: FindOptions<TSlug, TSelect>,
-  ): Promise<PaginatedDocs<TransformCollectionWithSelect<TSlug, TSelect>>> => {
-    return findLocal<TSlug, TSelect>(this, options)
+  find = async <
+    TSlug extends CollectionSlug,
+    TSelect extends SelectFromCollectionSlug<TSlug>,
+    TDraft extends boolean = false,
+  >(
+    options: { draft?: TDraft } & FindOptions<TSlug, TSelect>,
+  ): Promise<
+    PaginatedDocs<
+      TDraft extends true
+        ? PayloadTypes extends { strictDraftTypes: true }
+          ? DraftTransformCollectionWithSelect<TSlug, TSelect>
+          : TransformCollectionWithSelect<TSlug, TSelect>
+        : TransformCollectionWithSelect<TSlug, TSelect>
+    >
+  > => {
+    return findLocal<TSlug, TSelect, TDraft>(this, options)
   }
 
   /**
@@ -539,15 +562,30 @@ export class BasePayload {
     return forgotPasswordLocal<TSlug>(this, options)
   }
 
-  getAdminURL = (): string => `${this.config.serverURL}${this.config.routes.admin}`
+  getAdminURL = (): string =>
+    formatAdminURL({
+      adminRoute: this.config.routes.admin,
+      path: '',
+      serverURL: this.config.serverURL,
+    })
 
-  getAPIURL = (): string => `${this.config.serverURL}${this.config.routes.api}`
+  getAPIURL = (): string =>
+    formatAdminURL({
+      apiRoute: this.config.routes.api,
+      path: '',
+      serverURL: this.config.serverURL,
+    })
 
   globals!: Globals
 
   importMap!: ImportMap
 
   jobs = getJobsLocalAPI(this)
+
+  /**
+   * Key Value storage
+   */
+  kv!: KVAdapter
 
   logger!: Logger
 
@@ -624,6 +662,64 @@ export class BasePayload {
   versions: {
     [slug: string]: any // TODO: Type this
   } = {}
+
+  async _initializeCrons() {
+    if (this.config.jobs.enabled && this.config.jobs.autoRun && !isNextBuild()) {
+      const DEFAULT_CRON = '* * * * *'
+      const DEFAULT_LIMIT = 10
+
+      const cronJobs =
+        typeof this.config.jobs.autoRun === 'function'
+          ? await this.config.jobs.autoRun(this)
+          : this.config.jobs.autoRun
+
+      await Promise.all(
+        cronJobs.map((cronConfig) => {
+          const jobAutorunCron = new Cron(
+            cronConfig.cron ?? DEFAULT_CRON,
+            async () => {
+              if (
+                _internal_jobSystemGlobals.shouldAutoSchedule &&
+                !cronConfig.disableScheduling &&
+                this.config.jobs.scheduling
+              ) {
+                await this.jobs.handleSchedules({
+                  allQueues: cronConfig.allQueues,
+                  queue: cronConfig.queue,
+                })
+              }
+
+              if (!_internal_jobSystemGlobals.shouldAutoRun) {
+                return
+              }
+
+              if (typeof this.config.jobs.shouldAutoRun === 'function') {
+                const shouldAutoRun = await this.config.jobs.shouldAutoRun(this)
+
+                if (!shouldAutoRun) {
+                  jobAutorunCron.stop()
+                  return
+                }
+              }
+
+              await this.jobs.run({
+                allQueues: cronConfig.allQueues,
+                limit: cronConfig.limit ?? DEFAULT_LIMIT,
+                queue: cronConfig.queue,
+                silent: cronConfig.silent,
+              })
+            },
+            {
+              // Do not run consecutive crons if previous crons still ongoing
+              protect: true,
+            },
+          )
+
+          this.crons.push(jobAutorunCron)
+        }),
+      )
+    }
+  }
 
   async bin({
     args,
@@ -756,6 +852,8 @@ export class BasePayload {
     this.db = this.config.db.init({ payload: this })
     this.db.payload = this
 
+    this.kv = this.config.kv.init({ payload: this })
+
     if (this.db?.init) {
       await this.db.init()
     }
@@ -855,53 +953,8 @@ export class BasePayload {
       throw error
     }
 
-    if (this.config.jobs.enabled && this.config.jobs.autoRun && !isNextBuild() && options.cron) {
-      const DEFAULT_CRON = '* * * * *'
-      const DEFAULT_LIMIT = 10
-
-      const cronJobs =
-        typeof this.config.jobs.autoRun === 'function'
-          ? await this.config.jobs.autoRun(this)
-          : this.config.jobs.autoRun
-
-      await Promise.all(
-        cronJobs.map((cronConfig) => {
-          const jobAutorunCron = new Cron(cronConfig.cron ?? DEFAULT_CRON, async () => {
-            if (
-              _internal_jobSystemGlobals.shouldAutoSchedule &&
-              !cronConfig.disableScheduling &&
-              this.config.jobs.scheduling
-            ) {
-              await this.jobs.handleSchedules({
-                allQueues: cronConfig.allQueues,
-                queue: cronConfig.queue,
-              })
-            }
-
-            if (!_internal_jobSystemGlobals.shouldAutoRun) {
-              return
-            }
-
-            if (typeof this.config.jobs.shouldAutoRun === 'function') {
-              const shouldAutoRun = await this.config.jobs.shouldAutoRun(this)
-
-              if (!shouldAutoRun) {
-                jobAutorunCron.stop()
-                return
-              }
-            }
-
-            await this.jobs.run({
-              allQueues: cronConfig.allQueues,
-              limit: cronConfig.limit ?? DEFAULT_LIMIT,
-              queue: cronConfig.queue,
-              silent: cronConfig.silent,
-            })
-          })
-
-          this.crons.push(jobAutorunCron)
-        }),
-      )
+    if (options.cron) {
+      await this._initializeCrons()
     }
 
     return this
@@ -932,21 +985,11 @@ const initialized = new BasePayload()
 // eslint-disable-next-line no-restricted-exports
 export default initialized
 
-let cached: {
-  payload: null | Payload
-  promise: null | Promise<Payload>
-  reload: boolean | Promise<void>
-  ws: null | WebSocket
-} = (global as any)._payload
-
-if (!cached) {
-  cached = (global as any)._payload = { payload: null, promise: null, reload: false, ws: null }
-}
-
 export const reload = async (
   config: SanitizedConfig,
   payload: Payload,
   skipImportMapGeneration?: boolean,
+  options?: InitOptions,
 ): Promise<void> => {
   if (typeof payload.db.destroy === 'function') {
     // Only destroy db, as we then later only call payload.db.init and not payload.init
@@ -989,16 +1032,22 @@ export const reload = async (
     })
   }
 
-  // Generate component map
+  // Generate import map
   if (skipImportMapGeneration !== true && config.admin?.importMap?.autoGenerate !== false) {
+    // This may run outside of the admin panel, e.g. in the user's frontend, where we don't have an import map file.
+    // We don't want to throw an error in this case, as it would break the user's frontend.
+    // => just skip it => ignoreResolveError: true
     await generateImportMap(config, {
+      ignoreResolveError: true,
       log: true,
     })
   }
 
-  await payload.db.init?.()
+  if (payload.db?.init) {
+    await payload.db.init()
+  }
 
-  if (payload.db.connect) {
+  if (!options?.disableDBConnect && payload.db.connect) {
     await payload.db.connect({ hotReload: true })
   }
 
@@ -1010,14 +1059,73 @@ export const reload = async (
   ;(global as any)._payload_doNotCacheClientSchemaMap = true
 }
 
+let _cached: Map<
+  string,
+  {
+    initializedCrons: boolean
+    payload: null | Payload
+    promise: null | Promise<Payload>
+    reload: boolean | Promise<void>
+    ws: null | WebSocket
+  }
+> = (global as any)._payload
+
+if (!_cached) {
+  _cached = (global as any)._payload = new Map()
+}
+
+/**
+ * Get a payload instance.
+ * This function is a wrapper around new BasePayload().init() that adds the following functionality on top of that:
+ *
+ * - smartly caches Payload instance on the module scope. That way, we prevent unnecessarily initializing Payload over and over again
+ * when calling getPayload multiple times or from multiple locations.
+ * - adds HMR support and reloads the payload instance when the config changes.
+ */
 export const getPayload = async (
-  options: Pick<InitOptions, 'config' | 'cron' | 'importMap'>,
+  options: {
+    /**
+     * A unique key to identify the payload instance. You can pass your own key if you want to cache this payload instance separately.
+     * This is useful if you pass a different payload config for each instance.
+     *
+     * @default 'default'
+     */
+    key?: string
+  } & InitOptions,
 ): Promise<Payload> => {
   if (!options?.config) {
     throw new Error('Error: the payload config is required for getPayload to work.')
   }
 
+  let alreadyCachedSameConfig = false
+
+  let cached = _cached.get(options.key ?? 'default')
+  if (!cached) {
+    cached = {
+      initializedCrons: Boolean(options.cron),
+      payload: null,
+      promise: null,
+      reload: false,
+      ws: null,
+    }
+    _cached.set(options.key ?? 'default', cached)
+  } else {
+    alreadyCachedSameConfig = true
+  }
+
+  if (alreadyCachedSameConfig) {
+    // alreadyCachedSameConfig => already called onInit once, but same config => no need to call onInit again.
+    // calling onInit again would only make sense if a different config was passed.
+    options.disableOnInit = true
+  }
+
   if (cached.payload) {
+    if (options.cron && !cached.initializedCrons) {
+      // getPayload called with crons enabled, but existing cached version does not have crons initialized. => Initialize crons in existing cached version
+      cached.initializedCrons = true
+      await cached.payload._initializeCrons()
+    }
+
     if (cached.reload === true) {
       let resolve!: () => void
 
@@ -1026,7 +1134,18 @@ export const getPayload = async (
       // will reach `if (cached.reload instanceof Promise) {` which then waits for the first reload to finish.
       cached.reload = new Promise((res) => (resolve = res))
       const config = await options.config
-      await reload(config, cached.payload, !options.importMap)
+
+      // Reload the payload instance after a config change (triggered by HMR in development).
+      // The second parameter (false) forces import map regeneration rather than deciding based on options.importMap.
+      //
+      // Why we always regenerate import map: getPayload() may be called from multiple sources (admin panel, frontend, etc.)
+      // that share the same cache but may pass different importMap values. Since call order is unpredictable,
+      // we cannot rely on options.importMap to determine if regeneration is needed.
+      //
+      // Example scenario: If the frontend calls getPayload() without importMap first, followed by the admin
+      // panel calling it with importMap, we'd incorrectly skip generation for the admin panel's needs.
+      // By always regenerating on reload, we ensure the import map stays in sync with the updated config.
+      await reload(config, cached.payload, false, options)
 
       resolve()
     }
@@ -1040,12 +1159,12 @@ export const getPayload = async (
     return cached.payload
   }
 
-  if (!cached.promise) {
-    // no need to await options.config here, as it's already awaited in the BasePayload.init
-    cached.promise = new BasePayload().init(options)
-  }
-
   try {
+    if (!cached.promise) {
+      // no need to await options.config here, as it's already awaited in the BasePayload.init
+      cached.promise = new BasePayload().init(options)
+    }
+
     cached.payload = await cached.promise
 
     if (
@@ -1056,20 +1175,27 @@ export const getPayload = async (
     ) {
       try {
         const port = process.env.PORT || '3000'
+        const hasHTTPS =
+          process.env.USE_HTTPS === 'true' || process.argv.includes('--experimental-https')
+        const protocol = hasHTTPS ? 'wss' : 'ws'
 
         const path = '/_next/webpack-hmr'
         // The __NEXT_ASSET_PREFIX env variable is set for both assetPrefix and basePath (tested in Next.js 15.1.6)
         const prefix = process.env.__NEXT_ASSET_PREFIX ?? ''
 
         cached.ws = new WebSocket(
-          process.env.PAYLOAD_HMR_URL_OVERRIDE ?? `ws://localhost:${port}${prefix}${path}`,
+          process.env.PAYLOAD_HMR_URL_OVERRIDE ?? `${protocol}://localhost:${port}${prefix}${path}`,
         )
 
         cached.ws.onmessage = (event) => {
           if (typeof event.data === 'string') {
             const data = JSON.parse(event.data)
 
-            if ('action' in data && data.action === 'serverComponentChanges') {
+            if (
+              // On Next.js 15, we need to check for data.action. On Next.js 16, we need to check for data.type.
+              data.type === 'serverComponentChanges' ||
+              data.action === 'serverComponentChanges'
+            ) {
               cached.reload = true
             }
           }
@@ -1215,9 +1341,11 @@ export { buildConfig } from './config/build.js'
 export {
   type ClientConfig,
   createClientConfig,
+  type CreateClientConfigArgs,
+  createUnauthenticatedClientConfig,
   serverOnlyAdminConfigProperties,
   serverOnlyConfigProperties,
-  type UnsanitizedClientConfig,
+  type UnauthenticatedClientConfig,
 } from './config/client.js'
 export { defaults } from './config/defaults.js'
 
@@ -1230,6 +1358,7 @@ export { defaultBeginTransaction } from './database/defaultBeginTransaction.js'
 export { flattenWhereToOperators } from './database/flattenWhereToOperators.js'
 export { getLocalizedPaths } from './database/getLocalizedPaths.js'
 export { createMigration } from './database/migrations/createMigration.js'
+export { findMigrationDir } from './database/migrations/findMigrationDir.js'
 export { getMigrations } from './database/migrations/getMigrations.js'
 export { getPredefinedMigration } from './database/migrations/getPredefinedMigration.js'
 export { migrate } from './database/migrations/migrate.js'
@@ -1334,6 +1463,7 @@ export {
   MissingFile,
   NotFound,
   QueryError,
+  UnauthorizedError,
   UnverifiedEmail,
   ValidationError,
   ValidationErrorName,
@@ -1344,6 +1474,9 @@ export { baseBlockFields } from './fields/baseFields/baseBlockFields.js'
 
 export { baseIDField } from './fields/baseFields/baseIDField.js'
 
+export { slugField, type SlugFieldClientProps } from './fields/baseFields/slug/index.js'
+export { type SlugField } from './fields/baseFields/slug/index.js'
+
 export {
   createClientField,
   createClientFields,
@@ -1351,9 +1484,17 @@ export {
   type ServerOnlyFieldProperties,
 } from './fields/config/client.js'
 
+export { sanitizeFields } from './fields/config/sanitize.js'
+
 export interface FieldCustom extends Record<string, any> {}
 
-export { sanitizeFields } from './fields/config/sanitize.js'
+export interface CollectionCustom extends Record<string, any> {}
+
+export interface CollectionAdminCustom extends Record<string, any> {}
+
+export interface GlobalCustom extends Record<string, any> {}
+
+export interface GlobalAdminCustom extends Record<string, any> {}
 
 export type {
   AdminClient,
@@ -1464,16 +1605,16 @@ export type {
 } from './fields/config/types.js'
 
 export { getDefaultValue } from './fields/getDefaultValue.js'
-export { traverseFields as afterChangeTraverseFields } from './fields/hooks/afterChange/traverseFields.js'
 
+export { traverseFields as afterChangeTraverseFields } from './fields/hooks/afterChange/traverseFields.js'
 export { promise as afterReadPromise } from './fields/hooks/afterRead/promise.js'
+
 export { traverseFields as afterReadTraverseFields } from './fields/hooks/afterRead/traverseFields.js'
 export { traverseFields as beforeChangeTraverseFields } from './fields/hooks/beforeChange/traverseFields.js'
 export { traverseFields as beforeValidateTraverseFields } from './fields/hooks/beforeValidate/traverseFields.js'
-
 export { sortableFieldTypes } from './fields/sortableFieldTypes.js'
-export { validations } from './fields/validations.js'
 
+export { validateBlocksFilterOptions, validations } from './fields/validations.js'
 export type {
   ArrayFieldValidation,
   BlocksFieldValidation,
@@ -1505,6 +1646,7 @@ export type {
   UploadFieldValidation,
   UsernameFieldValidation,
 } from './fields/validations.js'
+
 export type { FolderSortKeys } from './folders/types.js'
 export { getFolderData } from './folders/utils/getFolderData.js'
 export {
@@ -1518,6 +1660,7 @@ export type {
   AfterChangeHook as GlobalAfterChangeHook,
   AfterReadHook as GlobalAfterReadHook,
   BeforeChangeHook as GlobalBeforeChangeHook,
+  BeforeOperationHook as GlobalBeforeOperationHook,
   BeforeReadHook as GlobalBeforeReadHook,
   BeforeValidateHook as GlobalBeforeValidateHook,
   DataFromGlobalSlug,
@@ -1525,14 +1668,17 @@ export type {
   GlobalConfig,
   SanitizedGlobalConfig,
 } from './globals/config/types.js'
-
 export { docAccessOperation as docAccessOperationGlobal } from './globals/operations/docAccess.js'
 export { findOneOperation } from './globals/operations/findOne.js'
-
 export { findVersionByIDOperation as findVersionByIDOperationGlobal } from './globals/operations/findVersionByID.js'
+
 export { findVersionsOperation as findVersionsOperationGlobal } from './globals/operations/findVersions.js'
+
 export { restoreVersionOperation as restoreVersionOperationGlobal } from './globals/operations/restoreVersion.js'
 export { updateOperation as updateOperationGlobal } from './globals/operations/update.js'
+export * from './kv/adapters/DatabaseKVAdapter.js'
+export * from './kv/adapters/InMemoryKVAdapter.js'
+export * from './kv/index.js'
 export type {
   CollapsedPreferences,
   CollectionPreferences,
@@ -1564,9 +1710,9 @@ export type {
   TaskOutput,
   TaskType,
 } from './queues/config/types/taskTypes.js'
-
 export type {
   BaseJob,
+  ConcurrencyConfig,
   JobLog,
   JobTaskStatus,
   RunningJob,
@@ -1575,22 +1721,25 @@ export type {
   WorkflowHandler,
   WorkflowTypes,
 } from './queues/config/types/workflowTypes.js'
+export { JobCancelledError } from './queues/errors/index.js'
+
 export { countRunnableOrActiveJobsForQueue } from './queues/operations/handleSchedules/countRunnableOrActiveJobsForQueue.js'
 export { importHandlerPath } from './queues/operations/runJobs/runJob/importHandlerPath.js'
-
 export {
   _internal_jobSystemGlobals,
   _internal_resetJobSystemGlobals,
   getCurrentDate,
 } from './queues/utilities/getCurrentDate.js'
+
 export { getLocalI18n } from './translations/getLocalI18n.js'
 export * from './types/index.js'
 export { getFileByPath } from './uploads/getFileByPath.js'
 export { _internal_safeFetchGlobal } from './uploads/safeFetch.js'
-
 export type * from './uploads/types.js'
+
 export { addDataAndFileToRequest } from './utilities/addDataAndFileToRequest.js'
 export { addLocalesToRequestFromData, sanitizeLocales } from './utilities/addLocalesToRequest.js'
+export { canAccessAdmin } from './utilities/canAccessAdmin.js'
 export { commitTransaction } from './utilities/commitTransaction.js'
 export {
   configToJSONSchema,
@@ -1617,7 +1766,6 @@ export {
   type CustomVersionParser,
 } from './utilities/dependencies/dependencyChecker.js'
 export { getDependencies } from './utilities/dependencies/getDependencies.js'
-export type { FieldSchemaJSON } from './utilities/fieldSchemaToJSON.js'
 export {
   findUp,
   findUpSync,

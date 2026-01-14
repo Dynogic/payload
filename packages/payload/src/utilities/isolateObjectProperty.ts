@@ -20,25 +20,19 @@ export function isolateObjectProperty<T extends object>(object: T, key: (keyof T
       if (keys.includes(p as keyof T)) {
         return Reflect.get(delegate, p, receiver)
       }
-      
-      // Special case for headers to avoid private field issue
-      if (p === 'headers') {
-        return target[p as keyof T]
-      }
-      
-      return Reflect.get(target, p, receiver)
+      // Use target as receiver to preserve private field access (e.g., Request#headers in Node 24+)
+      return Reflect.get(target, p, target)
     },
     has(target, p) {
       return Reflect.has(keys.includes(p as keyof T) ? delegate : target, p)
     },
-    set(target, p, newValue, receiver) {
+    set(target, p, newValue, _receiver) {
       if (keys.includes(p as keyof T)) {
         // in case of transactionID we must ignore any receiver, because
         // "If provided and target does not have a setter for propertyKey, the property will be set on receiver instead."
         return Reflect.set(delegate, p, newValue)
-      } else {
-        return Reflect.set(target, p, newValue, receiver)
       }
+      return Reflect.set(target, p, newValue, target)
     },
   }
   return new Proxy(object, handler)

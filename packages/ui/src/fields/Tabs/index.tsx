@@ -1,15 +1,14 @@
 'use client'
 import type {
-  ClientField,
+  ClientComponentProps,
   ClientTab,
-  DocumentPreferences,
   SanitizedFieldPermissions,
   StaticDescription,
   TabsFieldClientComponent,
 } from 'payload'
 
 import { getTranslation } from '@payloadcms/translations'
-import { tabHasName, toKebabCase } from 'payload/shared'
+import { getFieldPaths, toKebabCase } from 'payload/shared'
 import React, { useCallback, useEffect, useState } from 'react'
 
 import { useCollapsible } from '../../elements/Collapsible/provider.js'
@@ -18,8 +17,6 @@ import { useFormFields } from '../../forms/Form/index.js'
 import { RenderFields } from '../../forms/RenderFields/index.js'
 import { useField } from '../../forms/useField/index.js'
 import { withCondition } from '../../forms/withCondition/index.js'
-import { useDocumentInfo } from '../../providers/DocumentInfo/index.js'
-import { usePreferences } from '../../providers/Preferences/index.js'
 import { useTranslation } from '../../providers/Translation/index.js'
 import { FieldDescription } from '../FieldDescription/index.js'
 import { fieldBaseClass } from '../shared/index.js'
@@ -31,20 +28,6 @@ const baseClass = 'tabs-field'
 
 export { TabsProvider }
 
-function generateTabPath({ activeTabConfig, path }: { activeTabConfig: ClientTab; path: string }) {
-  let tabPath = path
-
-  if (tabHasName(activeTabConfig) && activeTabConfig.name) {
-    if (path) {
-      tabPath = `${path}.${activeTabConfig.name}`
-    } else {
-      tabPath = activeTabConfig.name
-    }
-  }
-
-  return tabPath
-}
-
 const TabsFieldComponent: TabsFieldClientComponent = (props) => {
   const {
     field: { admin: { className } = {}, tabs = [] },
@@ -55,6 +38,7 @@ const TabsFieldComponent: TabsFieldClientComponent = (props) => {
     path = '',
     permissions,
     readOnly,
+    schemaPath = '',
   } = props
 
 
@@ -155,21 +139,8 @@ const TabsFieldComponent: TabsFieldClientComponent = (props) => {
 
   const [activeTabIndex, setActiveTabIndex] = useState<number>(0)
 
-  const [activeTabPath, setActiveTabPath] = useState<string>(() =>
-    generateTabPath({ activeTabConfig: tabs[activeTabIndex], path: parentPath }),
-  )
-
-  const [activeTabSchemaPath, setActiveTabSchemaPath] = useState<string>(() =>
-    generateTabPath({ activeTabConfig: tabs[activeTabIndex], path: parentSchemaPath }),
-  )
-
-  const activePathChildrenPath = tabHasName(tabs[activeTabIndex]) ? activeTabPath : parentPath
   const activeTabInfo = tabStates[activeTabIndex]
   const activeTabConfig = activeTabInfo?.tab
-  const activePathSchemaChildrenPath = tabHasName(tabs[activeTabIndex])
-    ? activeTabSchemaPath
-    : parentSchemaPath
-
   const activeTabDescription = activeTabConfig.admin?.description ?? activeTabConfig.description
 
   const activeTabStaticDescription =
@@ -183,24 +154,17 @@ const TabsFieldComponent: TabsFieldClientComponent = (props) => {
     (incomingTabIndex: number): void => {
       setActiveTabIndex(incomingTabIndex)
 
-      setActiveTabPath(
-        generateTabPath({ activeTabConfig: tabs[incomingTabIndex], path: parentPath }),
-      )
-      setActiveTabSchemaPath(
-        generateTabPath({ activeTabConfig: tabs[incomingTabIndex], path: parentSchemaPath }),
-      )
-
       // Update URL hash
       if (typeof window !== 'undefined') {
         const selectedTab = tabs[incomingTabIndex]
         const selectedTabHash = (selectedTab as any).hash
-        
+
         if (isRootLevelTabs) {
           // For root level tabs, set the main hash (preserve any existing sub-hash)
           if (selectedTabHash) {
             const currentHash = window.location.hash.substring(1)
             const [, existingSubHash] = currentHash.split('-', 2)
-            
+
             const newHash = existingSubHash ? `${selectedTabHash}-${existingSubHash}` : selectedTabHash
             window.history.replaceState(null, '', `#${newHash}`)
           } else {
@@ -212,7 +176,7 @@ const TabsFieldComponent: TabsFieldClientComponent = (props) => {
           if (selectedTabHash) {
             const currentHash = window.location.hash.substring(1)
             const [existingMainHash] = currentHash.split('-', 2)
-            
+
             if (existingMainHash) {
               const newHash = `${existingMainHash}-${selectedTabHash}`
               window.history.replaceState(null, '', `#${newHash}`)
@@ -224,13 +188,7 @@ const TabsFieldComponent: TabsFieldClientComponent = (props) => {
         }
       }
     },
-    [
-      tabs,
-      parentPath,
-      parentSchemaPath,
-      isRootLevelTabs,
-      activeTabIndex,
-    ],
+    [tabs, isRootLevelTabs],
   )
 
   // Track if we've done initial setup to avoid overriding manual tab changes
@@ -250,17 +208,13 @@ const TabsFieldComponent: TabsFieldClientComponent = (props) => {
     }
 
     // Check for hash-based tab selection
-    const hashTabIndex = isRootLevelTabs 
+    const hashTabIndex = isRootLevelTabs
       ? getTabIndexFromHash(tabStates)
       : getNestedTabIndexFromHash(tabStates)
-      
+
     if (hashTabIndex !== null) {
       if (activeTabIndex !== hashTabIndex) {
         setActiveTabIndex(hashTabIndex)
-        setActiveTabPath(generateTabPath({ activeTabConfig: tabs[hashTabIndex], path: parentPath }))
-        setActiveTabSchemaPath(
-          generateTabPath({ activeTabConfig: tabs[hashTabIndex], path: parentSchemaPath }),
-        )
       }
       setHasInitialized(true)
       return
@@ -268,16 +222,12 @@ const TabsFieldComponent: TabsFieldClientComponent = (props) => {
 
     // No hash found, use first visible tab
     const firstVisibleIndex = tabStates.find(({ passesCondition }) => passesCondition)?.index ?? 0
-    
+
     if (activeTabIndex !== firstVisibleIndex) {
       setActiveTabIndex(firstVisibleIndex)
-      setActiveTabPath(generateTabPath({ activeTabConfig: tabs[firstVisibleIndex], path: parentPath }))
-      setActiveTabSchemaPath(
-        generateTabPath({ activeTabConfig: tabs[firstVisibleIndex], path: parentSchemaPath }),
-      )
     }
     setHasInitialized(true)
-  }, [tabStates, tabs, parentPath, parentSchemaPath, getTabIndexFromHash, getNestedTabIndexFromHash, activeTabIndex, isRootLevelTabs, hasInitialized, isHydrated])
+  }, [tabStates, tabs, getTabIndexFromHash, getNestedTabIndexFromHash, activeTabIndex, isRootLevelTabs, hasInitialized, isHydrated])
 
   useEffect(() => {
     if (activeTabInfo?.passesCondition === false) {
@@ -291,16 +241,12 @@ const TabsFieldComponent: TabsFieldClientComponent = (props) => {
   // Listen for hash changes to update active tab
   useEffect(() => {
     const handleHashChange = () => {
-      const hashTabIndex = isRootLevelTabs 
+      const hashTabIndex = isRootLevelTabs
         ? getTabIndexFromHash(tabStates)
         : getNestedTabIndexFromHash(tabStates)
-        
+
       if (hashTabIndex !== null && hashTabIndex !== activeTabIndex) {
         setActiveTabIndex(hashTabIndex)
-        setActiveTabPath(generateTabPath({ activeTabConfig: tabs[hashTabIndex], path: parentPath }))
-        setActiveTabSchemaPath(
-          generateTabPath({ activeTabConfig: tabs[hashTabIndex], path: parentSchemaPath }),
-        )
       }
     }
 
@@ -310,7 +256,7 @@ const TabsFieldComponent: TabsFieldClientComponent = (props) => {
         window.removeEventListener('hashchange', handleHashChange)
       }
     }
-  }, [getTabIndexFromHash, getNestedTabIndexFromHash, activeTabIndex, tabs, parentPath, parentSchemaPath, tabStates, isRootLevelTabs])
+  }, [getTabIndexFromHash, getNestedTabIndexFromHash, activeTabIndex, tabStates, isRootLevelTabs])
 
   // Also check hash on every render (for Next.js navigation that doesn't trigger hashchange)
   useEffect(() => {
@@ -318,16 +264,12 @@ const TabsFieldComponent: TabsFieldClientComponent = (props) => {
       return
     }
 
-    const hashTabIndex = isRootLevelTabs 
+    const hashTabIndex = isRootLevelTabs
       ? getTabIndexFromHash(tabStates)
       : getNestedTabIndexFromHash(tabStates)
-      
+
     if (hashTabIndex !== null && hashTabIndex !== activeTabIndex) {
       setActiveTabIndex(hashTabIndex)
-      setActiveTabPath(generateTabPath({ activeTabConfig: tabs[hashTabIndex], path: parentPath }))
-      setActiveTabSchemaPath(
-        generateTabPath({ activeTabConfig: tabs[hashTabIndex], path: parentSchemaPath }),
-      )
     }
   }) // No dependency array - runs on every render to catch Next.js navigation
 
@@ -364,17 +306,13 @@ const TabsFieldComponent: TabsFieldClientComponent = (props) => {
           {activeTabConfig && (
             <TabContent
               description={activeTabStaticDescription}
-              fields={activeTabConfig.fields}
+              field={activeTabConfig}
               forceRender={forceRender}
               hidden={false}
-              parentIndexPath={
-                tabHasName(activeTabConfig)
-                  ? ''
-                  : `${indexPath ? indexPath + '-' : ''}` + String(activeTabInfo.index)
-              }
-              parentPath={activePathChildrenPath}
-              parentSchemaPath={activePathSchemaChildrenPath}
-              path={activeTabPath}
+              parentIndexPath={indexPath}
+              parentPath={path}
+              parentSchemaPath={schemaPath}
+              path={path}
               permissions={
                 permissions && typeof permissions === 'object' && 'name' in activeTabConfig
                   ? permissions[activeTabConfig.name] &&
@@ -385,6 +323,7 @@ const TabsFieldComponent: TabsFieldClientComponent = (props) => {
                   : permissions
               }
               readOnly={readOnly}
+              tabIndex={activeTabIndex}
             />
           )}
         </div>
@@ -397,8 +336,7 @@ export const TabsField = withCondition(TabsFieldComponent)
 
 type ActiveTabProps = {
   readonly description: StaticDescription
-  readonly fields: ClientField[]
-  readonly forceRender?: boolean
+  readonly field: ClientTab
   readonly hidden: boolean
   readonly label?: string
   readonly parentIndexPath: string
@@ -407,11 +345,12 @@ type ActiveTabProps = {
   readonly path: string
   readonly permissions: SanitizedFieldPermissions
   readonly readOnly: boolean
-}
+  readonly tabIndex: number
+} & Pick<ClientComponentProps, 'forceRender'>
 
 function TabContent({
   description,
-  fields,
+  field,
   forceRender,
   hidden,
   label,
@@ -420,15 +359,23 @@ function TabContent({
   parentSchemaPath,
   permissions,
   readOnly,
+  tabIndex,
 }: ActiveTabProps) {
   const { i18n } = useTranslation()
 
-  const { customComponents: { AfterInput, BeforeInput, Description, Field } = {}, path } =
-    useField()
+  const { customComponents: { AfterInput, BeforeInput, Description, Field } = {} } = useField()
 
   if (Field) {
     return Field
   }
+
+  const { indexPath, path, schemaPath } = getFieldPaths({
+    field,
+    index: tabIndex,
+    parentIndexPath,
+    parentPath,
+    parentSchemaPath,
+  })
 
   return (
     <div
@@ -443,16 +390,16 @@ function TabContent({
       <RenderCustomComponent
         CustomComponent={Description}
         Fallback={
-          <FieldDescription description={description} marginPlacement="bottom" path={path} />
+          <FieldDescription description={description} marginPlacement="bottom" path={parentPath} />
         }
       />
       {BeforeInput}
       <RenderFields
-        fields={fields}
+        fields={field.fields}
         forceRender={forceRender}
-        parentIndexPath={parentIndexPath}
-        parentPath={parentPath}
-        parentSchemaPath={parentSchemaPath}
+        parentIndexPath={indexPath}
+        parentPath={path}
+        parentSchemaPath={schemaPath}
         permissions={permissions}
         readOnly={readOnly}
       />

@@ -7,17 +7,22 @@ import type {
   SanitizedJoins,
 } from '../../collections/config/types.js'
 import type { Config, SanitizedConfig } from '../../config/types.js'
+import type { GlobalConfig } from '../../globals/config/types.js'
 import type { Field } from './types.js'
 
 import {
   DuplicateFieldName,
+  InvalidConfiguration,
   InvalidFieldName,
   InvalidFieldRelationship,
   MissingEditorProp,
   MissingFieldType,
 } from '../../errors/index.js'
 import { ReservedFieldName } from '../../errors/ReservedFieldName.js'
+import { flattenAllFields } from '../../utilities/flattenAllFields.js'
 import { formatLabels, toWords } from '../../utilities/formatLabels.js'
+import { getFieldByPath } from '../../utilities/getFieldByPath.js'
+import { validateTimezones } from '../../utilities/validateTimezones.js'
 import { baseBlockFields } from '../baseFields/baseBlockFields.js'
 import { baseIDField } from '../baseFields/baseIDField.js'
 import { baseTimezoneField } from '../baseFields/timezone/baseField.js'
@@ -31,13 +36,19 @@ import {
   reservedVerifyFieldNames,
 } from './reservedFieldNames.js'
 import { sanitizeJoinField } from './sanitizeJoinField.js'
-import { fieldAffectsData as _fieldAffectsData, fieldIsLocalized, tabHasName } from './types.js'
+import {
+  fieldAffectsData as _fieldAffectsData,
+  fieldIsLocalized,
+  fieldIsVirtual,
+  tabHasName,
+} from './types.js'
 
 type Args = {
   collectionConfig?: CollectionConfig
   config: Config
   existingFieldNames?: Set<string>
   fields: Field[]
+  globalConfig?: GlobalConfig
   /**
    * Used to prevent unnecessary sanitization of fields that are not top-level.
    */
@@ -72,6 +83,7 @@ export const sanitizeFields = async ({
   config,
   existingFieldNames = new Set(),
   fields,
+  globalConfig,
   isTopLevelField = true,
   joinPath = '',
   joins,
@@ -163,6 +175,13 @@ export const sanitizeFields = async ({
     }
 
     if (field.type === 'relationship' || field.type === 'upload') {
+      // Validate that relationTo is not empty
+      if (Array.isArray(field.relationTo) && field.relationTo.length === 0) {
+        throw new Error(
+          `Field "${field.name}" of type "${field.type}" has an empty relationTo array. At least one collection must be specified.`,
+        )
+      }
+
       if (validRelationships) {
         const relationships = Array.isArray(field.relationTo)
           ? field.relationTo
@@ -396,25 +415,101 @@ export const sanitizeFields = async ({
     // Insert our field after assignment
     if (field.type === 'date' && field.timezone) {
       const name = field.name + '_tz'
-      const defaultTimezone = config.admin?.timezones?.defaultTimezone
 
-      const supportedTimezones = config.admin?.timezones?.supportedTimezones
+      let defaultTimezone =
+        field.timezone && typeof field.timezone === 'object'
+          ? field.timezone.defaultTimezone
+          : config.admin?.timezones?.defaultTimezone
+
+      const required =
+        field.required ||
+        (field.timezone && typeof field.timezone === 'object' && field.timezone.required)
+
+      const supportedTimezones =
+        field.timezone && typeof field.timezone === 'object' && field.timezone.supportedTimezones
+          ? field.timezone.supportedTimezones
+          : config.admin?.timezones?.supportedTimezones
 
       const options =
         typeof supportedTimezones === 'function'
           ? supportedTimezones({ defaultTimezones })
           : supportedTimezones
 
-      // Need to set the options here manually so that any database enums are generated correctly
-      // The UI component will import the options from the config
-      const timezoneField = baseTimezoneField({
-        name,
-        defaultValue: defaultTimezone,
-        options,
-        required: field.required,
+      validateTimezones({
+        source: `field "${field.name}" timezone.supportedTimezones`,
+        timezones: options,
       })
 
+      if (options && options.length === 1 && options[0]?.value) {
+        defaultTimezone = options[0].value
+      }
+
+      // Generate label for timezone field
+      // Use parent field's label + ' Tz' if it's a simple string, otherwise fallback to name
+      const timezoneLabel = typeof field.label === 'string' ? `${field.label} Tz` : toWords(name)
+
+      // Need to set the options here manually so that any database enums are generated correctly
+      // The UI component will import the options from the config
+      const baseField = baseTimezoneField({
+        name,
+        defaultValue: defaultTimezone,
+        label: timezoneLabel,
+        options,
+        required,
+      })
+
+      // Apply override if provided
+      const timezoneField =
+        typeof field.timezone === 'object' && typeof field.timezone.override === 'function'
+          ? field.timezone.override({ baseField })
+          : baseField
+
       fields.splice(++i, 0, timezoneField)
+    }
+
+    if ('virtual' in field && typeof field.virtual === 'string') {
+      const virtualField = field
+      const fields = (collectionConfig || globalConfig)?.fields
+      if (fields) {
+        let flattenFields = flattenAllFields({ fields })
+        const paths = field.virtual.split('.')
+        let isHasMany = false
+
+        for (const [i, segment] of paths.entries()) {
+          const field = flattenFields.find((e) => e.name === segment)
+          if (!field) {
+            break
+          }
+
+          if (field.type === 'group' || field.type === 'tab' || field.type === 'array') {
+            flattenFields = field.flattenedFields
+          } else if (
+            (field.type === 'relationship' || field.type === 'upload') &&
+            i !== paths.length - 1 &&
+            typeof field.relationTo === 'string'
+          ) {
+            if (
+              field.hasMany &&
+              (virtualField.type === 'text' ||
+                virtualField.type === 'number' ||
+                virtualField.type === 'select')
+            ) {
+              if (isHasMany) {
+                throw new InvalidConfiguration(
+                  `Virtual field ${virtualField.name} in ${globalConfig ? `global ${globalConfig.slug}` : `collection ${collectionConfig?.slug}`} references 2 or more hasMany relationships on the path ${virtualField.virtual} which is not allowed.`,
+                )
+              }
+
+              isHasMany = true
+              virtualField.hasMany = true
+            }
+            const relatedCollection = config.collections?.find((e) => e.slug === field.relationTo)
+            if (relatedCollection) {
+              flattenFields = flattenAllFields({ fields: relatedCollection.fields })
+            }
+          }
+        }
+      }
     }
   }
 
