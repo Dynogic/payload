@@ -436,7 +436,7 @@ export const renderDocument = async ({
           typeofLivePreviewURL={typeof livePreviewConfig?.url as 'function' | 'string' | undefined}
           url={livePreviewURL}
         >
-          {showHeader && !drawerSlug && (
+          {showHeader && !drawerSlug && !collectionConfig?.admin?.hideDocumentHeader && (
             <DocumentHeader
               AfterHeader={Description}
               collectionConfig={collectionConfig}

@@ -623,6 +623,7 @@ export function DefaultEditView({
             <SetDocumentStepNav
               collectionSlug={collectionConfig?.slug}
               globalSlug={globalConfig?.slug}
+              hideCollectionInBreadcrumb={collectionConfig?.admin?.hideCollectionInBreadcrumb}
               id={id}
               isTrashed={isTrashed}
               pluralLabel={collectionConfig?.labels?.plural}
@@ -681,6 +682,7 @@ export function DefaultEditView({
             redirectAfterDelete={redirectAfterDelete}
             redirectAfterDuplicate={redirectAfterDuplicate}
             redirectAfterRestore={redirectAfterRestore}
+            showTitle={collectionConfig?.admin?.showTitleInControls}
             slug={collectionConfig?.slug || globalConfig?.slug}
             user={currentEditor}
           />

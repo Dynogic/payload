@@ -108,11 +108,31 @@ Strikethrough (`~~text~~`) wasn't being parsed because single `~` (subscript) wa
   - Superscript: `^text^`
   - Underline: `++text++`
 
+### 14. Document Header and Breadcrumb Customization
+
+**Files:** `packages/payload/src/collections/config/types.ts`, `packages/ui/src/elements/StepNav/*`, `packages/ui/src/views/Edit/SetDocumentStepNav/index.tsx`, `packages/ui/src/elements/DocumentControls/*`, `packages/next/src/views/Document/index.tsx`
+
+New collection admin options:
+
+- `hideCollectionInBreadcrumb` - Hides collection from breadcrumb, shows `icon / doc title` instead of `icon / collection / doc title`. Useful for singleton-like collections.
+- `hideDocumentHeader` - Hides the document header (title and tabs) in edit view
+- `showTitleInControls` - Shows document title in the controls bar (useful with `hideDocumentHeader`)
+
+Breadcrumb improvements:
+
+- Current page breadcrumb item is no longer clickable (you're already on that page)
+- Increased breadcrumb item max-width from `base(8)` to `base(16)`
+
+Document controls:
+
+- Removed "Last Modified" and "Created" timestamps from controls bar
+- Added `flex-shrink: 0` to title to prevent shrinking
+
 ---
 
 ## Configuration/Documentation
 
-### 14. Fork Development Workflow
+### 15. Fork Development Workflow
 
 **Files:** `FORK-DEVELOPMENT.md`, `.gitattributes`, `.gitignore`
 
@@ -126,5 +146,5 @@ Strikethrough (`~~text~~`) wasn't being parsed because single `~` (subscript) wa
 | Category      | Count |
 | ------------- | ----- |
 | Bug Fixes     | 3     |
-| Features      | 10    |
+| Features      | 11    |
 | Documentation | 1     |

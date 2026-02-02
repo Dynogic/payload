@@ -528,6 +528,16 @@ export type CollectionAdminOptions = {
    */
   hideAPIURL?: boolean
   /**
+   * Hide the collection from the breadcrumb navigation in the document edit view.
+   * Useful for singleton-like collections where there's only one document per context.
+   * When true, breadcrumb shows: icon / document title (instead of icon / collection / document title)
+   */
+  hideCollectionInBreadcrumb?: boolean
+  /**
+   * Hide the document header (title and tabs) in the document edit view.
+   */
+  hideDocumentHeader?: boolean
+  /**
    * Additional fields to be searched via the full text search
    */
   listSearchableFields?: string[]
@@ -546,6 +556,11 @@ export type CollectionAdminOptions = {
    * Function to generate custom preview URL
    */
   preview?: GeneratePreviewURL
+  /**
+   * Show the document title in the document controls bar.
+   * Useful when hideDocumentHeader is true but you still want to display the title.
+   */
+  showTitleInControls?: boolean
   /**
    * Field to use as title in Edit View and first column in List view
    */
