@@ -127,6 +127,7 @@ Document controls:
 
 - Removed "Last Modified" and "Created" timestamps from controls bar
 - Added `flex-shrink: 0` to title to prevent shrinking
+- Hide "Creating new [label]" text when `showTitleInControls` is enabled
 
 ---
 
