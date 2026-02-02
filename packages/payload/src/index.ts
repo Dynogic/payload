@@ -1360,6 +1360,7 @@ export {
   serverOnlyConfigProperties,
   type UnauthenticatedClientConfig,
 } from './config/client.js'
+export { createDynamicRoutes } from './config/createDynamicRoutes.js'
 export { defaults } from './config/defaults.js'
 
 export { type OrderableEndpointBody } from './config/orderable/index.js'

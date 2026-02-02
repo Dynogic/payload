@@ -8,6 +8,7 @@ import type { ToolbarGroup } from '../../toolbars/types.js'
 import { SubscriptIcon } from '../../../lexical/ui/icons/Subscript/index.js'
 import { createClientFeature } from '../../../utilities/createClientFeature.js'
 import { toolbarFormatGroupWithItems } from '../shared/toolbarFormatGroup.js'
+import { SUBSCRIPT } from './markdownTransformers.js'
 
 const toolbarGroups: ToolbarGroup[] = [
   toolbarFormatGroupWithItems([
@@ -30,6 +31,7 @@ const toolbarGroups: ToolbarGroup[] = [
 
 export const SubscriptFeatureClient = createClientFeature({
   enableFormats: ['subscript'],
+  markdownTransformers: [SUBSCRIPT],
   toolbarFixed: {
     groups: toolbarGroups,
   },

@@ -52,15 +52,17 @@ const insertUpload = ({
 
 type Props = {
   enabledCollectionSlugs: UploadCollectionSlug[]
+  filterOptions?: Record<string, any>
 }
 
-const UploadDrawerComponent: React.FC<Props> = ({ enabledCollectionSlugs }) => {
+const UploadDrawerComponent: React.FC<Props> = ({ enabledCollectionSlugs, filterOptions }) => {
   const [editor] = useLexicalComposerContext()
 
   const [replaceNodeKey, setReplaceNodeKey] = useState<null | string>(null)
 
   const { closeListDrawer, ListDrawer, openListDrawer } = useLexicalListDrawer({
     collectionSlugs: enabledCollectionSlugs,
+    filterOptions,
     uploads: true,
   })
 
@@ -113,10 +115,15 @@ const UploadDrawerComponentFallback: React.FC = () => {
   return null
 }
 
-export const UploadDrawer = ({ enabledCollectionSlugs }: Props): React.ReactNode => {
+export const UploadDrawer = ({ enabledCollectionSlugs, filterOptions }: Props): React.ReactNode => {
   if (!enabledCollectionSlugs?.length) {
     return <UploadDrawerComponentFallback />
   }
 
-  return <UploadDrawerComponent enabledCollectionSlugs={enabledCollectionSlugs} />
+  return (
+    <UploadDrawerComponent
+      enabledCollectionSlugs={enabledCollectionSlugs}
+      filterOptions={filterOptions}
+    />
+  )
 }

@@ -14,6 +14,7 @@ export {
 export { TestRecorderFeatureClient } from '../../features/debug/testRecorder/client/index.js'
 export { TreeViewFeatureClient } from '../../features/debug/treeView/client/index.js'
 export { BoldFeatureClient } from '../../features/format/bold/feature.client.js'
+export { HighlightFeatureClient } from '../../features/format/highlight/feature.client.js'
 export { InlineCodeFeatureClient } from '../../features/format/inlineCode/feature.client.js'
 export { ItalicFeatureClient } from '../../features/format/italic/feature.client.js'
 export { StrikethroughFeatureClient } from '../../features/format/strikethrough/feature.client.js'

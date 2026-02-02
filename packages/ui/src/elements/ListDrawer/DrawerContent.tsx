@@ -64,6 +64,7 @@ export const ListDrawerContent: React.FC<ListDrawerProps> = ({
   const [DocumentDrawer, DocumentDrawerToggler, { drawerSlug: documentDrawerSlug }] =
     useDocumentDrawer({
       collectionSlug: selectedOption.value,
+      filterOptions,
     })
 
   const updateSelectedOption = useEffectEvent((collectionSlug: CollectionSlug) => {

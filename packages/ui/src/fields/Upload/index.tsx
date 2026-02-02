@@ -17,7 +17,10 @@ export type { UploadInputProps } from './Input.js'
 
 export const baseClass = 'upload'
 
-export function UploadComponent(props: UploadFieldClientProps) {
+export function UploadComponent(props: UploadFieldClientProps & { 
+  allowedMimeTypes?: string[]
+  onInvalidFile?: (file: File, allowedTypes: string[]) => void 
+}) {
   const {
     field,
     field: {
@@ -32,6 +35,8 @@ export function UploadComponent(props: UploadFieldClientProps) {
     path: pathFromProps,
     readOnly,
     validate,
+    allowedMimeTypes,
+    onInvalidFile,
   } = props
 
   const { config } = useConfig()
@@ -96,6 +101,7 @@ export function UploadComponent(props: UploadFieldClientProps) {
       <UploadInput
         AfterInput={AfterInput}
         allowCreate={allowCreate !== false}
+        allowedMimeTypes={allowedMimeTypes}
         api={config.routes.api}
         BeforeInput={BeforeInput}
         className={className}
@@ -111,6 +117,7 @@ export function UploadComponent(props: UploadFieldClientProps) {
         localized={localized}
         maxRows={maxRows}
         onChange={setValue}
+        onInvalidFile={onInvalidFile}
         path={path}
         readOnly={readOnly || disabled}
         relationTo={relationToFromProps}
@@ -124,4 +131,4 @@ export function UploadComponent(props: UploadFieldClientProps) {
   )
 }
 
-export const UploadField = withCondition(UploadComponent)
+export const UploadField: any = withCondition(UploadComponent)
