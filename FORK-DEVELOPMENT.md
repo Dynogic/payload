@@ -1,12 +1,12 @@
 # Fork Development Workflow
 
-Guide for building this fork and using it in local projects.
+Guide for building this fork and publishing via GitHub Releases.
 
 ## Prerequisites
 
 - Node.js >= 20.9.0
 - pnpm 10.27.0+
-- Git LFS (`brew install git-lfs && git lfs install`)
+- GitHub CLI (`brew install gh`)
 
 ## Building Packages
 
@@ -22,30 +22,52 @@ pnpm build
 pnpm bf
 ```
 
-## Packing for Local Use
-
-Pack all packages to a single folder:
+### Force Build Single Package
 
 ```bash
+pnpm turbo run build --filter=@payloadcms/ui --force
+```
+
+## Publishing to GitHub Releases
+
+### 1. Build and Pack
+
+```bash
+pnpm build
 pnpm script:pack --all --dest ./packed
 ```
 
-This creates `.tgz` files in `/packed` for all packages.
+### 2. Create a New Release
+
+```bash
+gh release create v3.71.1.1 ./packed/*.tgz \
+  --title "v3.71.1.1" \
+  --notes "Fix: description of changes" \
+  --repo Dynogic/payload
+```
+
+### 3. Or Update an Existing Release
+
+To replace a single package in an existing release:
+
+```bash
+gh release upload v3.71.1 ./packed/payloadcms-ui-*.tgz --clobber --repo Dynogic/payload
+```
 
 ## Using in Local Projects
 
-In your project's `package.json`, reference the packed files:
+In your project's `package.json`, reference the GitHub release URLs:
 
 ```json
 {
   "dependencies": {
-    "payload": "file:../payload/packed/payload-*.tgz",
-    "@payloadcms/db-mongodb": "file:../payload/packed/payloadcms-db-mongodb-*.tgz",
-    "@payloadcms/next": "file:../payload/packed/payloadcms-next-*.tgz",
-    "@payloadcms/plugin-cloud-storage": "file:../payload/packed/payloadcms-plugin-cloud-storage-*.tgz",
-    "@payloadcms/richtext-lexical": "file:../payload/packed/payloadcms-richtext-lexical-*.tgz",
-    "@payloadcms/translations": "file:../payload/packed/payloadcms-translations-*.tgz",
-    "@payloadcms/ui": "file:../payload/packed/payloadcms-ui-*.tgz"
+    "payload": "https://github.com/Dynogic/payload/releases/download/v3.71.1/payload-3.71.1.tgz",
+    "@payloadcms/db-mongodb": "https://github.com/Dynogic/payload/releases/download/v3.71.1/payloadcms-db-mongodb-3.71.1.tgz",
+    "@payloadcms/next": "https://github.com/Dynogic/payload/releases/download/v3.71.1/payloadcms-next-3.71.1.tgz",
+    "@payloadcms/plugin-cloud-storage": "https://github.com/Dynogic/payload/releases/download/v3.71.1/payloadcms-plugin-cloud-storage-3.71.1.tgz",
+    "@payloadcms/richtext-lexical": "https://github.com/Dynogic/payload/releases/download/v3.71.1/payloadcms-richtext-lexical-3.71.1.tgz",
+    "@payloadcms/translations": "https://github.com/Dynogic/payload/releases/download/v3.71.1/payloadcms-translations-3.71.1.tgz",
+    "@payloadcms/ui": "https://github.com/Dynogic/payload/releases/download/v3.71.1/payloadcms-ui-3.71.1.tgz"
   }
 }
 ```
@@ -54,10 +76,11 @@ Then run `npm install` in your project.
 
 ### Force Reinstall
 
-If `npm install` doesn't pick up changes to the tgz files, force reinstall with:
+If npm doesn't pick up the new release, clear cache and reinstall:
 
 ```bash
-npm install ../payload/packed/payload-*.tgz ../payload/packed/payloadcms-db-mongodb-*.tgz ../payload/packed/payloadcms-next-*.tgz ../payload/packed/payloadcms-plugin-cloud-storage-*.tgz ../payload/packed/payloadcms-richtext-lexical-*.tgz ../payload/packed/payloadcms-translations-*.tgz ../payload/packed/payloadcms-ui-*.tgz
+rm -rf node_modules package-lock.json
+npm install
 ```
 
 ## Syncing with Upstream
@@ -69,19 +92,10 @@ git fetch payloadcms
 # Merge into your branch
 git merge payloadcms/main
 
-# Resolve any conflicts, then rebuild and repack
+# Resolve any conflicts, then rebuild and publish
 pnpm build
 pnpm script:pack --all --dest ./packed
-```
-
-## Committing Packed Files
-
-The `packed/` folder is tracked with Git LFS. After packing:
-
-```bash
-git add packed/
-git commit -m "Update packed packages to vX.X.X"
-git push
+gh release create vX.X.X ./packed/*.tgz --title "vX.X.X" --notes "Sync with upstream"
 ```
 
 ## Full Update Workflow
@@ -90,15 +104,28 @@ git push
 # 1. Sync with upstream (if needed)
 git fetch payloadcms && git merge payloadcms/main
 
-# 2. Build
+# 2. Build (use --force if changes aren't picked up)
 pnpm build
 
 # 3. Pack
 pnpm script:pack --all --dest ./packed
 
-# 4. Commit packed files
-git add packed/ && git commit -m "Update packed packages"
+# 4. Create GitHub release
+gh release create v3.71.1.1 ./packed/*.tgz \
+  --title "v3.71.1.1" \
+  --notes "Description of changes" \
+  --repo Dynogic/payload
 
-# 5. In your project, force reinstall
-cd ../your-project && npm install ../payload/packed/payload-*.tgz ../payload/packed/payloadcms-db-mongodb-*.tgz ../payload/packed/payloadcms-next-*.tgz ../payload/packed/payloadcms-plugin-cloud-storage-*.tgz ../payload/packed/payloadcms-richtext-lexical-*.tgz ../payload/packed/payloadcms-translations-*.tgz ../payload/packed/payloadcms-ui-*.tgz
+# 5. In your project, update package.json URLs to new version and reinstall
+npm install
+```
+
+## Viewing Releases
+
+```bash
+# List all releases
+gh release list --repo Dynogic/payload
+
+# View a specific release
+gh release view v3.71.1 --repo Dynogic/payload
 ```
