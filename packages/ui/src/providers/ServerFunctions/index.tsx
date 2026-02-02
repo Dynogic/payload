@@ -8,7 +8,6 @@ import type {
   FilterOptionsResult,
   FormState,
   GetFolderResultsComponentAndDataArgs,
-  Locale,
   Params,
   RenderDocumentVersionsProperties,
   ServerFunction,
@@ -70,7 +69,6 @@ type RenderDocumentBaseArgs = {
   filterOptions?: FilterOptionsResult
   initialData?: Data
   initialState?: FormState
-  locale?: Locale
   overrideEntityVisibility?: boolean
   paramsOverride?: AdminViewServerPropsOnly['params']
   redirectAfterCreate?: boolean
@@ -164,10 +162,10 @@ export const ServerFunctionsProvider: React.FC<{
 
       try {
         if (!remoteSignal?.aborted) {
-          const result = (await serverFunction({
+          const result = await serverFunction({
             name: 'schedule-publish',
             args: { ...rest },
-          })) as Awaited<ReturnType<typeof schedulePublishHandler>> // TODO: infer this type when `strictNullChecks` is enabled
+          })
 
           if (!remoteSignal?.aborted) {
             return result

@@ -27,10 +27,6 @@ export const ecommercePlugin =
     }
 
     const sanitizedPluginConfig = sanitizePluginConfig({ pluginConfig })
-    /**
-     * Used to keep track of the slugs of collections in case they are overridden by the user.
-     */
-    const collectionSlugMap = getCollectionSlugMap({ sanitizedPluginConfig })
 
     const accessConfig = sanitizedPluginConfig.access
 
@@ -39,8 +35,21 @@ export const ecommercePlugin =
       incomingConfig.collections = []
     }
 
-    // Controls whether variants are enabled in the plugin. This is toggled to true under products config
-    let enableVariants = false
+    // Determine if variants are enabled based on products config
+    const productsConfig =
+      typeof sanitizedPluginConfig.products === 'boolean'
+        ? sanitizedPluginConfig.products
+          ? { variants: true }
+          : undefined
+        : sanitizedPluginConfig.products
+
+    const enableVariants = Boolean(productsConfig?.variants)
+
+    /**
+     * Used to keep track of the slugs of collections in case they are overridden by the user.
+     * Variant-related slugs are only included when variants are enabled.
+     */
+    const collectionSlugMap = getCollectionSlugMap({ enableVariants, sanitizedPluginConfig })
 
     const currenciesConfig: Required<SanitizedEcommercePluginConfig['currencies']> =
       sanitizedPluginConfig.currencies
@@ -72,16 +81,7 @@ export const ecommercePlugin =
       incomingConfig.collections.push(addressesCollection)
     }
 
-    if (sanitizedPluginConfig.products) {
-      const productsConfig =
-        typeof sanitizedPluginConfig.products === 'boolean'
-          ? {
-              variants: true,
-            }
-          : sanitizedPluginConfig.products
-
-      enableVariants = Boolean(productsConfig.variants)
-
+    if (productsConfig) {
       if (productsConfig.variants) {
         const variantsConfig =
           typeof productsConfig.variants === 'boolean' ? undefined : productsConfig.variants
@@ -91,8 +91,8 @@ export const ecommercePlugin =
           currenciesConfig,
           inventory: sanitizedPluginConfig.inventory,
           productsSlug: collectionSlugMap.products,
-          variantOptionsSlug: collectionSlugMap.variantOptions,
-          variantTypesSlug: collectionSlugMap.variantTypes,
+          variantOptionsSlug: collectionSlugMap.variantOptions ?? 'variantOptions',
+          variantTypesSlug: collectionSlugMap.variantTypes ?? 'variantTypes',
         })
 
         const variants =
@@ -107,7 +107,7 @@ export const ecommercePlugin =
 
         const defaultVariantTypesCollection = createVariantTypesCollection({
           access: accessConfig,
-          variantOptionsSlug: collectionSlugMap.variantOptions,
+          variantOptionsSlug: collectionSlugMap.variantOptions ?? 'variantOptions',
         })
 
         const variantTypes =
@@ -122,7 +122,7 @@ export const ecommercePlugin =
 
         const defaultVariantOptionsCollection = createVariantOptionsCollection({
           access: accessConfig,
-          variantTypesSlug: collectionSlugMap.variantTypes,
+          variantTypesSlug: collectionSlugMap.variantTypes ?? 'variantTypes',
         })
 
         const variantOptions =
@@ -143,8 +143,8 @@ export const ecommercePlugin =
         currenciesConfig,
         enableVariants,
         inventory: sanitizedPluginConfig.inventory,
-        variantsSlug: collectionSlugMap.variants,
-        variantTypesSlug: collectionSlugMap.variantTypes,
+        variantsSlug: collectionSlugMap.variants ?? 'variants',
+        variantTypesSlug: collectionSlugMap.variantTypes ?? 'variantTypes',
       })
 
       const productsCollection =
@@ -170,7 +170,7 @@ export const ecommercePlugin =
           customersSlug: collectionSlugMap.customers,
           enableVariants: Boolean(productsConfig.variants),
           productsSlug: collectionSlugMap.products,
-          variantsSlug: collectionSlugMap.variants,
+          variantsSlug: collectionSlugMap.variants ?? 'variants',
         })
 
         const cartsCollection =
@@ -195,7 +195,7 @@ export const ecommercePlugin =
         customersSlug: collectionSlugMap.customers,
         enableVariants,
         productsSlug: collectionSlugMap.products,
-        variantsSlug: collectionSlugMap.variants,
+        variantsSlug: collectionSlugMap.variants ?? 'variants',
       })
 
       const ordersCollection =
@@ -236,7 +236,7 @@ export const ecommercePlugin =
               productsSlug: collectionSlugMap.products,
               productsValidation,
               transactionsSlug: collectionSlugMap.transactions,
-              variantsSlug: collectionSlugMap.variants,
+              variantsSlug: collectionSlugMap.variants ?? 'variants',
             }),
             method: 'post',
             path: `${methodPath}/initiate`,
@@ -248,8 +248,10 @@ export const ecommercePlugin =
               currenciesConfig,
               ordersSlug: collectionSlugMap.orders,
               paymentMethod,
+              productsSlug: collectionSlugMap.products,
               productsValidation,
               transactionsSlug: collectionSlugMap.transactions,
+              variantsSlug: collectionSlugMap.variants ?? 'variants',
             }),
             method: 'post',
             path: `${methodPath}/confirm-order`,
@@ -287,7 +289,7 @@ export const ecommercePlugin =
         ordersSlug: collectionSlugMap.orders,
         paymentMethods,
         productsSlug: collectionSlugMap.products,
-        variantsSlug: collectionSlugMap.variants,
+        variantsSlug: collectionSlugMap.variants ?? 'variants',
       })
 
       const transactionsCollection =
