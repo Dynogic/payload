@@ -183,7 +183,7 @@ export const DocumentControls: React.FC<{
             </div>
           ) : null}
           <ul className={`${baseClass}__meta`}>
-            {collectionConfig && !isEditing && !isAccountView && (
+            {collectionConfig && !isEditing && !isAccountView && !showTitle && (
               <li className={`${baseClass}__list-item`}>
                 <p className={`${baseClass}__value`}>
                   {i18n.t('general:creatingNewLabel', {
