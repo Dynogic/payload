@@ -189,8 +189,16 @@ export const daTranslations: DefaultTranslationsObject = {
     uploadNewLabel: 'Upload ny {{label}}',
   },
   folder: {
+    assign: 'Tildel',
+    assignFolder: 'Tildel mappe',
+    assigning: 'Tildeler...',
+    assignItemsToFolderConfirmation:
+      'Du er ved at tildele <1>{{count}} {{label}}</1> til <2>{{toFolder}}</2>. Er du sikker?',
+    assignItemsToRootConfirmation:
+      'Du er ved at fjerne <1>{{count}} {{label}}</1> fra deres nuværende mappe. Er du sikker?',
     browseByFolder: 'Gennemse efter Mappe',
     byFolder: 'Ved Mappe',
+    confirmAssignment: 'Bekræft tildeling',
     deleteFolder: 'Slet mappe',
     folderName: 'Mappenavn',
     folders: 'Mapper',
@@ -198,8 +206,10 @@ export const daTranslations: DefaultTranslationsObject = {
       'Vælg hvilken type samling af dokumenter der bør være tilladt i denne mappe.',
     itemHasBeenMoved: '{{title}} er blevet flyttet til {{folderName}}',
     itemHasBeenMovedToRoot: '{{title}} er blevet flyttet til rodmappen',
+    itemsAssignedToFolder: '{{title}} tildelt til {{folderName}}',
     itemsMovedToFolder: '{{title}} flyttet til {{folderName}}',
     itemsMovedToRoot: '{{title}} flyttet til rod-mappen',
+    itemsRemovedFromFolder: '{{title}} fjernet fra mappe',
     moveFolder: 'Flyt Mappe',
     moveItemsToFolderConfirmation:
       'Du er ved at flytte <1>{{count}} {{label}}</1> til <2>{{toFolder}}</2>. Er du sikker?',

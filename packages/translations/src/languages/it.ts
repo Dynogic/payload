@@ -194,8 +194,16 @@ export const itTranslations: DefaultTranslationsObject = {
     uploadNewLabel: 'Carica nuovo {{label}}',
   },
   folder: {
+    assign: 'Assegna',
+    assignFolder: 'Assegna cartella',
+    assigning: 'Assegnazione...',
+    assignItemsToFolderConfirmation:
+      'Stai per assegnare <1>{{count}} {{label}}</1> a <2>{{toFolder}}</2>. Sei sicuro?',
+    assignItemsToRootConfirmation:
+      'Stai per rimuovere <1>{{count}} {{label}}</1> dalla loro cartella attuale. Sei sicuro?',
     browseByFolder: 'Sfoglia per Cartella',
     byFolder: 'Per Cartella',
+    confirmAssignment: 'Conferma assegnazione',
     deleteFolder: 'Elimina cartella',
     folderName: 'Nome Cartella',
     folders: 'Cartelle',
@@ -203,8 +211,10 @@ export const itTranslations: DefaultTranslationsObject = {
       'Seleziona quale tipo di documenti della collezione dovrebbero essere consentiti in questa cartella.',
     itemHasBeenMoved: '{{title}} è stato spostato in {{folderName}}',
     itemHasBeenMovedToRoot: '{{title}} è stato spostato nella cartella principale',
+    itemsAssignedToFolder: '{{title}} assegnato a {{folderName}}',
     itemsMovedToFolder: '{{title}} spostato in {{folderName}}',
     itemsMovedToRoot: '{{title}} è stato spostato nella cartella principale',
+    itemsRemovedFromFolder: '{{title}} rimosso dalla cartella',
     moveFolder: 'Sposta Cartella',
     moveItemsToFolderConfirmation:
       'Stai per spostare <1>{{count}} {{label}}</1> in <2>{{toFolder}}</2>. Sei sicuro?',

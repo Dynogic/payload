@@ -174,8 +174,14 @@ type ContextCardProps = {
 export function ContextFolderFileCard({ type, className, index, item }: ContextCardProps) {
   const { checkIfItemIsDisabled, focusedRowIndex, onItemClick, onItemKeyPress, selectedItemKeys } =
     useFolder()
+  const { t } = useTranslation()
   const isSelected = selectedItemKeys.has(item.itemKey)
   const isDisabled = checkIfItemIsDisabled(item)
+
+  const title =
+    item.value._folderOrDocumentTitle === String(item.value.id)
+      ? t('general:noLabel', { label: t('general:name') })
+      : item.value._folderOrDocumentTitle
 
   return (
     <FolderFileCard
@@ -194,7 +200,7 @@ export function ContextFolderFileCard({ type, className, index, item }: ContextC
         void onItemKeyPress({ event, index, item })
       }}
       previewUrl={item.value.url}
-      title={item.value._folderOrDocumentTitle}
+      title={title}
       type={type}
     />
   )

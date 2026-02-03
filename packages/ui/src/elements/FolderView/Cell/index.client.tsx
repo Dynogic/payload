@@ -1,13 +1,14 @@
 'use client'
 
 import type { Data, ViewTypes } from 'payload'
-import type { FolderOrDocument } from 'payload/shared'
 
 import { formatAdminURL } from 'payload/shared'
 import React, { useEffect } from 'react'
 
-// eslint-disable-next-line payload/no-imports-from-exports-dir
-import { MoveDocToFolderButton, useConfig, useTranslation } from '../../../exports/client/index.js'
+import { useConfig } from '../../../providers/Config/index.js'
+import { useTranslation } from '../../../providers/Translation/index.js'
+import { Link } from '../../Link/index.js'
+import { useListDrawerContext } from '../../ListDrawer/Provider.js'
 
 type Props = {
   readonly collectionSlug: string
@@ -21,52 +22,18 @@ type Props = {
 export const FolderTableCellClient = ({
   collectionSlug,
   data,
-  docTitle,
   folderCollectionSlug,
   folderFieldName,
-  viewType,
 }: Props) => {
-  const docID = data.id
-  const intialFolderID = data?.[folderFieldName]
+  const folderID = data?.[folderFieldName]
 
   const { config } = useConfig()
   const { t } = useTranslation()
-  const [fromFolderName, setFromFolderName] = React.useState(() =>
-    intialFolderID ? `${t('general:loading')}...` : t('folder:noFolder'),
+  const [folderName, setFolderName] = React.useState(() =>
+    folderID ? `${t('general:loading')}...` : null,
   )
-  const [fromFolderID, setFromFolderID] = React.useState(intialFolderID)
 
-  const hasLoadedFolderName = React.useRef(false)
-
-  const onConfirm = React.useCallback(
-    async ({ id, name }) => {
-      try {
-        await fetch(
-          formatAdminURL({
-            apiRoute: config.routes.api,
-            path: `/${collectionSlug}/${docID}`,
-          }),
-          {
-            body: JSON.stringify({
-              [folderFieldName]: id,
-            }),
-            credentials: 'include',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            method: 'PATCH',
-          },
-        )
-
-        setFromFolderID(id)
-        setFromFolderName(name || t('folder:noFolder'))
-      } catch (error) {
-        // eslint-disable-next-line no-console
-        console.error('Error moving document to folder', error)
-      }
-    },
-    [config.routes.api, collectionSlug, docID, folderFieldName, t],
-  )
+  const lastLoadedFolderID = React.useRef<null | number | string>(null)
 
   useEffect(() => {
     const loadFolderName = async () => {
@@ -74,7 +41,7 @@ export const FolderTableCellClient = ({
         const req = await fetch(
           formatAdminURL({
             apiRoute: config.routes.api,
-            path: `/${folderCollectionSlug}${intialFolderID ? `/${intialFolderID}` : ''}`,
+            path: `/${folderCollectionSlug}/${folderID}`,
           }),
           {
             credentials: 'include',
@@ -86,36 +53,59 @@ export const FolderTableCellClient = ({
         )
 
         const res = await req.json()
-        setFromFolderName(res?.name || t('folder:noFolder'))
+        setFolderName(res?.name || null)
+        lastLoadedFolderID.current = folderID
       } catch (error) {
         // eslint-disable-next-line no-console
-        console.error('Error moving document to folder', error)
+        console.error('Error loading folder name', error)
+        setFolderName(null)
       }
     }
 
-    if (!hasLoadedFolderName.current) {
+    // Re-fetch if folderID changed or hasn't been loaded yet
+    if (folderID && lastLoadedFolderID.current !== folderID) {
       void loadFolderName()
-      hasLoadedFolderName.current = true
+    } else if (!folderID) {
+      setFolderName(null)
+      lastLoadedFolderID.current = null
     }
-  }, [config.routes.api, folderCollectionSlug, intialFolderID, t])
+  }, [config.routes.api, folderCollectionSlug, folderID])
+
+  const { drawerSlug, onSelect } = useListDrawerContext()
+
+  if (!folderID) {
+    return <span style={{ opacity: 0.5 }}>—</span>
+  }
+
+  const displayName = folderName || '...'
+
+  // In drawer/picker mode, use onSelect for selection
+  if (drawerSlug && typeof onSelect === 'function') {
+    return (
+      <button
+        onClick={() => onSelect({ collectionSlug, doc: data, docID: data?.id as string })}
+        style={{
+          background: 'none',
+          border: 'none',
+          cursor: 'pointer',
+          padding: 0,
+          textAlign: 'left',
+        }}
+        type="button"
+      >
+        {displayName}
+      </button>
+    )
+  }
+
+  const href = formatAdminURL({
+    adminRoute: config.routes.admin,
+    path: `/collections/${collectionSlug}/folders/${folderID}`,
+  })
 
   return (
-    <MoveDocToFolderButton
-      buttonProps={{
-        disabled: viewType === 'trash',
-        size: 'small',
-      }}
-      collectionSlug={collectionSlug}
-      docData={data as FolderOrDocument['value']}
-      docID={docID}
-      docTitle={docTitle}
-      folderCollectionSlug={folderCollectionSlug}
-      folderFieldName={folderFieldName}
-      fromFolderID={fromFolderID}
-      fromFolderName={fromFolderName}
-      modalSlug={`move-doc-to-folder-cell--${docID}`}
-      onConfirm={onConfirm}
-      skipConfirmModal={false}
-    />
+    <Link href={href} prefetch={false}>
+      {displayName}
+    </Link>
   )
 }

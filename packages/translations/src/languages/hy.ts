@@ -190,8 +190,16 @@ export const hyTranslations: DefaultTranslationsObject = {
     uploadNewLabel: 'Վերբեռնել նոր {{label}}',
   },
   folder: {
+    assign: 'Նշանակել',
+    assignFolder: 'Նշանակել պանակ',
+    assigning: 'Նշանակվում է...',
+    assignItemsToFolderConfirmation:
+      'Դուք պատրաստվում եք <1>{{count}} {{label}}</1> նշանակել <2>{{toFolder}}</2>-ին։ Վստա՞հ եք։',
+    assignItemsToRootConfirmation:
+      'Դուք պատրաստվում եք հեռացնել <1>{{count}} {{label}}</1> իրենց ընթացիկ պանակից։ Վստա՞հ եք։',
     browseByFolder: 'Թվարկել թղթապանակներով',
     byFolder: 'ըստ թղթապանակի',
+    confirmAssignment: 'Հաստատել նշանակումը',
     deleteFolder: 'Ջնջել թղթապանակը',
     folderName: 'Տեսակավորման անվանում',
     folders: 'Պատուհաններ',
@@ -199,8 +207,10 @@ export const hyTranslations: DefaultTranslationsObject = {
       'Ընտրեք, թե որն է հավաքածուի փաստաթղթերը, որոնք պետք է թույլատրվեն այս պանակում:',
     itemHasBeenMoved: '{{title}}-ը տեղափոխվել է {{folderName}}-ում',
     itemHasBeenMovedToRoot: '«{{title}}» տեղափոխվել է արմատային պանակ։',
+    itemsAssignedToFolder: '{{title}} նշանակվել է {{folderName}}-ին',
     itemsMovedToFolder: '{{title}} տեղափոխվեց {{folderName}}',
     itemsMovedToRoot: '{{title}} տեղափոխվել է արմատ թղթապանակին',
+    itemsRemovedFromFolder: '{{title}} հեռացվել է պանակից',
     moveFolder: 'Տեղափոխել թղթապանակը',
     moveItemsToFolderConfirmation:
       'Դուք պատրաստ եք <1>{{count}} {{label}}</1> տեղափոխել <2>{{toFolder}}</2>։ Ամբողջականում համոզված եք:',

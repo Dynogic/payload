@@ -191,16 +191,26 @@ export const idTranslations: DefaultTranslationsObject = {
     uploadNewLabel: 'Unggah {{label}} baru',
   },
   folder: {
+    assign: 'Tetapkan',
+    assignFolder: 'Tetapkan Folder',
+    assigning: 'Menetapkan...',
+    assignItemsToFolderConfirmation:
+      'Anda akan menetapkan <1>{{count}} {{label}}</1> ke <2>{{toFolder}}</2>. Apakah Anda yakin?',
+    assignItemsToRootConfirmation:
+      'Anda akan menghapus <1>{{count}} {{label}}</1> dari folder mereka saat ini. Apakah Anda yakin?',
     browseByFolder: 'Jelajahi berdasarkan Folder',
     byFolder: 'Berdasarkan Folder',
+    confirmAssignment: 'Konfirmasi penetapan',
     deleteFolder: 'Hapus Folder',
     folderName: 'Nama Folder',
     folders: 'Folder',
     folderTypeDescription: 'Pilih jenis dokumen koleksi yang diizinkan di folder ini.',
     itemHasBeenMoved: '{{title}} telah dipindahkan ke {{folderName}}',
     itemHasBeenMovedToRoot: '{{title}} telah dipindahkan ke folder root',
+    itemsAssignedToFolder: '{{title}} ditetapkan ke {{folderName}}',
     itemsMovedToFolder: '{{title}} dipindahkan ke {{folderName}}',
     itemsMovedToRoot: '{{title}} dipindahkan ke folder root',
+    itemsRemovedFromFolder: '{{title}} dihapus dari folder',
     moveFolder: 'Pindahkan Folder',
     moveItemsToFolderConfirmation:
       'Anda akan memindahkan <1>{{count}} {{label}}</1> ke <2>{{toFolder}}</2>. Apakah Anda yakin?',

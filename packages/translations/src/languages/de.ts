@@ -195,8 +195,16 @@ export const deTranslations: DefaultTranslationsObject = {
     uploadNewLabel: '{{label}} neu hochladen',
   },
   folder: {
+    assign: 'Zuweisen',
+    assignFolder: 'Ordner zuweisen',
+    assigning: 'Zuweisen...',
+    assignItemsToFolderConfirmation:
+      'Sie sind dabei, <1>{{count}} {{label}}</1> zu <2>{{toFolder}}</2> zuzuweisen. Sind Sie sicher?',
+    assignItemsToRootConfirmation:
+      'Sie sind dabei, <1>{{count}} {{label}}</1> aus dem aktuellen Ordner zu entfernen. Sind Sie sicher?',
     browseByFolder: 'Durchsuchen nach Ordner',
     byFolder: 'Nach Ordner',
+    confirmAssignment: 'Zuweisung bestätigen',
     deleteFolder: 'Ordner löschen',
     folderName: 'Ordnername',
     folders: 'Ordner',
@@ -204,8 +212,10 @@ export const deTranslations: DefaultTranslationsObject = {
       'Wählen Sie aus, welche Art von Sammlungsdokumenten in diesem Ordner zugelassen sein sollte.',
     itemHasBeenMoved: '{{title}} wurde in {{folderName}} verschoben.',
     itemHasBeenMovedToRoot: '{{title}} wurde in den Hauptordner verschoben',
+    itemsAssignedToFolder: '{{title}} zu {{folderName}} zugewiesen',
     itemsMovedToFolder: '{{title}} wurde in {{folderName}} verschoben.',
     itemsMovedToRoot: '{{title}} wurde in den Stammordner verschoben',
+    itemsRemovedFromFolder: '{{title}} aus Ordner entfernt',
     moveFolder: 'Ordner verschieben',
     moveItemsToFolderConfirmation:
       'Sie sind dabei, <1>{{count}} {{label}}</1> nach <2>{{toFolder}}</2> zu verschieben. Sind Sie sicher?',

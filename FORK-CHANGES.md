@@ -150,6 +150,26 @@ admin: {
 
 Useful for displaying data from related collections in list views (e.g., showing thumbnails from upload relationships) without fetching entire nested documents.
 
+### 16. Assign Folder from List View Selection
+
+**Files:** `packages/ui/src/views/List/ListSelection/index.tsx`, `packages/payload/src/collections/operations/update.ts`, `packages/translations/src/languages/*.ts`
+
+- New "Assign Folder" button appears when selecting items in list view (when folders are enabled)
+- Custom confirmation modal with "Assign" terminology (not "Move")
+- Toast messages say "assigned to folder" / "removed from folder"
+- Allows folder assignment even on collections with `disableBulkEdit: true` (folder-only PATCH requests are permitted)
+- Translations added for all 44 languages
+
+---
+
+## Bug Fixes (continued)
+
+### 17. Folder Cell Not Updating After Assignment
+
+**File:** `packages/ui/src/elements/FolderView/Cell/index.client.tsx`
+
+Fixed folder column not updating after changing folder assignment. The cell had a ref guard that prevented re-fetching once loaded, even when `folderID` changed. Now tracks `lastLoadedFolderID` and re-fetches when it differs.
+
 ---
 
 ## Configuration/Documentation
@@ -167,6 +187,6 @@ Useful for displaying data from related collections in list views (e.g., showing
 
 | Category      | Count |
 | ------------- | ----- |
-| Bug Fixes     | 3     |
-| Features      | 12    |
+| Bug Fixes     | 4     |
+| Features      | 13    |
 | Documentation | 1     |

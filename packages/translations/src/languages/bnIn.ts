@@ -191,8 +191,16 @@ export const bnInTranslations: DefaultTranslationsObject = {
     uploadNewLabel: 'নতুন {{label}} আপলোড করুন',
   },
   folder: {
+    assign: 'বরাদ্দ করুন',
+    assignFolder: 'ফোল্ডার বরাদ্দ করুন',
+    assigning: 'বরাদ্দ করা হচ্ছে...',
+    assignItemsToFolderConfirmation:
+      'আপনি <1>{{count}} {{label}}</1> কে <2>{{toFolder}}</2> এ বরাদ্দ করতে যাচ্ছেন। আপনি কি নিশ্চিত?',
+    assignItemsToRootConfirmation:
+      'আপনি <1>{{count}} {{label}}</1> কে তাদের বর্তমান ফোল্ডার থেকে সরাতে যাচ্ছেন। আপনি কি নিশ্চিত?',
     browseByFolder: 'ফোল্ডার দ্বারা ব্রাউজ করুন',
     byFolder: 'ফোল্ডার দ্বারা',
+    confirmAssignment: 'বরাদ্দ নিশ্চিত করুন',
     deleteFolder: 'ফোল্ডার মুছুন',
     folderName: 'ফোল্ডারের নাম',
     folders: 'ফোল্ডারগুলি',
@@ -200,8 +208,10 @@ export const bnInTranslations: DefaultTranslationsObject = {
       'এই ফোল্ডারে কোন ধরণের কালেকশন ডকুমেন্টস অনুমতি দেওয়া উচিত তা নির্বাচন করুন।',
     itemHasBeenMoved: '{{title}} কে {{folderName}} এ সরানো হয়েছে',
     itemHasBeenMovedToRoot: '{{title}} কে মূল ফোল্ডারে সরানো হয়েছে',
+    itemsAssignedToFolder: '{{title}} {{folderName}} এ বরাদ্দ করা হয়েছে',
     itemsMovedToFolder: '{{title}} কে {{folderName}} এ সরানো হয়েছে',
     itemsMovedToRoot: '{{title}} কে মূল ফোল্ডারে সরানো হয়েছে',
+    itemsRemovedFromFolder: '{{title}} ফোল্ডার থেকে সরানো হয়েছে',
     moveFolder: 'ফোল্ডার সরান',
     moveItemsToFolderConfirmation:
       'আপনি <1>{{count}} {{label}}</1> কে <2>{{toFolder}}</2> এ সরাতে চলেছেন। আপনি কি নিশ্চিত?',

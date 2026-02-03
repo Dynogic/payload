@@ -192,8 +192,16 @@ export const ruTranslations: DefaultTranslationsObject = {
     uploadNewLabel: 'Загрузить новый {{label}}',
   },
   folder: {
+    assign: 'Назначить',
+    assignFolder: 'Назначить папку',
+    assigning: 'Назначение...',
+    assignItemsToFolderConfirmation:
+      'Вы собираетесь назначить <1>{{count}} {{label}}</1> в <2>{{toFolder}}</2>. Вы уверены?',
+    assignItemsToRootConfirmation:
+      'Вы собираетесь удалить <1>{{count}} {{label}}</1> из текущей папки. Вы уверены?',
     browseByFolder: 'Просмотр по папкам',
     byFolder: 'По папке',
+    confirmAssignment: 'Подтвердить назначение',
     deleteFolder: 'Удалить папку',
     folderName: 'Название папки',
     folders: 'Папки',
@@ -201,8 +209,10 @@ export const ruTranslations: DefaultTranslationsObject = {
       'Выберите, какие типы документов коллекции должны быть разрешены в этой папке.',
     itemHasBeenMoved: '{{title}} был перемещен в {{folderName}}',
     itemHasBeenMovedToRoot: '{{title}} был перемещен в корневую папку',
+    itemsAssignedToFolder: '{{title}} назначен в {{folderName}}',
     itemsMovedToFolder: '{{title}} перемещен в {{folderName}}',
     itemsMovedToRoot: '{{title}} перемещен в корневую папку',
+    itemsRemovedFromFolder: '{{title}} удалён из папки',
     moveFolder: 'Переместить папку',
     moveItemsToFolderConfirmation:
       'Вы собираетесь переместить <1>{{count}} {{label}}</1> в <2>{{toFolder}}</2>. Вы уверены?',

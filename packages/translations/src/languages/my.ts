@@ -191,16 +191,26 @@ export const myTranslations: DefaultTranslationsObject = {
     uploadNewLabel: '{{label}} အသစ်တင်မည်။',
   },
   folder: {
+    assign: 'သတ်မှတ်ရန်',
+    assignFolder: 'ဖိုင်တွဲသတ်မှတ်ရန်',
+    assigning: 'သတ်မှတ်နေသည်...',
+    assignItemsToFolderConfirmation:
+      'သင်သည် <1>{{count}} {{label}}</1> ကို <2>{{toFolder}}</2> သို့ သတ်မှတ်တော့မည်ဖြစ်သည်။ သေချာပါသလား?',
+    assignItemsToRootConfirmation:
+      'သင်သည် <1>{{count}} {{label}}</1> ကို ၎င်းတို့၏လက်ရှိဖိုင်တွဲမှ ဖယ်ရှားတော့မည်ဖြစ်သည်။ သေချာပါသလား?',
     browseByFolder: 'Layari mengikut Folder',
     byFolder: 'Dengan Folder',
+    confirmAssignment: 'သတ်မှတ်မှုကိုအတည်ပြုပါ',
     deleteFolder: 'Padam Folder',
     folderName: 'ဖိုင်နာမည်',
     folders: 'Fail',
     folderTypeDescription: 'Pilih jenis dokumen koleksi yang harus diizinkan dalam folder ini.',
     itemHasBeenMoved: '{{title}} telah dipindahkan ke {{folderName}}',
     itemHasBeenMovedToRoot: '"{{title}}" က ဗဟိုဖိုလ်ဒါသို့ရွှေ့ပြီးပါပြီ။',
+    itemsAssignedToFolder: '{{title}} ကို {{folderName}} သို့ သတ်မှတ်ပြီးပါပြီ',
     itemsMovedToFolder: '{{title}} သို့ {{folderName}} သို့ ရွှေ့လိုက်သွားပါပယ်',
     itemsMovedToRoot: '{{title}} telah dipindahkan ke folder akar',
+    itemsRemovedFromFolder: '{{title}} ကို ဖိုင်တွဲမှ ဖယ်ရှားပြီးပါပြီ',
     moveFolder: 'Pindah Folder',
     moveItemsToFolderConfirmation:
       'သင့်တွင် <1>{{count}} {{label}}</1> <2>{{toFolder}}</2>သို့ ရွှေ့နေသည့်အခါဖြစ်ပါသည်။ သေချာပါသလား?',
@@ -453,7 +463,8 @@ export const myTranslations: DefaultTranslationsObject = {
     updateForEveryone: 'အားလုံးအတွက် အပြောင်းအလဲ',
     updating: 'ပြင်ဆင်ရန်',
     uploading: 'တင်ပေးနေသည် ({{progress}}%)',
-    uploadingBulk: 'တင်နေသည် {{current}} ခု အမှတ်ဖြစ်သည် {{total}} ခုစုစုပေါင်းဖြင့် ({{progress}}%)',
+    uploadingBulk:
+      'တင်နေသည် {{current}} ခု အမှတ်ဖြစ်သည် {{total}} ခုစုစုပေါင်းဖြင့် ({{progress}}%)',
     user: 'အသုံးပြုသူ',
     username: 'Nama pengguna',
     users: 'အသုံးပြုသူများ',

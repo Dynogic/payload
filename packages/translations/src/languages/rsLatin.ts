@@ -191,8 +191,16 @@ export const rsLatinTranslations: DefaultTranslationsObject = {
     uploadNewLabel: 'Učitaj novi {{label}}',
   },
   folder: {
+    assign: 'Dodeli',
+    assignFolder: 'Dodeli fasciklu',
+    assigning: 'Dodeljivanje...',
+    assignItemsToFolderConfirmation:
+      'Upravo ćete dodeliti <1>{{count}} {{label}}</1> u <2>{{toFolder}}</2>. Da li ste sigurni?',
+    assignItemsToRootConfirmation:
+      'Upravo ćete ukloniti <1>{{count}} {{label}}</1> iz trenutne fascikle. Da li ste sigurni?',
     browseByFolder: 'Pregledaj po Folderu',
     byFolder: 'Po fascikli',
+    confirmAssignment: 'Potvrdi dodelu',
     deleteFolder: 'Obriši mapu',
     folderName: 'Naziv fascikle',
     folders: 'Fascikle',
@@ -200,8 +208,10 @@ export const rsLatinTranslations: DefaultTranslationsObject = {
       'Odaberite koja vrsta dokumenta iz kolekcije bi trebala biti dozvoljena u ovoj fascikli.',
     itemHasBeenMoved: '{{title}} je premesten u {{folderName}}',
     itemHasBeenMovedToRoot: '{{title}} je premešten u osnovnu fasciklu',
+    itemsAssignedToFolder: '{{title}} dodeljen u {{folderName}}',
     itemsMovedToFolder: '{{title}} premešteno u {{folderName}}',
     itemsMovedToRoot: '{{title}} je premješten u glavnu fasciklu',
+    itemsRemovedFromFolder: '{{title}} uklonjen iz fascikle',
     moveFolder: 'Premesti folder',
     moveItemsToFolderConfirmation:
       'Na korak ste da premestite <1>{{count}} {{label}}</1> u <2>{{toFolder}}</2>. Da li ste sigurni?',

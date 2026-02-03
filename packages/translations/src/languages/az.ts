@@ -190,16 +190,26 @@ export const azTranslations: DefaultTranslationsObject = {
     uploadNewLabel: 'Yeni {{label}} yüklə',
   },
   folder: {
+    assign: 'Təyin et',
+    assignFolder: 'Qovluq təyin et',
+    assigning: 'Təyin edilir...',
+    assignItemsToFolderConfirmation:
+      '<1>{{count}} {{label}}</1> elementini <2>{{toFolder}}</2> qovluğuna təyin etmək üzrəsiniz. Əminsiniz?',
+    assignItemsToRootConfirmation:
+      '<1>{{count}} {{label}}</1> elementini cari qovluqdan çıxarmaq üzrəsiniz. Əminsiniz?',
     browseByFolder: 'Qovluqlara görə gözdən keçirin',
     byFolder: 'Qovluğa görə',
+    confirmAssignment: 'Təyinatı təsdiqlə',
     deleteFolder: 'Qovluğu Sil',
     folderName: 'Qovluq Adı',
     folders: 'Qovluqlar',
     folderTypeDescription: 'Bu qovluqda hangi tip kolleksiya sənədlərinə icazə verilməlidir seçin.',
     itemHasBeenMoved: '{{title}} {{folderName}} qovluğuna köçürüldü.',
     itemHasBeenMovedToRoot: '{{title}} kök qovluğa köçürüldü.',
+    itemsAssignedToFolder: '{{title}} {{folderName}} qovluğuna təyin edildi',
     itemsMovedToFolder: '{{title}} {{folderName}} qovluğuna köçürüldü',
     itemsMovedToRoot: '{{title}} kök qovluğa köçürdü',
+    itemsRemovedFromFolder: '{{title}} qovluqdan çıxarıldı',
     moveFolder: 'Qovluğu Köçür',
     moveItemsToFolderConfirmation:
       'Siz <1>{{count}} {{label}}</1> -i <2>{{toFolder}}</2> -ə köçürmək üzərəsiniz. Eminsiniz?',

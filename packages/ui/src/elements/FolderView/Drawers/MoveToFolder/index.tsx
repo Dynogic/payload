@@ -102,7 +102,7 @@ function LoadFolderData(props: MoveToFolderDrawerProps) {
         setFolderResultsComponent(result.FolderResultsComponent || null)
         setFolderID(folderIDToPopulate)
         setHasLoaded(true)
-      } catch (e) {
+      } catch (_e) {
         setBreadcrumbs([])
         setSubfolders([])
         setDocuments([])
@@ -194,12 +194,17 @@ function Content({
       }
     } else {
       // use the selected item
+      const item = selected[0]
+      const name =
+        item.value._folderOrDocumentTitle === String(item.value.id)
+          ? t('general:noLabel', { label: t('general:name') })
+          : item.value._folderOrDocumentTitle
       return {
-        id: selected[0].value.id,
-        name: selected[0].value._folderOrDocumentTitle,
+        id: item.value.id,
+        name,
       }
     }
-  }, [breadcrumbs, getSelectedItems])
+  }, [breadcrumbs, getSelectedItems, t])
 
   const onCreateSuccess = React.useCallback(
     async ({ collectionSlug, doc }: { collectionSlug: CollectionSlug; doc: Document }) => {

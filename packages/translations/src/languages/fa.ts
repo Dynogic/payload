@@ -186,16 +186,26 @@ export const faTranslations: DefaultTranslationsObject = {
     uploadNewLabel: 'آپلود {{label}} جدید',
   },
   folder: {
+    assign: 'تخصیص',
+    assignFolder: 'تعیین پوشه',
+    assigning: 'در حال تخصیص...',
+    assignItemsToFolderConfirmation:
+      'شما در حال تخصیص <1>{{count}} {{label}}</1> به <2>{{toFolder}}</2> هستید. آیا مطمئن هستید؟',
+    assignItemsToRootConfirmation:
+      'شما در حال حذف <1>{{count}} {{label}}</1> از پوشه فعلی آنها هستید. آیا مطمئن هستید؟',
     browseByFolder: 'مرور بر اساس پوشه',
     byFolder: 'بر اساس پوشه',
+    confirmAssignment: 'تأیید تخصیص',
     deleteFolder: 'حذف پوشه',
     folderName: 'نام پوشه',
     folders: 'پوشه‌ها',
     folderTypeDescription: 'انتخاب کنید چه نوع اسنادی می‌توانند در این پوشه قرار بگیرند.',
     itemHasBeenMoved: '"{{title}}" به پوشه "{{folderName}}" منتقل شد.',
     itemHasBeenMovedToRoot: '"{{title}}" به پوشه اصلی منتقل شد.',
+    itemsAssignedToFolder: '{{title}} به {{folderName}} تخصیص داده شد',
     itemsMovedToFolder: '{{count}} مورد به پوشه "{{folderName}}" منتقل شد.',
     itemsMovedToRoot: '{{count}} مورد به پوشه اصلی منتقل شد.',
+    itemsRemovedFromFolder: '{{title}} از پوشه حذف شد',
     moveFolder: 'انتقال پوشه',
     moveItemsToFolderConfirmation:
       'آیا از انتقال <1>{{count}} {{label}}</1> به پوشه <2>{{toFolder}}</2> مطمئن هستید؟',

@@ -190,8 +190,16 @@ export const csTranslations: DefaultTranslationsObject = {
     uploadNewLabel: 'Nahrát nový {{label}}',
   },
   folder: {
+    assign: 'Přiřadit',
+    assignFolder: 'Přiřadit složku',
+    assigning: 'Přiřazování...',
+    assignItemsToFolderConfirmation:
+      'Chystáte se přiřadit <1>{{count}} {{label}}</1> do <2>{{toFolder}}</2>. Jste si jisti?',
+    assignItemsToRootConfirmation:
+      'Chystáte se odebrat <1>{{count}} {{label}}</1> z jejich aktuální složky. Jste si jisti?',
     browseByFolder: 'Procházet podle složek',
     byFolder: 'Podle složky',
+    confirmAssignment: 'Potvrdit přiřazení',
     deleteFolder: 'Smazat složku',
     folderName: 'Název složky',
     folders: 'Složky',
@@ -199,8 +207,10 @@ export const csTranslations: DefaultTranslationsObject = {
       'Vyberte, který typ dokumentů ze sbírky by měl být dovolen v této složce.',
     itemHasBeenMoved: '{{title}} bylo přesunuto do {{folderName}}',
     itemHasBeenMovedToRoot: '{{title}} byl přesunut do kořenové složky',
+    itemsAssignedToFolder: '{{title}} přiřazeno do {{folderName}}',
     itemsMovedToFolder: '{{title}} přesunuto do {{folderName}}',
     itemsMovedToRoot: '{{title}} byl přesunut do kořenové složky',
+    itemsRemovedFromFolder: '{{title}} odebráno ze složky',
     moveFolder: 'Přesunout složku',
     moveItemsToFolderConfirmation:
       'Chystáte se přesunout <1>{{count}} {{label}}</1> do <2>{{toFolder}}</2>. Jste si jistý?',

@@ -186,16 +186,26 @@ export const arTranslations: DefaultTranslationsObject = {
     uploadNewLabel: 'رفع {{label}} جديد',
   },
   folder: {
+    assign: 'تعيين',
+    assignFolder: 'تعيين مجلد',
+    assigning: 'جارٍ التعيين...',
+    assignItemsToFolderConfirmation:
+      'أنت على وشك تعيين <1>{{count}} {{label}}</1> إلى <2>{{toFolder}}</2>. هل أنت متأكد؟',
+    assignItemsToRootConfirmation:
+      'أنت على وشك إزالة <1>{{count}} {{label}}</1> من مجلدهم الحالي. هل أنت متأكد؟',
     browseByFolder: 'تصفح حسب المجلد',
     byFolder: 'حسب المجلد',
+    confirmAssignment: 'تأكيد التعيين',
     deleteFolder: 'حذف المجلد',
     folderName: 'اسم المجلد',
     folders: 'مجلدات',
     folderTypeDescription: 'حدد نوع المستندات التي يجب السماح بها في هذا المجلد من المجموعات.',
     itemHasBeenMoved: 'تم نقل {{title}} إلى {{folderName}}',
     itemHasBeenMovedToRoot: 'تم نقل {{title}} إلى المجلد الجذر',
+    itemsAssignedToFolder: 'تم تعيين {{title}} إلى {{folderName}}',
     itemsMovedToFolder: '{{title}} تم نقله إلى {{folderName}}',
     itemsMovedToRoot: '{{title}} تم نقله إلى المجلد الجذر',
+    itemsRemovedFromFolder: 'تمت إزالة {{title}} من المجلد',
     moveFolder: 'نقل المجلد',
     moveItemsToFolderConfirmation:
       'أنت على وشك نقل <1>{{count}} {{label}}</1> إلى <2>{{toFolder}}</2>. هل أنت متأكد؟',

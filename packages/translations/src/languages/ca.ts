@@ -191,8 +191,16 @@ export const caTranslations: DefaultTranslationsObject = {
     uploadNewLabel: 'Puja un nou {{label}}',
   },
   folder: {
+    assign: 'Assignar',
+    assignFolder: 'Assignar carpeta',
+    assigning: 'Assignant...',
+    assignItemsToFolderConfirmation:
+      "Esteu a punt d'assignar <1>{{count}} {{label}}</1> a <2>{{toFolder}}</2>. N'esteu segur?",
+    assignItemsToRootConfirmation:
+      "Esteu a punt d'eliminar <1>{{count}} {{label}}</1> de la seva carpeta actual. N'esteu segur?",
     browseByFolder: 'Navega per carpeta',
     byFolder: 'Per Carpeta',
+    confirmAssignment: 'Confirmar assignació',
     deleteFolder: 'Esborra la carpeta',
     folderName: 'Nom de la Carpeta',
     folders: 'Carpetes',
@@ -200,8 +208,10 @@ export const caTranslations: DefaultTranslationsObject = {
       'Seleccioneu quin tipus de documents de la col·lecció haurien de ser permesos en aquesta carpeta.',
     itemHasBeenMoved: "{{title}} s'ha traslladat a {{folderName}}",
     itemHasBeenMovedToRoot: "{{title}} s'ha mogut a la carpeta arrel",
+    itemsAssignedToFolder: '{{title}} assignat a {{folderName}}',
     itemsMovedToFolder: "{{title}} s'ha traslladat a {{folderName}}",
     itemsMovedToRoot: "{{title}} s'ha traslladat a la carpeta arrel",
+    itemsRemovedFromFolder: '{{title}} eliminat de la carpeta',
     moveFolder: 'Mou la carpeta',
     moveItemsToFolderConfirmation:
       "Estàs a punt de moure <1>{{count}} {{label}}</1> a <2>{{toFolder}}</2>. N'estàs segur?",

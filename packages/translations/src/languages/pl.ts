@@ -189,8 +189,16 @@ export const plTranslations: DefaultTranslationsObject = {
     uploadNewLabel: 'Wrzuć nowy {{label}}',
   },
   folder: {
+    assign: 'Przypisz',
+    assignFolder: 'Przypisz folder',
+    assigning: 'Przypisywanie...',
+    assignItemsToFolderConfirmation:
+      'Zamierzasz przypisać <1>{{count}} {{label}}</1> do <2>{{toFolder}}</2>. Czy na pewno?',
+    assignItemsToRootConfirmation:
+      'Zamierzasz usunąć <1>{{count}} {{label}}</1> z ich bieżącego folderu. Czy na pewno?',
     browseByFolder: 'Przeglądaj według folderu',
     byFolder: 'Według Folderu',
+    confirmAssignment: 'Potwierdź przypisanie',
     deleteFolder: 'Usuń folder',
     folderName: 'Nazwa folderu',
     folders: 'Foldery',
@@ -198,8 +206,10 @@ export const plTranslations: DefaultTranslationsObject = {
       'Wybierz, które typy dokumentów z kolekcji powinny być dozwolone w tym folderze.',
     itemHasBeenMoved: '{{title}} został przeniesiony do {{folderName}}',
     itemHasBeenMovedToRoot: '{{title}} został przeniesiony do folderu głównego',
+    itemsAssignedToFolder: '{{title}} przypisano do {{folderName}}',
     itemsMovedToFolder: '{{title}} przeniesiono do {{folderName}}',
     itemsMovedToRoot: '{{title}} został przeniesiony do folderu głównego',
+    itemsRemovedFromFolder: '{{title}} usunięto z folderu',
     moveFolder: 'Przenieś folder',
     moveItemsToFolderConfirmation:
       'Zamierzasz przenieść <1>{{count}} {{label}}</1> do <2>{{toFolder}}</2>. Czy jesteś pewien?',

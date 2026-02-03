@@ -184,16 +184,26 @@ export const heTranslations: DefaultTranslationsObject = {
     uploadNewLabel: 'העלאת {{label}} חדשה',
   },
   folder: {
+    assign: 'הקצה',
+    assignFolder: 'הקצה תיקייה',
+    assigning: 'מקצה...',
+    assignItemsToFolderConfirmation:
+      'אתה עומד להקצות <1>{{count}} {{label}}</1> ל-<2>{{toFolder}}</2>. האם אתה בטוח?',
+    assignItemsToRootConfirmation:
+      'אתה עומד להסיר <1>{{count}} {{label}}</1> מהתיקייה הנוכחית שלהם. האם אתה בטוח?',
     browseByFolder: 'עיין לפי תיקייה',
     byFolder: 'לפי תיקייה',
+    confirmAssignment: 'אשר הקצאה',
     deleteFolder: 'מחק תיקייה',
     folderName: 'שם תיקייה',
     folders: 'תיקיות',
     folderTypeDescription: 'בחר איזה סוג של מסמכים מהאוסף יותרו להיות בתיקייה זו.',
     itemHasBeenMoved: '"{{title}}" הועבר ל- "{{folderName}}"',
     itemHasBeenMovedToRoot: '"{{title}}" הועבר לתיקיית השורש',
+    itemsAssignedToFolder: '{{title}} הוקצה ל-{{folderName}}',
     itemsMovedToFolder: '{{title}} הועבר אל {{folderName}}',
     itemsMovedToRoot: '"{{title}}" הועבר לתיקייה הראשית',
+    itemsRemovedFromFolder: '{{title}} הוסר מהתיקייה',
     moveFolder: 'העבר תיקייה',
     moveItemsToFolderConfirmation:
       'אתה עומד להעביר <1>{{count}} {{label}}</1> אל <2>{{toFolder}}</2>. האם אתה בטוח?',

@@ -189,8 +189,16 @@ export const taTranslations: DefaultTranslationsObject = {
     uploadNewLabel: 'புதிய {{label}} பதிவேற்றவும்',
   },
   folder: {
+    assign: 'ஒதுக்கு',
+    assignFolder: 'கோப்புறையை ஒதுக்கு',
+    assigning: 'ஒதுக்குகிறது...',
+    assignItemsToFolderConfirmation:
+      '<1>{{count}} {{label}}</1> ஐ <2>{{toFolder}}</2> க்கு ஒதுக்க உள்ளீர்கள். நிச்சயமாக?',
+    assignItemsToRootConfirmation:
+      '<1>{{count}} {{label}}</1> ஐ அவர்களின் தற்போதைய கோப்புறையிலிருந்து நீக்க உள்ளீர்கள். நிச்சயமாக?',
     browseByFolder: 'கோப்புறைகளில் உலாவவும்',
     byFolder: 'கோப்புறை அடிப்படையில்',
+    confirmAssignment: 'ஒதுக்கீட்டை உறுதிப்படுத்து',
     deleteFolder: 'கோப்புறையை நீக்கவும்',
     folderName: 'கோப்புறை பெயர்',
     folders: 'கோப்புறைகள்',
@@ -198,8 +206,10 @@ export const taTranslations: DefaultTranslationsObject = {
       'இந்த கோப்புறையில் எந்த வகை தொகுப்பின் ஆவணங்கள் அனுமதிக்கப்பட வேண்டும் என்பதைக் தேர்வு செய்யவும்.',
     itemHasBeenMoved: '{{title}} "{{folderName}}" கோப்புறைக்கு நகர்த்தப்பட்டது.',
     itemHasBeenMovedToRoot: '{{title}} மூல (root) கோப்புறைக்கு நகர்த்தப்பட்டது.',
+    itemsAssignedToFolder: '{{title}} {{folderName}} க்கு ஒதுக்கப்பட்டது',
     itemsMovedToFolder: '{{title}} "{{folderName}}" கோப்புறைக்கு நகர்த்தப்பட்டது.',
     itemsMovedToRoot: '{{title}} மூல (root) கோப்புறைக்கு நகர்த்தப்பட்டது.',
+    itemsRemovedFromFolder: '{{title}} கோப்புறையிலிருந்து நீக்கப்பட்டது',
     moveFolder: 'கோப்புறையை நகர்த்தவும்',
     moveItemsToFolderConfirmation:
       'நீங்கள் <1>{{count}} {{label}}</1>-ஐ <2>{{toFolder}}</2>-க்கு நகர்த்தவிருக்கிறீர்கள். தொடர விரும்புகிறீர்களா?',

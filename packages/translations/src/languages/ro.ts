@@ -194,8 +194,16 @@ export const roTranslations: DefaultTranslationsObject = {
     uploadNewLabel: 'Încărcați un nou {{label}}',
   },
   folder: {
+    assign: 'Atribuie',
+    assignFolder: 'Atribuie dosar',
+    assigning: 'Se atribuie...',
+    assignItemsToFolderConfirmation:
+      'Sunteți pe cale să atribuiți <1>{{count}} {{label}}</1> la <2>{{toFolder}}</2>. Sunteți sigur?',
+    assignItemsToRootConfirmation:
+      'Sunteți pe cale să eliminați <1>{{count}} {{label}}</1> din dosarul curent. Sunteți sigur?',
     browseByFolder: 'Răsfoiește după Folder',
     byFolder: 'După dosar',
+    confirmAssignment: 'Confirmă atribuirea',
     deleteFolder: 'Ștergeți dosarul',
     folderName: 'Nume dosar',
     folders: 'Dosare',
@@ -203,8 +211,10 @@ export const roTranslations: DefaultTranslationsObject = {
       'Selectați ce tip de documente din colecție ar trebui să fie permise în acest dosar.',
     itemHasBeenMoved: '{{title}} a fost mutat în {{folderName}}',
     itemHasBeenMovedToRoot: '{{title}} a fost mutat în dosarul rădăcină',
+    itemsAssignedToFolder: '{{title}} atribuit la {{folderName}}',
     itemsMovedToFolder: '{{title}} a fost mutat în {{folderName}}',
     itemsMovedToRoot: '{{title}} a fost mutat în dosarul rădăcină',
+    itemsRemovedFromFolder: '{{title}} eliminat din dosar',
     moveFolder: 'Mutare Dosar',
     moveItemsToFolderConfirmation:
       'Sunteți pe cale să mutați <1>{{count}} {{label}}</1> în <2>{{toFolder}}</2>. Sunteți sigur?',

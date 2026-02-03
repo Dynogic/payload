@@ -190,16 +190,26 @@ export const svTranslations: DefaultTranslationsObject = {
     uploadNewLabel: 'Ladda upp ny {{label}}',
   },
   folder: {
+    assign: 'Tilldela',
+    assignFolder: 'Tilldela mapp',
+    assigning: 'Tilldelar...',
+    assignItemsToFolderConfirmation:
+      'Du håller på att tilldela <1>{{count}} {{label}}</1> till <2>{{toFolder}}</2>. Är du säker?',
+    assignItemsToRootConfirmation:
+      'Du håller på att ta bort <1>{{count}} {{label}}</1> från deras nuvarande mapp. Är du säker?',
     browseByFolder: 'Bläddra efter mapp',
     byFolder: 'Efter mapp',
+    confirmAssignment: 'Bekräfta tilldelning',
     deleteFolder: 'Ta bort mapp',
     folderName: 'Mappnamn',
     folders: 'Mappar',
     folderTypeDescription: 'Välj vilka typer av dokument som ska tillåtas i denna mapp.',
     itemHasBeenMoved: '{{title}} har flyttats till {{folderName}}',
     itemHasBeenMovedToRoot: '{{title}} har flyttats till rotmappen',
+    itemsAssignedToFolder: '{{title}} tilldelad till {{folderName}}',
     itemsMovedToFolder: '{{title}} flyttad till {{folderName}}',
     itemsMovedToRoot: '{{titel}} flyttades till rotmappen',
+    itemsRemovedFromFolder: '{{title}} borttagen från mapp',
     moveFolder: 'Flytta mapp',
     moveItemsToFolderConfirmation:
       'Du är på väg att flytta <1>{{count}} {{label}}</1> till <2>{{toFolder}}</2>. Är du säker?',

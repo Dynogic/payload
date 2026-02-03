@@ -191,8 +191,16 @@ export const jaTranslations: DefaultTranslationsObject = {
     uploadNewLabel: '新規 {{label}} アップロード',
   },
   folder: {
+    assign: '割り当てる',
+    assignFolder: 'フォルダーを割り当てる',
+    assigning: '割り当て中...',
+    assignItemsToFolderConfirmation:
+      '<1>{{count}} {{label}}</1>を<2>{{toFolder}}</2>に割り当てようとしています。よろしいですか？',
+    assignItemsToRootConfirmation:
+      '<1>{{count}} {{label}}</1>を現在のフォルダーから削除しようとしています。よろしいですか？',
     browseByFolder: 'フォルダーで閲覧する',
     byFolder: 'フォルダー別に',
+    confirmAssignment: '割り当てを確認',
     deleteFolder: 'フォルダーを削除する',
     folderName: 'フォルダー名',
     folders: 'フォルダー',
@@ -200,8 +208,10 @@ export const jaTranslations: DefaultTranslationsObject = {
       'このフォルダーに許可されるコレクションドキュメントのタイプを選択してください。',
     itemHasBeenMoved: '{{title}}は{{folderName}}に移動されました',
     itemHasBeenMovedToRoot: '{{title}}はルートフォルダーに移動されました',
+    itemsAssignedToFolder: '{{title}}を{{folderName}}に割り当てました',
     itemsMovedToFolder: '{{title}}は{{folderName}}に移動されました',
     itemsMovedToRoot: '{{title}}はルートフォルダーに移動しました。',
+    itemsRemovedFromFolder: '{{title}}をフォルダーから削除しました',
     moveFolder: 'フォルダーを移動する',
     moveItemsToFolderConfirmation:
       'あなたは<1>{{count}} {{label}}</1>を<2>{{toFolder}}</2>に移動しようとしています。よろしいですか？',

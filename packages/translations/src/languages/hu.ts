@@ -192,8 +192,16 @@ export const huTranslations: DefaultTranslationsObject = {
     uploadNewLabel: 'Új {{label}} feltöltése',
   },
   folder: {
+    assign: 'Hozzárendelés',
+    assignFolder: 'Mappa hozzárendelése',
+    assigning: 'Hozzárendelés...',
+    assignItemsToFolderConfirmation:
+      'Ön <1>{{count}} {{label}}</1> elemet készül hozzárendelni a következőhöz: <2>{{toFolder}}</2>. Biztos benne?',
+    assignItemsToRootConfirmation:
+      'Ön <1>{{count}} {{label}}</1> elemet készül eltávolítani a jelenlegi mappájukból. Biztos benne?',
     browseByFolder: 'Mappa szerint böngészés',
     byFolder: 'Mappánként',
+    confirmAssignment: 'Hozzárendelés megerősítése',
     deleteFolder: 'Mappa törlése',
     folderName: 'Mappa neve',
     folders: 'Mappák',
@@ -201,8 +209,10 @@ export const huTranslations: DefaultTranslationsObject = {
       'Válassza ki, hogy milyen típusú dokumentumokat engedélyez ebben a mappában.',
     itemHasBeenMoved: '{{title}} át lett helyezve a {{folderName}} nevű mappába.',
     itemHasBeenMovedToRoot: 'A(z) {{title}} át lett helyezve a gyökérmappába.',
+    itemsAssignedToFolder: '{{title}} hozzárendelve a következőhöz: {{folderName}}',
     itemsMovedToFolder: '{{title}} áthelyezve a(z) {{folderName}} mappába',
     itemsMovedToRoot: 'A {{title}} átkerült a gyökérmappába',
+    itemsRemovedFromFolder: '{{title}} eltávolítva a mappából',
     moveFolder: 'Mappa áthelyezése',
     moveItemsToFolderConfirmation:
       'Ön <1>{{count}} {{label}}</1>-t készül áthelyezni a <2>{{toFolder}}</2> mappába. Biztos benne?',

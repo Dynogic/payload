@@ -190,8 +190,16 @@ export const slTranslations: DefaultTranslationsObject = {
     uploadNewLabel: 'Naloži nov {{label}}',
   },
   folder: {
+    assign: 'Dodeli',
+    assignFolder: 'Dodeli mapo',
+    assigning: 'Dodeljevanje...',
+    assignItemsToFolderConfirmation:
+      'Nameravate dodeliti <1>{{count}} {{label}}</1> v <2>{{toFolder}}</2>. Ali ste prepričani?',
+    assignItemsToRootConfirmation:
+      'Nameravate odstraniti <1>{{count}} {{label}}</1> iz njihove trenutne mape. Ali ste prepričani?',
     browseByFolder: 'Brskaj po mapi',
     byFolder: 'Po mapi',
+    confirmAssignment: 'Potrdi dodelitev',
     deleteFolder: 'Izbriši mapo',
     folderName: 'Ime mape',
     folders: 'Mape',
@@ -199,8 +207,10 @@ export const slTranslations: DefaultTranslationsObject = {
       'Izberite, katere vrste dokumentov zbirke naj bodo dovoljene v tej mapi.',
     itemHasBeenMoved: '{{title}} je bil premaknjen v {{folderName}}',
     itemHasBeenMovedToRoot: '{{title}} je bil premaknjen v korensko mapo.',
+    itemsAssignedToFolder: '{{title}} dodeljen v {{folderName}}',
     itemsMovedToFolder: '{{title}} premaknjeno v {{folderName}}',
     itemsMovedToRoot: '{{title}} premaknjeno v korensko mapo',
+    itemsRemovedFromFolder: '{{title}} odstranjen iz mape',
     moveFolder: 'Premakni mapo',
     moveItemsToFolderConfirmation:
       'Ravno se pripravljate na premik <1>{{count}} {{label}}</1> v mapo <2>{{toFolder}}</2>. Ste prepričani?',

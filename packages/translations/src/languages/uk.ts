@@ -191,8 +191,16 @@ export const ukTranslations: DefaultTranslationsObject = {
     uploadNewLabel: 'Завантажити новий {{label}}',
   },
   folder: {
+    assign: 'Призначити',
+    assignFolder: 'Призначити папку',
+    assigning: 'Призначення...',
+    assignItemsToFolderConfirmation:
+      'Ви збираєтесь призначити <1>{{count}} {{label}}</1> до <2>{{toFolder}}</2>. Ви впевнені?',
+    assignItemsToRootConfirmation:
+      'Ви збираєтесь видалити <1>{{count}} {{label}}</1> з поточної папки. Ви впевнені?',
     browseByFolder: 'Переглянути за папкою',
     byFolder: 'За папкою',
+    confirmAssignment: 'Підтвердити призначення',
     deleteFolder: 'Видалити папку',
     folderName: 'Назва папки',
     folders: 'Папки',
@@ -200,8 +208,10 @@ export const ukTranslations: DefaultTranslationsObject = {
       'Виберіть, який тип документів колекції повинен бути дозволений у цій папці.',
     itemHasBeenMoved: '{{title}} було переміщено до {{folderName}}',
     itemHasBeenMovedToRoot: '{{title}} був переміщений до кореневої папки',
+    itemsAssignedToFolder: '{{title}} призначено до {{folderName}}',
     itemsMovedToFolder: '{{title}} перенесено до {{folderName}}',
     itemsMovedToRoot: '{{title}} переміщено до кореневої папки',
+    itemsRemovedFromFolder: '{{title}} видалено з папки',
     moveFolder: 'Перемістити папку',
     moveItemsToFolderConfirmation:
       'Ви збираєтесь перемістити <1>{{count}} {{label}}</1> до <2>{{toFolder}}</2>. Ви впевнені?',
