@@ -56,6 +56,7 @@ import type {
 } from '../../index.js'
 import type {
   PayloadRequest,
+  PopulateType,
   SelectIncludeType,
   SelectType,
   Sort,
@@ -537,6 +538,26 @@ export type CollectionAdminOptions = {
    * Hide the document header (title and tabs) in the document edit view.
    */
   hideDocumentHeader?: boolean
+  /**
+   * Depth to use when fetching documents in the list view.
+   * Default is 0 (no relationship population).
+   * Set to 1 or higher to enable relationship population.
+   * Use with `listPopulate` to control which fields are selected from related collections.
+   */
+  listDepth?: number
+  /**
+   * Controls which fields are selected when populating relationships in the list view.
+   * Maps collection slugs to select objects.
+   * Requires `listDepth` >= 1 to have any effect.
+   *
+   * @example
+   * ```ts
+   * listPopulate: {
+   *   files: { thumbnailURL: true, url: true, mimeType: true },
+   * }
+   * ```
+   */
+  listPopulate?: PopulateType
   /**
    * Additional fields to be searched via the full text search
    */

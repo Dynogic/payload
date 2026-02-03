@@ -129,11 +129,32 @@ Document controls:
 - Added `flex-shrink: 0` to title to prevent shrinking
 - Hide "Creating new [label]" text when `showTitleInControls` is enabled
 
+### 15. List View Relationship Population
+
+**Files:** `packages/payload/src/collections/config/types.ts`, `packages/next/src/views/List/index.tsx`, `packages/next/src/views/List/handleGroupBy.ts`
+
+New collection admin options for controlling relationship population in list views:
+
+- `listDepth` - Controls the depth when fetching documents in list view (default: 0, no population). Set to 1+ to enable relationship population.
+- `listPopulate` - Controls which fields are selected when populating relationships. Maps collection slugs to select objects.
+
+```ts
+// Example usage
+admin: {
+  listDepth: 1,
+  listPopulate: {
+    files: { thumbnailURL: true, url: true, mimeType: true },
+  }
+}
+```
+
+Useful for displaying data from related collections in list views (e.g., showing thumbnails from upload relationships) without fetching entire nested documents.
+
 ---
 
 ## Configuration/Documentation
 
-### 15. Fork Development Workflow
+### 16. Fork Development Workflow
 
 **Files:** `FORK-DEVELOPMENT.md`, `.gitattributes`, `.gitignore`
 
@@ -147,5 +168,5 @@ Document controls:
 | Category      | Count |
 | ------------- | ----- |
 | Bug Fixes     | 3     |
-| Features      | 11    |
+| Features      | 12    |
 | Documentation | 1     |
