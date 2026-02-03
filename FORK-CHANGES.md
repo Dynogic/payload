@@ -172,10 +172,9 @@ Useful for displaying data from related collections in list views (e.g., showing
 
 ### 18. Fork Development Workflow
 
-**Files:** `FORK-DEVELOPMENT.md`, `.gitattributes`, `.gitignore`
+**Files:** `FORK-DEVELOPMENT.md`, `.gitignore`
 
 - Documentation for building and using the fork locally
-- Git LFS tracking for packed `.tgz` files
 
 ---
 
