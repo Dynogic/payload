@@ -166,6 +166,14 @@ Useful for displaying data from related collections in list views (e.g., showing
 - Allows folder assignment even on collections with `disableBulkEdit: true` (folder-only PATCH requests are permitted)
 - Translations added for all 44 languages
 
+### 19. Tab Change Events
+
+**File:** `packages/ui/src/fields/Tabs/index.tsx`
+
+- Dispatches `payload-tab-change` CustomEvent on tab switch
+- Event detail includes `{ label, name, index, parentPath }`
+- Enables live preview view mode switching based on admin tab selection
+
 ---
 
 ## Configuration/Documentation
@@ -183,5 +191,5 @@ Useful for displaying data from related collections in list views (e.g., showing
 | Category      | Count |
 | ------------- | ----- |
 | Bug Fixes     | 4     |
-| Features      | 13    |
+| Features      | 14    |
 | Documentation | 1     |

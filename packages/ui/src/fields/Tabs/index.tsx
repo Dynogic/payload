@@ -103,9 +103,22 @@ const TabsFieldComponent: TabsFieldClientComponent = (props) => {
     (incomingTabIndex: number): void => {
       setActiveTabIndex(incomingTabIndex)
 
-      // Update URL hash if tab has a hash value
       if (typeof window !== 'undefined') {
         const selectedTab = tabs[incomingTabIndex]
+
+        // Dispatch tab change event for external listeners
+        window.dispatchEvent(
+          new CustomEvent('payload-tab-change', {
+            detail: {
+              name: (selectedTab as any)?.name,
+              index: incomingTabIndex,
+              label: selectedTab?.label,
+              parentPath,
+            },
+          }),
+        )
+
+        // Update URL hash if tab has a hash value
         const selectedTabHash = (selectedTab as any).hash
 
         if (selectedTabHash) {
@@ -116,7 +129,7 @@ const TabsFieldComponent: TabsFieldClientComponent = (props) => {
         }
       }
     },
-    [tabs],
+    [tabs, parentPath],
   )
 
   // Track if we've done initial setup to avoid overriding manual tab changes
