@@ -95,7 +95,6 @@ export const renderDocument = async ({
         config,
         config: {
           routes: { admin: adminRoute, api: apiRoute },
-          serverURL,
         },
       },
       user,
@@ -364,7 +363,8 @@ export const renderDocument = async ({
     collectionConfig,
     globalConfig,
     hasSavePermission,
-    permissions: docPermissions,
+    locale,
+    permissions,
     req,
   })
 

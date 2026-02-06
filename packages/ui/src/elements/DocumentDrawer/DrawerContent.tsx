@@ -8,7 +8,6 @@ import type { DocumentDrawerProps } from './types.js'
 
 import { LoadingOverlay } from '../../elements/Loading/index.js'
 import { useConfig } from '../../providers/Config/index.js'
-import { useLocale } from '../../providers/Locale/index.js'
 import { useServerFunctions } from '../../providers/ServerFunctions/index.js'
 import { useTranslation } from '../../providers/Translation/index.js'
 import { abortAndIgnore, handleAbortRef } from '../../utilities/abortAndIgnore.js'
@@ -31,7 +30,6 @@ export const DocumentDrawerContent: React.FC<DocumentDrawerProps> = ({
   redirectAfterRestore,
 }) => {
   const { getEntityConfig } = useConfig()
-  const locale = useLocale()
 
   const [collectionConfig] = useState(() => getEntityConfig({ collectionSlug }))
 
@@ -64,7 +62,6 @@ export const DocumentDrawerContent: React.FC<DocumentDrawerProps> = ({
             drawerSlug,
             filterOptions,
             initialData,
-            locale,
             overrideEntityVisibility,
             redirectAfterCreate,
             redirectAfterDelete: redirectAfterDelete !== undefined ? redirectAfterDelete : false,
@@ -102,7 +99,6 @@ export const DocumentDrawerContent: React.FC<DocumentDrawerProps> = ({
       closeModal,
       overrideEntityVisibility,
       t,
-      locale,
     ],
   )
 
