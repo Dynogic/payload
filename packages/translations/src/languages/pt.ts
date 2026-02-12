@@ -190,8 +190,16 @@ export const ptTranslations: DefaultTranslationsObject = {
     uploadNewLabel: 'Carregar novo(a) {{label}}',
   },
   folder: {
+    assign: 'Atribuir',
+    assignFolder: 'Atribuir pasta',
+    assigning: 'A atribuir...',
+    assignItemsToFolderConfirmation:
+      'Está prestes a atribuir <1>{{count}} {{label}}</1> a <2>{{toFolder}}</2>. Tem a certeza?',
+    assignItemsToRootConfirmation:
+      'Está prestes a remover <1>{{count}} {{label}}</1> da pasta atual. Tem a certeza?',
     browseByFolder: 'Navegar por Pasta',
     byFolder: 'Por Pasta',
+    confirmAssignment: 'Confirmar atribuição',
     deleteFolder: 'Apagar Pasta',
     folderName: 'Nome da Pasta',
     folders: 'Pastas',
@@ -199,8 +207,10 @@ export const ptTranslations: DefaultTranslationsObject = {
       'Selecione qual tipo de documentos da coleção devem ser permitidos nesta pasta.',
     itemHasBeenMoved: '{{title}} foi movido para {{folderName}}',
     itemHasBeenMovedToRoot: '{{title}} foi movido para a pasta raiz',
+    itemsAssignedToFolder: '{{title}} atribuído a {{folderName}}',
     itemsMovedToFolder: '{{title}} movido para {{folderName}}',
     itemsMovedToRoot: '{{title}} foi movido para a pasta raiz',
+    itemsRemovedFromFolder: '{{title}} removido da pasta',
     moveFolder: 'Mover Pasta',
     moveItemsToFolderConfirmation:
       'Você está prestes a mover <1>{{count}} {{label}}</1> para <2>{{toFolder}}</2>. Tem certeza?',
@@ -448,8 +458,8 @@ export const ptTranslations: DefaultTranslationsObject = {
     updatedSuccessfully: 'Atualizado com sucesso.',
     updateForEveryone: 'Atualização para todos',
     updating: 'Atualizando',
-    uploading: 'Fazendo upload',
-    uploadingBulk: 'Carregando {{current}} de {{total}}',
+    uploading: 'Fazendo upload ({{progress}}%)',
+    uploadingBulk: 'Carregando {{current}} de {{total}} ({{progress}}%)',
     user: 'usuário',
     username: 'Nome de usuário',
     users: 'usuários',

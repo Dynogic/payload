@@ -190,8 +190,16 @@ export const bgTranslations: DefaultTranslationsObject = {
     uploadNewLabel: 'Качи нов {{label}}',
   },
   folder: {
+    assign: 'Задай',
+    assignFolder: 'Присвояване на папка',
+    assigning: 'Задаване...',
+    assignItemsToFolderConfirmation:
+      'На път сте да зададете <1>{{count}} {{label}}</1> към <2>{{toFolder}}</2>. Сигурни ли сте?',
+    assignItemsToRootConfirmation:
+      'На път сте да премахнете <1>{{count}} {{label}}</1> от текущата им папка. Сигурни ли сте?',
     browseByFolder: 'Прегледай по папки',
     byFolder: 'По папка',
+    confirmAssignment: 'Потвърди задаването',
     deleteFolder: 'Изтрий папка',
     folderName: 'Име на папка',
     folders: 'Папки',
@@ -199,8 +207,10 @@ export const bgTranslations: DefaultTranslationsObject = {
       'Изберете кой тип документи от колекциите трябва да се допускат в тази папка.',
     itemHasBeenMoved: '{{title}} е преместен в {{folderName}}',
     itemHasBeenMovedToRoot: '{{title}} беше преместено в основната папка',
+    itemsAssignedToFolder: '{{title}} е зададен към {{folderName}}',
     itemsMovedToFolder: '{{title}} беше преместен в {{folderName}}',
     itemsMovedToRoot: '{{title}} е преместен в основната папка.',
+    itemsRemovedFromFolder: '{{title}} е премахнат от папката',
     moveFolder: 'Премести папка',
     moveItemsToFolderConfirmation:
       'Предстои да преместите <1>{{count}} {{label}}</1> в <2>{{toFolder}}</2>. Сигурни ли сте?',
@@ -445,8 +455,8 @@ export const bgTranslations: DefaultTranslationsObject = {
     updatedSuccessfully: 'Обновен успешно.',
     updateForEveryone: 'Актуализация за всички',
     updating: 'Обновява се',
-    uploading: 'Качва се',
-    uploadingBulk: 'Качване на {{current}} от {{total}}',
+    uploading: 'Качва се ({{progress}}%)',
+    uploadingBulk: 'Качване на {{current}} от {{total}} ({{progress}}%)',
     user: 'Потребител',
     username: 'Потребителско име',
     users: 'Потребители',

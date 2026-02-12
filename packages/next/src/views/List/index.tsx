@@ -285,7 +285,7 @@ export const renderListView = async (
     } else {
       data = await req.payload.find({
         collection: collectionSlug,
-        depth: 0,
+        depth: collectionConfig.admin.listDepth ?? 0,
         draft: true,
         fallbackLocale: false,
         includeLockStatus: true,
@@ -293,6 +293,7 @@ export const renderListView = async (
         locale: req.locale,
         overrideAccess: false,
         page: query?.page ? Number(query.page) : undefined,
+        populate: collectionConfig.admin.listPopulate,
         req,
         select,
         sort: query?.sort,

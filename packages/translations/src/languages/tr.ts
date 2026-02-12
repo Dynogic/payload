@@ -192,8 +192,16 @@ export const trTranslations: DefaultTranslationsObject = {
     uploadNewLabel: 'Karşıya {{label}} yükle',
   },
   folder: {
+    assign: 'Ata',
+    assignFolder: 'Klasör Ata',
+    assigning: 'Atanıyor...',
+    assignItemsToFolderConfirmation:
+      '<1>{{count}} {{label}}</1> öğesini <2>{{toFolder}}</2> klasörüne atamak üzeresiniz. Emin misiniz?',
+    assignItemsToRootConfirmation:
+      '<1>{{count}} {{label}}</1> öğesini mevcut klasöründen kaldırmak üzeresiniz. Emin misiniz?',
     browseByFolder: 'Klasöre Göre Gözat',
     byFolder: 'Klasör Bazında',
+    confirmAssignment: 'Atamayı onayla',
     deleteFolder: 'Klasörü Sil',
     folderName: 'Klasör Adı',
     folders: 'Klasörler',
@@ -201,8 +209,10 @@ export const trTranslations: DefaultTranslationsObject = {
       'Bu klasörde hangi türden koleksiyon belgelerine izin verilmesi gerektiğini seçin.',
     itemHasBeenMoved: '{{title}} {{folderName}} klasörüne taşındı.',
     itemHasBeenMovedToRoot: '{{title}} kök klasöre taşındı.',
+    itemsAssignedToFolder: '{{title}} {{folderName}} klasörüne atandı',
     itemsMovedToFolder: "{{title}} {{folderName}}'ye taşındı.",
     itemsMovedToRoot: '{{title}} kök klasörüne taşındı',
+    itemsRemovedFromFolder: '{{title}} klasörden kaldırıldı',
     moveFolder: 'Klasörü Taşı',
     moveItemsToFolderConfirmation:
       "<1>{{count}} {{label}}</1>'yi <2>{{toFolder}}</2>'ye taşımayı planlıyorsunuz. Emin misiniz?",
@@ -451,8 +461,8 @@ export const trTranslations: DefaultTranslationsObject = {
     updatedSuccessfully: 'Başarıyla güncellendi.',
     updateForEveryone: 'Herkes için güncelleme',
     updating: 'Güncelleniyor',
-    uploading: 'Yükleniyor',
-    uploadingBulk: "{{total}}'den {{current}} yükleniyor",
+    uploading: 'Yükleniyor ({{progress}}%)',
+    uploadingBulk: "{{total}}'den {{current}} yükleniyor ({{progress}}%)",
     user: 'kullanıcı',
     username: 'Kullanıcı Adı',
     users: 'kullanıcı',

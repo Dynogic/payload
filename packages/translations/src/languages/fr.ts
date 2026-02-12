@@ -196,8 +196,16 @@ export const frTranslations: DefaultTranslationsObject = {
     uploadNewLabel: 'Téléverser un(e) nouveau ou nouvelle {{label}}',
   },
   folder: {
+    assign: 'Attribuer',
+    assignFolder: 'Attribuer un dossier',
+    assigning: 'Attribution...',
+    assignItemsToFolderConfirmation:
+      "Vous êtes sur le point d'attribuer <1>{{count}} {{label}}</1> à <2>{{toFolder}}</2>. Êtes-vous sûr ?",
+    assignItemsToRootConfirmation:
+      'Vous êtes sur le point de retirer <1>{{count}} {{label}}</1> de leur dossier actuel. Êtes-vous sûr ?',
     browseByFolder: 'Parcourir par Dossier',
     byFolder: 'Par Dossier',
+    confirmAssignment: "Confirmer l'attribution",
     deleteFolder: 'Supprimer le dossier',
     folderName: 'Nom du dossier',
     folders: 'Dossiers',
@@ -205,8 +213,10 @@ export const frTranslations: DefaultTranslationsObject = {
       'Sélectionnez le type de documents de collection qui devraient être autorisés dans ce dossier.',
     itemHasBeenMoved: '{{title}} a été déplacé vers {{folderName}}',
     itemHasBeenMovedToRoot: '{{title}} a été déplacé dans le dossier racine',
+    itemsAssignedToFolder: '{{title}} attribué à {{folderName}}',
     itemsMovedToFolder: '{{title}} déplacé vers {{folderName}}',
     itemsMovedToRoot: '{{title}} déplacé vers le dossier racine',
+    itemsRemovedFromFolder: '{{title}} retiré du dossier',
     moveFolder: 'Déplacer le dossier',
     moveItemsToFolderConfirmation:
       'Vous êtes sur le point de déplacer <1>{{count}} {{label}}</1> vers <2>{{toFolder}}</2>. Êtes-vous sûr ?',
@@ -458,8 +468,8 @@ export const frTranslations: DefaultTranslationsObject = {
     updatedSuccessfully: 'Mis à jour avec succès.',
     updateForEveryone: 'Mise à jour pour tout le monde',
     updating: 'Mise à jour',
-    uploading: 'Téléchargement',
-    uploadingBulk: 'Téléchargement de {{current}} sur {{total}}',
+    uploading: 'Téléchargement ({{progress}}%)',
+    uploadingBulk: 'Téléchargement de {{current}} sur {{total}} ({{progress}}%)',
     user: 'Utilisateur',
     username: "Nom d'utilisateur",
     users: 'Utilisateurs',

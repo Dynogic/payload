@@ -192,8 +192,16 @@ export const nlTranslations: DefaultTranslationsObject = {
     uploadNewLabel: 'Upload nieuw(e) {{label}}',
   },
   folder: {
+    assign: 'Toewijzen',
+    assignFolder: 'Map toewijzen',
+    assigning: 'Toewijzen...',
+    assignItemsToFolderConfirmation:
+      'U staat op het punt om <1>{{count}} {{label}}</1> toe te wijzen aan <2>{{toFolder}}</2>. Weet u het zeker?',
+    assignItemsToRootConfirmation:
+      'U staat op het punt om <1>{{count}} {{label}}</1> uit hun huidige map te verwijderen. Weet u het zeker?',
     browseByFolder: 'Bladeren op Map',
     byFolder: 'Op Map',
+    confirmAssignment: 'Bevestig toewijzing',
     deleteFolder: 'Verwijder map',
     folderName: 'Mapnaam',
     folders: 'Mappen',
@@ -201,8 +209,10 @@ export const nlTranslations: DefaultTranslationsObject = {
       'Selecteer welk type verzameldocumenten toegestaan zou moeten zijn in deze map.',
     itemHasBeenMoved: '{{title}} is verplaatst naar {{folderName}}',
     itemHasBeenMovedToRoot: '{{title}} is verplaatst naar de hoofdmap',
+    itemsAssignedToFolder: '{{title}} toegewezen aan {{folderName}}',
     itemsMovedToFolder: '{{title}} verplaatst naar {{folderName}}',
     itemsMovedToRoot: '{{title}} verplaatst naar de hoofdmap',
+    itemsRemovedFromFolder: '{{title}} verwijderd uit map',
     moveFolder: 'Verplaats Map',
     moveItemsToFolderConfirmation:
       'U staat op het punt om <1>{{count}} {{label}}</1> te verplaatsen naar <2>{{toFolder}}</2>. Weet u het zeker?',
@@ -454,8 +464,8 @@ export const nlTranslations: DefaultTranslationsObject = {
     updatedSuccessfully: 'Succesvol aangepast.',
     updateForEveryone: 'Update voor iedereen',
     updating: 'Bijwerken',
-    uploading: 'Uploaden',
-    uploadingBulk: 'Bezig met uploaden {{current}} van {{total}}',
+    uploading: 'Uploaden ({{progress}}%)',
+    uploadingBulk: 'Bezig met uploaden {{current}} van {{total}} ({{progress}}%)',
     user: 'Gebruiker',
     username: 'Gebruikersnaam',
     users: 'Gebruikers',

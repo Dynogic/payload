@@ -191,8 +191,16 @@ export const hrTranslations: DefaultTranslationsObject = {
     uploadNewLabel: 'Učitaj novi {{label}}',
   },
   folder: {
+    assign: 'Dodijeli',
+    assignFolder: 'Dodijeli mapu',
+    assigning: 'Dodjeljujem...',
+    assignItemsToFolderConfirmation:
+      'Upravo ćete dodijeliti <1>{{count}} {{label}}</1> u <2>{{toFolder}}</2>. Jeste li sigurni?',
+    assignItemsToRootConfirmation:
+      'Upravo ćete ukloniti <1>{{count}} {{label}}</1> iz njihove trenutne mape. Jeste li sigurni?',
     browseByFolder: 'Pregledajte po mapi',
     byFolder: 'Po mapi',
+    confirmAssignment: 'Potvrdi dodjelu',
     deleteFolder: 'Izbriši mapu',
     folderName: 'Naziv mape',
     folders: 'Mape',
@@ -200,8 +208,10 @@ export const hrTranslations: DefaultTranslationsObject = {
       'Odaberite koja vrsta dokumenata kolekcije treba biti dozvoljena u ovoj mapi.',
     itemHasBeenMoved: '{{title}} je premješten u {{folderName}}',
     itemHasBeenMovedToRoot: '{{title}} je premješten u korijensku mapu.',
+    itemsAssignedToFolder: '{{title}} dodijeljen u {{folderName}}',
     itemsMovedToFolder: '{{title}} premješteno u {{folderName}}',
     itemsMovedToRoot: '{{title}} premješten u korijensku mapu',
+    itemsRemovedFromFolder: '{{title}} uklonjen iz mape',
     moveFolder: 'Premjesti mapu',
     moveItemsToFolderConfirmation:
       'Upravo se spremate premjestiti <1>{{count}} {{label}}</1> u <2>{{toFolder}}</2>. Jeste li sigurni?',
@@ -446,8 +456,8 @@ export const hrTranslations: DefaultTranslationsObject = {
     updatedSuccessfully: 'Uspješno ažurirano.',
     updateForEveryone: 'Ažuriranje za sve',
     updating: 'Ažuriranje',
-    uploading: 'Prijenos',
-    uploadingBulk: 'Prenosim {{current}} od {{total}}',
+    uploading: 'Prijenos ({{progress}}%)',
+    uploadingBulk: 'Prenosim {{current}} od {{total}} ({{progress}}%)',
     user: 'Korisnik',
     username: 'Korisničko ime',
     users: 'Korisnici',

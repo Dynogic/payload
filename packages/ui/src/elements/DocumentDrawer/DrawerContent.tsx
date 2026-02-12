@@ -18,6 +18,7 @@ export const DocumentDrawerContent: React.FC<DocumentDrawerProps> = ({
   collectionSlug,
   disableActions,
   drawerSlug,
+  filterOptions,
   initialData,
   onDelete: onDeleteFromProps,
   onDuplicate: onDuplicateFromProps,
@@ -59,6 +60,7 @@ export const DocumentDrawerContent: React.FC<DocumentDrawerProps> = ({
             disableActions,
             docID,
             drawerSlug,
+            filterOptions,
             initialData,
             overrideEntityVisibility,
             redirectAfterCreate,
@@ -87,6 +89,7 @@ export const DocumentDrawerContent: React.FC<DocumentDrawerProps> = ({
       collectionSlug,
       disableActions,
       drawerSlug,
+      filterOptions,
       initialData,
       redirectAfterDelete,
       redirectAfterDuplicate,
@@ -171,6 +174,7 @@ export const DocumentDrawerContent: React.FC<DocumentDrawerProps> = ({
     <DocumentDrawerContextProvider
       clearDoc={clearDoc}
       drawerSlug={drawerSlug}
+      filterOptions={filterOptions}
       onDelete={onDelete}
       onDuplicate={onDuplicate}
       onSave={onSave}

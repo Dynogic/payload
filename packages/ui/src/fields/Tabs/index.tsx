@@ -2,7 +2,6 @@
 import type {
   ClientComponentProps,
   ClientTab,
-  DocumentPreferences,
   SanitizedFieldPermissions,
   StaticDescription,
   TabsFieldClientComponent,
@@ -18,8 +17,6 @@ import { useFormFields } from '../../forms/Form/index.js'
 import { RenderFields } from '../../forms/RenderFields/index.js'
 import { useField } from '../../forms/useField/index.js'
 import { withCondition } from '../../forms/withCondition/index.js'
-import { useDocumentInfo } from '../../providers/DocumentInfo/index.js'
-import { usePreferences } from '../../providers/Preferences/index.js'
 import { useTranslation } from '../../providers/Translation/index.js'
 import { FieldDescription } from '../FieldDescription/index.js'
 import { fieldBaseClass } from '../shared/index.js'
@@ -44,28 +41,52 @@ const TabsFieldComponent: TabsFieldClientComponent = (props) => {
     schemaPath = '',
   } = props
 
-  const { getPreference, setPreference } = usePreferences()
-  const { preferencesKey } = useDocumentInfo()
   const { i18n } = useTranslation()
   const { isWithinCollapsible } = useCollapsible()
 
   const tabStates = useFormFields(([fields]) => {
     return tabs.map((tab, index) => {
       const id = tab?.id
-
+      const fieldKey = parentPath ? `${parentPath}.${id}` : id
       return {
         index,
-        passesCondition: fields?.[id]?.passesCondition ?? true,
+        passesCondition: fields?.[fieldKey]?.passesCondition ?? true,
         tab,
       }
     })
   })
 
+  // Helper function to get tab index from URL hash (single-level matching)
+  const getTabIndexFromHash = useCallback(
+    (currentTabStates?: Array<{ index: number; passesCondition: boolean; tab: ClientTab }>) => {
+      if (typeof window === 'undefined' || !window.location.hash) {
+        return null
+      }
+
+      const hash = window.location.hash.substring(1) // Remove the # symbol
+
+      const foundTabIndex = tabs.findIndex((tab) => (tab as any).hash && (tab as any).hash === hash)
+
+      if (foundTabIndex !== -1) {
+        const passesCondition = currentTabStates
+          ? (currentTabStates[foundTabIndex]?.passesCondition ?? true)
+          : true
+
+        if (passesCondition) {
+          return foundTabIndex
+        }
+      }
+
+      return null
+    },
+    [tabs],
+  )
+
+  // Initialize with first visible tab (same on server and client to avoid hydration mismatch)
+  // Hash-based selection happens in useEffect after hydration
   const [activeTabIndex, setActiveTabIndex] = useState<number>(
     () => tabStates.filter(({ passesCondition }) => passesCondition)?.[0]?.index ?? 0,
   )
-
-  const tabsPrefKey = `tabs-${indexPath}`
 
   const activeTabInfo = tabStates[activeTabIndex]
   const activeTabConfig = activeTabInfo?.tab
@@ -79,62 +100,105 @@ const TabsFieldComponent: TabsFieldClientComponent = (props) => {
   const hasVisibleTabs = tabStates.some(({ passesCondition }) => passesCondition)
 
   const handleTabChange = useCallback(
-    async (incomingTabIndex: number): Promise<void> => {
+    (incomingTabIndex: number): void => {
       setActiveTabIndex(incomingTabIndex)
 
-      const existingPreferences: DocumentPreferences = await getPreference(preferencesKey)
+      if (typeof window !== 'undefined') {
+        const selectedTab = tabs[incomingTabIndex]
 
-      if (preferencesKey) {
-        void setPreference(preferencesKey, {
-          ...existingPreferences,
-          ...(path
-            ? {
-                fields: {
-                  ...(existingPreferences?.fields || {}),
-                  [path]: {
-                    ...existingPreferences?.fields?.[path],
-                    tabIndex: incomingTabIndex,
-                  },
-                },
-              }
-            : {
-                fields: {
-                  ...existingPreferences?.fields,
-                  [tabsPrefKey]: {
-                    ...existingPreferences?.fields?.[tabsPrefKey],
-                    tabIndex: incomingTabIndex,
-                  },
-                },
-              }),
-        })
+        // Dispatch tab change event for external listeners
+        window.dispatchEvent(
+          new CustomEvent('payload-tab-change', {
+            detail: {
+              name: (selectedTab as any)?.name,
+              index: incomingTabIndex,
+              label: selectedTab?.label,
+              parentPath,
+            },
+          }),
+        )
+
+        // Update URL hash if tab has a hash value
+        const selectedTabHash = (selectedTab as any).hash
+
+        if (selectedTabHash) {
+          window.history.replaceState(null, '', `#${selectedTabHash}`)
+        } else {
+          // Clear hash if tab has no hash value
+          window.history.replaceState(null, '', window.location.pathname + window.location.search)
+        }
       }
     },
-    [getPreference, preferencesKey, setPreference, path, tabsPrefKey],
+    [tabs, parentPath],
   )
 
-  useEffect(() => {
-    if (preferencesKey) {
-      const getInitialPref = async () => {
-        const existingPreferences: DocumentPreferences = await getPreference(preferencesKey)
-        const initialIndex = path
-          ? existingPreferences?.fields?.[path]?.tabIndex
-          : existingPreferences?.fields?.[tabsPrefKey]?.tabIndex
+  // Track if we've done initial setup to avoid overriding manual tab changes
+  const [hasInitialized, setHasInitialized] = useState(false)
 
-        const newIndex = typeof initialIndex === 'number' && initialIndex < tabStates.length ? initialIndex : 0
-        setActiveTabIndex(newIndex)
-      }
-      void getInitialPref()
+  // Handle initial tab selection based on hash or first visible tab
+  useEffect(() => {
+    if (hasInitialized || tabStates.length === 0) {
+      return
     }
-  }, [path, getPreference, preferencesKey, tabsPrefKey, tabs, parentPath, parentSchemaPath])
+
+    const hashTabIndex = getTabIndexFromHash(tabStates)
+
+    if (hashTabIndex !== null) {
+      if (activeTabIndex !== hashTabIndex) {
+        setActiveTabIndex(hashTabIndex)
+      }
+      setHasInitialized(true)
+      return
+    }
+
+    // No hash found, use first visible tab
+    const firstVisibleIndex = tabStates.find(({ passesCondition }) => passesCondition)?.index ?? 0
+
+    if (activeTabIndex !== firstVisibleIndex) {
+      setActiveTabIndex(firstVisibleIndex)
+    }
+    setHasInitialized(true)
+  }, [tabStates, getTabIndexFromHash, activeTabIndex, hasInitialized])
 
   useEffect(() => {
     if (activeTabInfo?.passesCondition === false) {
       const nextTab = tabStates.find(({ passesCondition }) => passesCondition)
       if (nextTab) {
-        void handleTabChange(nextTab.index)
+        handleTabChange(nextTab.index)
       }
     }
   }, [activeTabInfo, tabStates, handleTabChange])
+
+  // Listen for hash changes to update active tab
+  useEffect(() => {
+    const handleHashChange = () => {
+      const hashTabIndex = getTabIndexFromHash(tabStates)
+
+      if (hashTabIndex !== null && hashTabIndex !== activeTabIndex) {
+        setActiveTabIndex(hashTabIndex)
+      }
+    }
+
+    if (typeof window !== 'undefined') {
+      window.addEventListener('hashchange', handleHashChange)
+      return () => {
+        window.removeEventListener('hashchange', handleHashChange)
+      }
+    }
+  }, [getTabIndexFromHash, activeTabIndex, tabStates])
+
+  // Also check hash on every render (for Next.js navigation that doesn't trigger hashchange)
+  useEffect(() => {
+    if (tabStates.length === 0 || typeof window === 'undefined') {
+      return
+    }
+
+    const hashTabIndex = getTabIndexFromHash(tabStates)
+
+    if (hashTabIndex !== null && hashTabIndex !== activeTabIndex) {
+      setActiveTabIndex(hashTabIndex)
+    }
+  }) // No dependency array - runs on every render to catch Next.js navigation
 
   return (
     <div
@@ -158,7 +222,7 @@ const TabsFieldComponent: TabsFieldClientComponent = (props) => {
                 key={index}
                 parentPath={path}
                 setIsActive={() => {
-                  void handleTabChange(index)
+                  handleTabChange(index)
                 }}
                 tab={tab}
               />

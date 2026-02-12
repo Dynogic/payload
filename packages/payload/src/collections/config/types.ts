@@ -56,6 +56,7 @@ import type {
 } from '../../index.js'
 import type {
   PayloadRequest,
+  PopulateType,
   SelectIncludeType,
   SelectType,
   Sort,
@@ -528,6 +529,36 @@ export type CollectionAdminOptions = {
    */
   hideAPIURL?: boolean
   /**
+   * Hide the collection from the breadcrumb navigation in the document edit view.
+   * Useful for singleton-like collections where there's only one document per context.
+   * When true, breadcrumb shows: icon / document title (instead of icon / collection / document title)
+   */
+  hideCollectionInBreadcrumb?: boolean
+  /**
+   * Hide the document header (title and tabs) in the document edit view.
+   */
+  hideDocumentHeader?: boolean
+  /**
+   * Depth to use when fetching documents in the list view.
+   * Default is 0 (no relationship population).
+   * Set to 1 or higher to enable relationship population.
+   * Use with `listPopulate` to control which fields are selected from related collections.
+   */
+  listDepth?: number
+  /**
+   * Controls which fields are selected when populating relationships in the list view.
+   * Maps collection slugs to select objects.
+   * Requires `listDepth` >= 1 to have any effect.
+   *
+   * @example
+   * ```ts
+   * listPopulate: {
+   *   files: { thumbnailURL: true, url: true, mimeType: true },
+   * }
+   * ```
+   */
+  listPopulate?: PopulateType
+  /**
    * Additional fields to be searched via the full text search
    */
   listSearchableFields?: string[]
@@ -546,6 +577,11 @@ export type CollectionAdminOptions = {
    * Function to generate custom preview URL
    */
   preview?: GeneratePreviewURL
+  /**
+   * Show the document title in the document controls bar.
+   * Useful when hideDocumentHeader is true but you still want to display the title.
+   */
+  showTitleInControls?: boolean
   /**
    * Field to use as title in Edit View and first column in List view
    */

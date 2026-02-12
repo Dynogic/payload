@@ -191,8 +191,16 @@ export const rsTranslations: DefaultTranslationsObject = {
     uploadNewLabel: 'Учитај нови {{label}}',
   },
   folder: {
+    assign: 'Додели',
+    assignFolder: 'Додели фасциклу',
+    assigning: 'Додељивање...',
+    assignItemsToFolderConfirmation:
+      'Управо ћете доделити <1>{{count}} {{label}}</1> у <2>{{toFolder}}</2>. Да ли сте сигурни?',
+    assignItemsToRootConfirmation:
+      'Управо ћете уклонити <1>{{count}} {{label}}</1> из тренутне фасцикле. Да ли сте сигурни?',
     browseByFolder: 'Pregledajte po folderu',
     byFolder: 'Po folderu',
+    confirmAssignment: 'Потврди доделу',
     deleteFolder: 'Obriši fasciklu',
     folderName: 'Ime fascikle',
     folders: 'Fascikle',
@@ -200,8 +208,10 @@ export const rsTranslations: DefaultTranslationsObject = {
       'Odaberite koja vrsta dokumenata iz kolekcije treba biti dozvoljena u ovom folderu.',
     itemHasBeenMoved: '{{title}} je premješten u {{folderName}}',
     itemHasBeenMovedToRoot: '{{title}} je premešten u osnovni direktorijum.',
+    itemsAssignedToFolder: '{{title}} додељен у {{folderName}}',
     itemsMovedToFolder: '{{title}} premešten u {{folderName}}',
     itemsMovedToRoot: '{{title}} pomeren u koreni direktorijum',
+    itemsRemovedFromFolder: '{{title}} уклоњен из фасцикле',
     moveFolder: 'Premesti fasciklu',
     moveItemsToFolderConfirmation:
       'Upravo ste na korak da premestite <1>{{count}} {{label}}</1> u <2>{{toFolder}}</2>. Da li ste sigurni?',
@@ -446,8 +456,8 @@ export const rsTranslations: DefaultTranslationsObject = {
     updatedSuccessfully: 'Успешно ажурирано.',
     updateForEveryone: 'Ažuriranje za sve',
     updating: 'Ажурирање',
-    uploading: 'Пренос',
-    uploadingBulk: 'Отпремање {{current}} од {{total}}',
+    uploading: 'Пренос ({{progress}}%)',
+    uploadingBulk: 'Отпремање {{current}} од {{total}} ({{progress}}%)',
     user: 'Корисник',
     username: 'Korisničko ime',
     users: 'Корисници',

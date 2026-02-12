@@ -18,13 +18,22 @@ export const SetDocumentStepNav: React.FC<{
   collectionSlug?: SanitizedCollectionConfig['slug']
   globalLabel?: SanitizedGlobalConfig['label']
   globalSlug?: SanitizedGlobalConfig['slug']
+  hideCollectionInBreadcrumb?: boolean
   id?: number | string
   isTrashed?: boolean
   pluralLabel?: SanitizedCollectionConfig['labels']['plural']
   useAsTitle?: SanitizedCollectionConfig['admin']['useAsTitle']
   view?: string
 }> = (props) => {
-  const { id, collectionSlug, globalSlug, isTrashed, pluralLabel, useAsTitle } = props
+  const {
+    id,
+    collectionSlug,
+    globalSlug,
+    hideCollectionInBreadcrumb,
+    isTrashed,
+    pluralLabel,
+    useAsTitle,
+  } = props
 
   const view: string | undefined = props?.view || undefined
 
@@ -50,16 +59,18 @@ export const SetDocumentStepNav: React.FC<{
 
     if (!isInitializing) {
       if (collectionSlug) {
-        // Collection label
-        nav.push({
-          label: getTranslation(pluralLabel, i18n),
-          url: isVisible
-            ? formatAdminURL({
-                adminRoute,
-                path: `/collections/${collectionSlug}`,
-              })
-            : undefined,
-        })
+        // Collection label (unless hidden)
+        if (!hideCollectionInBreadcrumb) {
+          nav.push({
+            label: getTranslation(pluralLabel, i18n),
+            url: isVisible
+              ? formatAdminURL({
+                  adminRoute,
+                  path: `/collections/${collectionSlug}`,
+                })
+              : undefined,
+          })
+        }
 
         // Trash breadcrumb (if in trash view)
         if (isTrashed) {
@@ -74,18 +85,10 @@ export const SetDocumentStepNav: React.FC<{
           })
         }
 
-        // Document label
+        // Document label (no URL since this is the current page)
         if (isEditing) {
           nav.push({
             label: (useAsTitle && useAsTitle !== 'id' && title) || `${id}`,
-            url: isVisible
-              ? formatAdminURL({
-                  adminRoute,
-                  path: isTrashed
-                    ? `/collections/${collectionSlug}/trash/${id}`
-                    : `/collections/${collectionSlug}/${id}`,
-                })
-              : undefined,
           })
         } else {
           nav.push({
@@ -93,14 +96,9 @@ export const SetDocumentStepNav: React.FC<{
           })
         }
       } else if (globalSlug) {
+        // Global label (no URL since this is the current page)
         nav.push({
           label: title,
-          url: isVisible
-            ? formatAdminURL({
-                adminRoute,
-                path: `/globals/${globalSlug}`,
-              })
-            : undefined,
         })
       }
 
@@ -119,6 +117,7 @@ export const SetDocumentStepNav: React.FC<{
     isEditing,
     pluralLabel,
     id,
+    hideCollectionInBreadcrumb,
     isTrashed,
     useAsTitle,
     adminRoute,

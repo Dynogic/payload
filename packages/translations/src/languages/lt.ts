@@ -192,8 +192,16 @@ export const ltTranslations: DefaultTranslationsObject = {
     uploadNewLabel: 'Įkelti naują {{label}}',
   },
   folder: {
+    assign: 'Priskirti',
+    assignFolder: 'Priskirti aplanką',
+    assigning: 'Priskiriama...',
+    assignItemsToFolderConfirmation:
+      'Jūs ketinate priskirti <1>{{count}} {{label}}</1> prie <2>{{toFolder}}</2>. Ar tikrai?',
+    assignItemsToRootConfirmation:
+      'Jūs ketinate pašalinti <1>{{count}} {{label}}</1> iš dabartinio aplanko. Ar tikrai?',
     browseByFolder: 'Naršyti pagal aplanką',
     byFolder: 'Pagal aplanką',
+    confirmAssignment: 'Patvirtinti priskyrimą',
     deleteFolder: 'Ištrinti aplanką',
     folderName: 'Aplanko pavadinimas',
     folders: 'Aplankai',
@@ -201,8 +209,10 @@ export const ltTranslations: DefaultTranslationsObject = {
       'Pasirinkite, kokio tipo rinkinio dokumentai turėtų būti leidžiami šiame aplanke.',
     itemHasBeenMoved: '{{title}} buvo perkeltas į {{folderName}}',
     itemHasBeenMovedToRoot: '{{title}} buvo perkeltas į pagrindinį katalogą',
+    itemsAssignedToFolder: '{{title}} priskirtas prie {{folderName}}',
     itemsMovedToFolder: '{{title}} perkeltas į {{folderName}}',
     itemsMovedToRoot: '{{title}} perkeltas į šakninį aplanką',
+    itemsRemovedFromFolder: '{{title}} pašalintas iš aplanko',
     moveFolder: 'Perkelti aplanką',
     moveItemsToFolderConfirmation:
       'Jūs ketinate perkelti <1>{{count}} {{label}}</1> į <2>{{toFolder}}</2>. Ar esate tikri?',
@@ -448,8 +458,8 @@ export const ltTranslations: DefaultTranslationsObject = {
     updatedSuccessfully: 'Sėkmingai atnaujinta.',
     updateForEveryone: 'Atnaujinimas visiems',
     updating: 'Atnaujinimas',
-    uploading: 'Įkeliama',
-    uploadingBulk: 'Įkeliamas {{current}} iš {{total}}',
+    uploading: 'Įkeliama ({{progress}}%)',
+    uploadingBulk: 'Įkeliamas {{current}} iš {{total}} ({{progress}}%)',
     user: 'Vartotojas',
     username: 'Vartotojo vardas',
     users: 'Vartotojai',

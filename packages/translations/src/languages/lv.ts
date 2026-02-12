@@ -190,8 +190,16 @@ export const lvTranslations: DefaultTranslationsObject = {
     uploadNewLabel: 'Augšupielādēt jaunu {{label}}',
   },
   folder: {
+    assign: 'Piešķirt',
+    assignFolder: 'Piešķirt mapi',
+    assigning: 'Piešķir...',
+    assignItemsToFolderConfirmation:
+      'Jūs gatavojaties piešķirt <1>{{count}} {{label}}</1> mapei <2>{{toFolder}}</2>. Vai esat pārliecināts?',
+    assignItemsToRootConfirmation:
+      'Jūs gatavojaties noņemt <1>{{count}} {{label}}</1> no pašreizējās mapes. Vai esat pārliecināts?',
     browseByFolder: 'Pārlūkot pēc mapes',
     byFolder: 'Pēc mapi',
+    confirmAssignment: 'Apstiprināt piešķiršanu',
     deleteFolder: 'Dzēst mapi',
     folderName: 'Mapes nosaukums',
     folders: 'Mapes',
@@ -199,8 +207,10 @@ export const lvTranslations: DefaultTranslationsObject = {
       'Izvēlieties, kāda veida kolekcijas dokumentiem jābūt atļautiem šajā mapē.',
     itemHasBeenMoved: '{{title}} ir pārvietots uz {{folderName}}',
     itemHasBeenMovedToRoot: '{{title}} ir pārvietots uz saknes mapi',
+    itemsAssignedToFolder: '{{title}} piešķirts mapei {{folderName}}',
     itemsMovedToFolder: '{{title}} pārvietots uz {{folderName}}',
     itemsMovedToRoot: '{{title}} pārvietots uz saknes mapi',
+    itemsRemovedFromFolder: '{{title}} noņemts no mapes',
     moveFolder: 'Pārvietot mapi',
     moveItemsToFolderConfirmation:
       'Jūs esat gatavs pārvietot <1>{{count}} {{label}}</1> uz <2>{{toFolder}}</2>. Vai esat pārliecināts?',
@@ -446,8 +456,8 @@ export const lvTranslations: DefaultTranslationsObject = {
     updatedSuccessfully: 'Veiksmīgi atjaunināts.',
     updateForEveryone: 'Atjaunināt visiem',
     updating: 'Atjaunina',
-    uploading: 'Augšupielādē...',
-    uploadingBulk: 'Augšupielādē {{current}} no {{total}}',
+    uploading: 'Augšupielādē... ({{progress}}%)',
+    uploadingBulk: 'Augšupielādē {{current}} no {{total}} ({{progress}}%)',
     user: 'Lietotājs',
     username: 'Lietotājvārds',
     users: 'Lietotāji',

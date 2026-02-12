@@ -9,7 +9,7 @@ import type {
 
 import { getTranslation } from '@payloadcms/translations'
 import { formatAdminURL, hasAutosaveEnabled, hasDraftsEnabled } from 'payload/shared'
-import React, { Fragment, useEffect } from 'react'
+import React, { Fragment } from 'react'
 
 import type { DocumentDrawerContextType } from '../DocumentDrawer/Provider.js'
 
@@ -18,7 +18,6 @@ import { useConfig } from '../../providers/Config/index.js'
 import { useEditDepth } from '../../providers/EditDepth/index.js'
 import { useLivePreviewContext } from '../../providers/LivePreview/context.js'
 import { useTranslation } from '../../providers/Translation/index.js'
-import { formatDate } from '../../utilities/formatDocTitle/formatDateTitle.js'
 import { Autosave } from '../Autosave/index.js'
 import { Button } from '../Button/index.js'
 import { CopyLocaleData } from '../CopyLocaleData/index.js'
@@ -33,6 +32,7 @@ import { Popup, PopupList } from '../Popup/index.js'
 import { PreviewButton } from '../PreviewButton/index.js'
 import { PublishButton } from '../PublishButton/index.js'
 import { RenderCustomComponent } from '../RenderCustomComponent/index.js'
+import { RenderTitle } from '../RenderTitle/index.js'
 import { RestoreButton } from '../RestoreButton/index.js'
 import { SaveButton } from '../SaveButton/index.js'
 import './index.scss'
@@ -76,6 +76,7 @@ export const DocumentControls: React.FC<{
   readonly redirectAfterDelete?: boolean
   readonly redirectAfterDuplicate?: boolean
   readonly redirectAfterRestore?: boolean
+  readonly showTitle?: boolean
   readonly slug: SanitizedCollectionConfig['slug']
   readonly user?: ClientUser
 }> = (props) => {
@@ -110,6 +111,7 @@ export const DocumentControls: React.FC<{
     redirectAfterDelete,
     redirectAfterDuplicate,
     redirectAfterRestore,
+    showTitle,
     user,
   } = props
 
@@ -126,27 +128,12 @@ export const DocumentControls: React.FC<{
   const { isLivePreviewEnabled } = useLivePreviewContext()
 
   const {
-    admin: { dateFormat },
     localization,
     routes: { admin: adminRoute },
-    serverURL,
   } = config
-
-  // Settings these in state to avoid hydration issues if there is a mismatch between the server and client
-  const [updatedAt, setUpdatedAt] = React.useState<string>('')
-  const [createdAt, setCreatedAt] = React.useState<string>('')
 
   const processing = useFormProcessing()
   const initializing = useFormInitializing()
-
-  useEffect(() => {
-    if (data?.updatedAt) {
-      setUpdatedAt(formatDate({ date: data.updatedAt, i18n, pattern: dateFormat }))
-    }
-    if (data?.createdAt) {
-      setCreatedAt(formatDate({ date: data.createdAt, i18n, pattern: dateFormat }))
-    }
-  }, [data, i18n, dateFormat])
 
   const hasCreatePermission = permissions && 'create' in permissions && permissions.create
 
@@ -181,6 +168,7 @@ export const DocumentControls: React.FC<{
     <Gutter className={baseClass}>
       <div className={`${baseClass}__wrapper`}>
         <div className={`${baseClass}__content`}>
+          {showTitle && <RenderTitle className={`${baseClass}__title`} element="h1" />}
           {showLockedMetaIcon || showFolderMetaIcon ? (
             <div className={`${baseClass}__meta-icons`}>
               {showLockedMetaIcon && (
@@ -195,7 +183,7 @@ export const DocumentControls: React.FC<{
             </div>
           ) : null}
           <ul className={`${baseClass}__meta`}>
-            {collectionConfig && !isEditing && !isAccountView && (
+            {collectionConfig && !isEditing && !isAccountView && !showTitle && (
               <li className={`${baseClass}__list-item`}>
                 <p className={`${baseClass}__value`}>
                   {i18n.t('general:creatingNewLabel', {
@@ -233,31 +221,6 @@ export const DocumentControls: React.FC<{
                   )}
               </Fragment>
             )}
-            {collectionConfig?.timestamps && (isEditing || isAccountView) && (
-              <Fragment>
-                <li
-                  className={[`${baseClass}__list-item`, `${baseClass}__value-wrap`]
-                    .filter(Boolean)
-                    .join(' ')}
-                  title={data?.updatedAt ? updatedAt : ''}
-                >
-                  <p className={`${baseClass}__label`}>
-                    {i18n.t(isTrashed ? 'general:deleted' : 'general:lastModified')}:&nbsp;
-                  </p>
-
-                  {data?.updatedAt && <p className={`${baseClass}__value`}>{updatedAt}</p>}
-                </li>
-                <li
-                  className={[`${baseClass}__list-item`, `${baseClass}__value-wrap`]
-                    .filter(Boolean)
-                    .join(' ')}
-                  title={data?.createdAt ? createdAt : ''}
-                >
-                  <p className={`${baseClass}__label`}>{i18n.t('general:created')}:&nbsp;</p>
-                  {data?.createdAt && <p className={`${baseClass}__value`}>{createdAt}</p>}
-                </li>
-              </Fragment>
-            )}
           </ul>
         </div>
         <div className={`${baseClass}__controls-wrapper`}>
@@ -277,11 +240,11 @@ export const DocumentControls: React.FC<{
                     {(unsavedDraftWithValidations ||
                       !autosaveEnabled ||
                       (autosaveEnabled && showSaveDraftButton)) && (
-                        <RenderCustomComponent
-                          CustomComponent={CustomSaveDraftButton}
-                          Fallback={<SaveDraftButton />}
-                        />
-                      )}
+                      <RenderCustomComponent
+                        CustomComponent={CustomSaveDraftButton}
+                        Fallback={<SaveDraftButton />}
+                      />
+                    )}
                     <RenderCustomComponent
                       CustomComponent={CustomPublishButton}
                       Fallback={<PublishButton />}

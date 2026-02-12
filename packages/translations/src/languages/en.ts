@@ -190,8 +190,16 @@ export const enTranslations = {
     uploadNewLabel: 'Upload new {{label}}',
   },
   folder: {
+    assign: 'Assign',
+    assignFolder: 'Assign Folder',
+    assigning: 'Assigning...',
+    assignItemsToFolderConfirmation:
+      'You are about to assign <1>{{count}} {{label}}</1> to <2>{{toFolder}}</2>. Are you sure?',
+    assignItemsToRootConfirmation:
+      'You are about to remove <1>{{count}} {{label}}</1> from their current folder. Are you sure?',
     browseByFolder: 'Browse by Folder',
     byFolder: 'By Folder',
+    confirmAssignment: 'Confirm assignment',
     deleteFolder: 'Delete Folder',
     folderName: 'Folder Name',
     folders: 'Folders',
@@ -199,8 +207,10 @@ export const enTranslations = {
       'Select which type of collection documents should be allowed in this folder.',
     itemHasBeenMoved: '{{title}} has been moved to {{folderName}}',
     itemHasBeenMovedToRoot: '{{title}} has been moved to the root folder',
+    itemsAssignedToFolder: '{{title}} assigned to {{folderName}}',
     itemsMovedToFolder: '{{title}} moved to {{folderName}}',
     itemsMovedToRoot: '{{title}} moved to the root folder',
+    itemsRemovedFromFolder: '{{title}} removed from folder',
     moveFolder: 'Move Folder',
     moveItemsToFolderConfirmation:
       'You are about to move <1>{{count}} {{label}}</1> to <2>{{toFolder}}</2>. Are you sure?',
@@ -447,8 +457,8 @@ export const enTranslations = {
     updatedSuccessfully: 'Updated successfully.',
     updateForEveryone: 'Update for everyone',
     updating: 'Updating',
-    uploading: 'Uploading',
-    uploadingBulk: 'Uploading {{current}} of {{total}}',
+    uploading: 'Uploading ({{progress}}%)',
+    uploadingBulk: 'Uploading {{current}} of {{total}} ({{progress}}%)',
     user: 'User',
     username: 'Username',
     users: 'Users',

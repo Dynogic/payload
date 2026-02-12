@@ -5,6 +5,7 @@ import type {
   Data,
   DocumentPreferences,
   DocumentSlots,
+  FilterOptionsResult,
   FormState,
   GetFolderResultsComponentAndDataArgs,
   Params,
@@ -65,6 +66,7 @@ type RenderDocumentBaseArgs = {
   disableActions?: boolean
   docID: number | string
   drawerSlug?: string
+  filterOptions?: FilterOptionsResult
   initialData?: Data
   initialState?: FormState
   overrideEntityVisibility?: boolean

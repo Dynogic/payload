@@ -194,8 +194,16 @@ export const esTranslations: DefaultTranslationsObject = {
     uploadNewLabel: 'Subir nuevo {{label}}',
   },
   folder: {
+    assign: 'Asignar',
+    assignFolder: 'Asignar carpeta',
+    assigning: 'Asignando...',
+    assignItemsToFolderConfirmation:
+      'Está a punto de asignar <1>{{count}} {{label}}</1> a <2>{{toFolder}}</2>. ¿Está seguro?',
+    assignItemsToRootConfirmation:
+      'Está a punto de eliminar <1>{{count}} {{label}}</1> de su carpeta actual. ¿Está seguro?',
     browseByFolder: 'Explorar por Carpeta',
     byFolder: 'Por Carpeta',
+    confirmAssignment: 'Confirmar asignación',
     deleteFolder: 'Eliminar Carpeta',
     folderName: 'Nombre de la Carpeta',
     folders: 'Carpetas',
@@ -203,8 +211,10 @@ export const esTranslations: DefaultTranslationsObject = {
       'Seleccione qué tipo de documentos de la colección se deben permitir en esta carpeta.',
     itemHasBeenMoved: '{{title}} se ha movido a {{folderName}}',
     itemHasBeenMovedToRoot: '{{title}} se ha movido a la carpeta raíz',
+    itemsAssignedToFolder: '{{title}} asignado a {{folderName}}',
     itemsMovedToFolder: '{{title}} movido a {{folderName}}',
     itemsMovedToRoot: '{{title}} movido a la carpeta raíz',
+    itemsRemovedFromFolder: '{{title}} eliminado de la carpeta',
     moveFolder: 'Mover Carpeta',
     moveItemsToFolderConfirmation:
       'Estás a punto de mover <1>{{count}} {{label}}</1> a <2>{{toFolder}}</2>. ¿Estás seguro?',
@@ -452,8 +462,8 @@ export const esTranslations: DefaultTranslationsObject = {
     updatedSuccessfully: 'Actualizado con éxito.',
     updateForEveryone: 'Actualizar para todos',
     updating: 'Actualizando',
-    uploading: 'Subiendo',
-    uploadingBulk: 'Subiendo {{current}} de {{total}}',
+    uploading: 'Subiendo ({{progress}}%)',
+    uploadingBulk: 'Subiendo {{current}} de {{total}} ({{progress}}%)',
     user: 'Usuario',
     username: 'Nombre de usuario',
     users: 'Usuarios',

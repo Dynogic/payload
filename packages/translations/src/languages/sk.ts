@@ -193,8 +193,16 @@ export const skTranslations: DefaultTranslationsObject = {
     uploadNewLabel: 'Nahrať nový {{label}}',
   },
   folder: {
+    assign: 'Priradiť',
+    assignFolder: 'Priradiť priečinok',
+    assigning: 'Priraďovanie...',
+    assignItemsToFolderConfirmation:
+      'Chystáte sa priradiť <1>{{count}} {{label}}</1> do <2>{{toFolder}}</2>. Ste si istí?',
+    assignItemsToRootConfirmation:
+      'Chystáte sa odstrániť <1>{{count}} {{label}}</1> z ich aktuálneho priečinka. Ste si istí?',
     browseByFolder: 'Prehliadať podľa priečinka',
     byFolder: 'Podľa priečinka',
+    confirmAssignment: 'Potvrdiť priradenie',
     deleteFolder: 'Odstrániť priečinok',
     folderName: 'Názov priečinka',
     folders: 'Priečinky',
@@ -202,8 +210,10 @@ export const skTranslations: DefaultTranslationsObject = {
       'Vyberte, ktorý typ dokumentov z kolekcie by mal byť povolený v tejto zložke.',
     itemHasBeenMoved: '{{title}} bol presunutý do {{folderName}}',
     itemHasBeenMovedToRoot: '{{title}} bol presunutý do koreňového priečinka',
+    itemsAssignedToFolder: '{{title}} priradený do {{folderName}}',
     itemsMovedToFolder: '{{title}} presunuté do {{folderName}}',
     itemsMovedToRoot: '{{title}} bol presunutý do koreňového priečinka',
+    itemsRemovedFromFolder: '{{title}} odstránený z priečinka',
     moveFolder: 'Presunúť priečinok',
     moveItemsToFolderConfirmation:
       'Chystáte sa presunúť <1>{{count}} {{label}}</1> do <2>{{toFolder}}</2>. Ste si istý?',
@@ -445,8 +455,8 @@ export const skTranslations: DefaultTranslationsObject = {
     updatedSuccessfully: 'Úspešne aktualizované.',
     updateForEveryone: 'Aktualizácia pre všetkých',
     updating: 'Aktualizácia',
-    uploading: 'Nahrávanie',
-    uploadingBulk: 'Nahrávanie {{current}} z {{total}}',
+    uploading: 'Nahrávanie ({{progress}}%)',
+    uploadingBulk: 'Nahrávanie {{current}} z {{total}} ({{progress}}%)',
     user: 'Používateľ',
     username: 'Používateľské meno',
     users: 'Používatelia',
