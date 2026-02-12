@@ -5,12 +5,13 @@ import type { Data, ViewTypes } from 'payload'
 import { formatAdminURL } from 'payload/shared'
 import React, { useEffect } from 'react'
 
-import { useConfig } from '../../../providers/Config/index.js'
 import { useTranslation } from '../../../providers/Translation/index.js'
 import { Link } from '../../Link/index.js'
 import { useListDrawerContext } from '../../ListDrawer/Provider.js'
 
 type Props = {
+  readonly adminRoute: string
+  readonly apiRoute: string
   readonly collectionSlug: string
   readonly data: Data
   readonly docTitle: string
@@ -20,6 +21,8 @@ type Props = {
 }
 
 export const FolderTableCellClient = ({
+  adminRoute,
+  apiRoute,
   collectionSlug,
   data,
   folderCollectionSlug,
@@ -27,7 +30,6 @@ export const FolderTableCellClient = ({
 }: Props) => {
   const folderID = data?.[folderFieldName]
 
-  const { config } = useConfig()
   const { t } = useTranslation()
   const [folderName, setFolderName] = React.useState(() =>
     folderID ? `${t('general:loading')}...` : null,
@@ -40,7 +42,7 @@ export const FolderTableCellClient = ({
       try {
         const req = await fetch(
           formatAdminURL({
-            apiRoute: config.routes.api,
+            apiRoute,
             path: `/${folderCollectionSlug}/${folderID}`,
           }),
           {
@@ -69,7 +71,7 @@ export const FolderTableCellClient = ({
       setFolderName(null)
       lastLoadedFolderID.current = null
     }
-  }, [config.routes.api, folderCollectionSlug, folderID])
+  }, [apiRoute, folderCollectionSlug, folderID])
 
   const { drawerSlug, onSelect } = useListDrawerContext()
 
@@ -99,7 +101,7 @@ export const FolderTableCellClient = ({
   }
 
   const href = formatAdminURL({
-    adminRoute: config.routes.admin,
+    adminRoute,
     path: `/collections/${collectionSlug}/folders/${folderID}`,
   })
 

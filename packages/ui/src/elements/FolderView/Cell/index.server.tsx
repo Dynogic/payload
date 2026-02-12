@@ -15,6 +15,8 @@ export const FolderTableCell = (props: DefaultServerCellComponentProps) => {
 
   return (
     <FolderTableCellClient
+      adminRoute={props.payload.config.routes.admin}
+      apiRoute={props.payload.config.routes.api}
       collectionSlug={props.collectionSlug}
       data={props.rowData}
       docTitle={titleToRender}
