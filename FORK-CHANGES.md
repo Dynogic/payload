@@ -174,6 +174,32 @@ Useful for displaying data from related collections in list views (e.g., showing
 - Event detail includes `{ label, name, index, parentPath }`
 - Enables live preview view mode switching based on admin tab selection
 
+### 20. Custom List Column Headers (`admin.listLabel`)
+
+**Files:** `packages/payload/src/fields/config/types.ts`, `packages/payload/src/utilities/flattenTopLevelFields.ts`
+
+- New `admin.listLabel` option on fields to override the column header label in list view
+- By default, nested fields (e.g., inside a group) display "Parent > Child" (e.g., "Pricing > Price")
+- Setting `listLabel` replaces that with a custom label
+- Supports i18n via `StaticLabel` (string or `Record<string, string>`)
+
+```ts
+// Example usage
+{
+  type: 'group',
+  name: 'pricing',
+  fields: [
+    {
+      type: 'number',
+      name: 'price',
+      admin: {
+        listLabel: 'Price', // Shows "Price" instead of "Pricing > Price"
+      },
+    },
+  ],
+}
+```
+
 ---
 
 ## Configuration/Documentation
@@ -191,5 +217,5 @@ Useful for displaying data from related collections in list views (e.g., showing
 | Category      | Count |
 | ------------- | ----- |
 | Bug Fixes     | 4     |
-| Features      | 14    |
+| Features      | 15    |
 | Documentation | 1     |

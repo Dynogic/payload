@@ -385,6 +385,12 @@ export type FieldAdmin = {
    */
   disableListFilter?: boolean
   hidden?: boolean
+  /**
+   * Override the column header label shown in the list view.
+   * By default, nested fields display "Parent > Child". Use this
+   * to replace that with a custom label.
+   */
+  listLabel?: StaticLabel
   position?: 'sidebar'
   readOnly?: boolean
   style?: CSSProperties
@@ -422,6 +428,12 @@ export type AdminClient = {
    */
   disableListFilter?: boolean
   hidden?: boolean
+  /**
+   * Override the column header label shown in the list view.
+   * By default, nested fields display "Parent > Child". Use this
+   * to replace that with a custom label.
+   */
+  listLabel?: StaticLabel
   position?: 'sidebar'
   readOnly?: boolean
   style?: { '--field-width'?: CSSProperties['width'] } & CSSProperties

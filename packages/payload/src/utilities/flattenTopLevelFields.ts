@@ -192,14 +192,23 @@ export function flattenTopLevelFields<TField extends ClientField | Field>(
 
       const isHoistingFromGroup = pathPrefix !== undefined || labelPrefix !== undefined
 
+      const adminListLabel =
+        'admin' in field && field.admin && 'listLabel' in field.admin && field.admin.listLabel
+          ? i18n
+            ? getTranslation(field.admin.listLabel as string, i18n)
+            : field.admin.listLabel
+          : undefined
+
       acc.push({
         ...(field as FlattenedField<TField>),
         ...(moveSubFieldsToTop &&
           isHoistingFromGroup && {
             accessor: pathPrefix && name ? `${pathPrefix}.${name}` : (name ?? ''),
-            labelWithPrefix: labelPrefix
-              ? `${labelPrefix} > ${translatedLabel ?? name}`
-              : (translatedLabel ?? name),
+            labelWithPrefix:
+              adminListLabel ??
+              (labelPrefix
+                ? `${labelPrefix} > ${translatedLabel ?? name}`
+                : (translatedLabel ?? name)),
           }),
       })
     }
