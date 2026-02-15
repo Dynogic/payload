@@ -58,12 +58,13 @@ Fixed folder column not updating after changing folder assignment. The cell had 
 
 ### 8. MIME Type Validation for Uploads
 
-**File:** `packages/ui/src/elements/Upload/index.tsx`, `packages/ui/src/fields/Upload/index.tsx`
+**Files:** `packages/ui/src/elements/Upload/index.tsx`, `packages/ui/src/fields/Upload/index.tsx`, `packages/ui/src/elements/BulkUpload/EditForm/index.tsx`
 
 - New `allowedMimeTypes` prop for Upload component
 - New `onInvalidFile` callback for handling invalid file types
 - Validates file types client-side before upload begins
 - Supports wildcard patterns like `audio/*`, `image/*`
+- `data.mimeType` is now available in field `condition` callbacks immediately when a file is dropped. The Upload component dispatches the file's MIME type string into form state on file change, so conditions can check `data.mimeType` without waiting for server upload. The `File` object itself is stripped during serialization (`excludeFiles: true`), so `data.file` is not usable in conditions.
 
 ### 9. Upload filterOptions in Lexical Rich Text
 

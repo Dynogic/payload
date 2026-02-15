@@ -167,7 +167,7 @@ export const Upload_v4: React.FC<UploadProps_v4> = (props) => {
   } = useConfig()
 
   const { t } = useTranslation()
-  const { setModified } = useForm()
+  const { dispatchFields, setModified } = useForm()
   const { id, data, docPermissions, setUploadStatus } = useDocumentInfo()
   const isFormSubmitting = useFormProcessing()
   const { errorMessage, setValue, showError, value } = useField<File>({
@@ -194,6 +194,20 @@ export const Upload_v4: React.FC<UploadProps_v4> = (props) => {
       }
 
       setValue(file)
+
+      // Dispatch mimeType as a serializable string so field conditions can access it
+      // during creation. The File object itself is stripped during serialization
+      // (excludeFiles: true), but the mimeType string survives and reaches the server
+      // where conditions are evaluated.
+      if (file instanceof File) {
+        dispatchFields({
+          type: 'UPDATE',
+          path: 'mimeType',
+          valid: true,
+          value: file.type,
+        })
+      }
+
       setShowUrlInput(false)
       setUploadControlFileUrl('')
       setUploadControlFileName(null)
@@ -203,7 +217,14 @@ export const Upload_v4: React.FC<UploadProps_v4> = (props) => {
         onChange(file)
       }
     },
-    [onChange, setValue, setUploadControlFile, setUploadControlFileName, setUploadControlFileUrl],
+    [
+      dispatchFields,
+      onChange,
+      setValue,
+      setUploadControlFile,
+      setUploadControlFileName,
+      setUploadControlFileUrl,
+    ],
   )
 
   const renameFile = (fileToChange: File, newName: string): File => {
@@ -230,11 +251,11 @@ export const Upload_v4: React.FC<UploadProps_v4> = (props) => {
   const handleFileSelection = useCallback(
     (files: FileList) => {
       const fileToUpload = files?.[0]
-      
+
       // Validate mime type if restrictions are set
       const mimeTypes = allowedMimeTypes || uploadConfig?.mimeTypes
       if (fileToUpload && mimeTypes?.length > 0) {
-        const isValidType = mimeTypes.some(mimeType => {
+        const isValidType = mimeTypes.some((mimeType) => {
           // Handle wildcard patterns like "audio/*"
           if (mimeType.endsWith('/*')) {
             const category = mimeType.slice(0, -2)
@@ -242,7 +263,7 @@ export const Upload_v4: React.FC<UploadProps_v4> = (props) => {
           }
           return fileToUpload.type === mimeType
         })
-        
+
         if (!isValidType) {
           if (onInvalidFile) {
             onInvalidFile(fileToUpload, mimeTypes)
@@ -250,7 +271,7 @@ export const Upload_v4: React.FC<UploadProps_v4> = (props) => {
           return
         }
       }
-      
+
       handleFileChange({ file: fileToUpload })
     },
     [allowedMimeTypes, handleFileChange, onInvalidFile, uploadConfig],
