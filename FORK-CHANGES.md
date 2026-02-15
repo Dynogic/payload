@@ -83,17 +83,19 @@ Fixed folder column not updating after changing folder assignment. The cell had 
 
 ### 11. Upload Progress in UI
 
-**Files:** `packages/translations/src/languages/*.ts` (43 files)
+**Files:** `packages/ui/src/forms/Form/index.tsx`, `packages/translations/src/languages/*.ts` (43 files)
 
 - Upload status now shows percentage: `"Uploading ({{progress}}%)"`
 - Bulk upload shows: `"Uploading {{current}} of {{total}} ({{progress}}%)"`
+- Upload forms always show a progress/loading toast, even during document creation (where `disableSuccessStatus` is true and other form types skip the toast). This ensures users see feedback during client-side uploads which can take time.
 
 ### 12. Upload Handler Enhancements
 
-**Files:** `packages/plugin-cloud-storage/src/client/createClientUploadHandler.tsx`, `packages/ui/src/providers/UploadHandlers/index.tsx`
+**Files:** `packages/plugin-cloud-storage/src/client/createClientUploadHandler.tsx`, `packages/ui/src/providers/UploadHandlers/index.tsx`, `packages/ui/src/forms/Form/index.tsx`
 
 - Extended upload handlers with `formData` and `onProgress` callback support
 - Enables progress tracking for cloud storage uploads
+- `createFormData` passes `formData` and `onProgress` to the upload handler, updating the loading toast with real-time upload percentage
 
 ### 13. Markdown Paste Support in Lexical
 
