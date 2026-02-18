@@ -205,11 +205,13 @@ Useful for displaying data from related collections in list views (e.g., showing
 
 ### 21. Styled Status Cell Badges
 
-**Files:** `packages/ui/src/elements/Table/DefaultCell/fields/Status/index.tsx`, `packages/ui/src/elements/Table/DefaultCell/fields/Status/index.scss`, `packages/ui/src/elements/Table/DefaultCell/index.tsx`
+**Files:** `packages/ui/src/elements/Table/DefaultCell/fields/Status/index.tsx`, `packages/ui/src/elements/Table/DefaultCell/fields/Status/index.scss`, `packages/ui/src/elements/Table/DefaultCell/index.tsx`, `packages/ui/src/providers/TableColumns/buildColumnState/renderCell.tsx`
 
 - The `_status` column in list views now renders as styled tinted badge pills instead of plain text
-- **Published** → green badge (subtle green background, green text)
-- **Draft / Changed** → yellow/amber badge (subtle yellow background, yellow text)
+- **Published** → green badge
+- **Draft** → yellow/amber badge
+- **Changed** → indigo/blue badge (documents with unpublished changes that have a published version)
+- List view label changed from `version:draftHasPublishedVersion` ("Draft (has published version)") to `version:changed` ("Changed") to match the document view status
 - Works in both light and dark mode via `[data-theme]`
 - Uses Payload's `--style-radius-s` CSS variable for consistent border radius
 
