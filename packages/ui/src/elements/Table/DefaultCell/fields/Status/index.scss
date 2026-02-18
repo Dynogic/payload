@@ -13,17 +13,24 @@
   color: rgb(22, 163, 74);
 }
 
-.status-badge--draft,
-.status-badge--changed {
+.status-badge--draft {
   background-color: rgba(234, 179, 8, 0.1);
   color: rgb(202, 138, 4);
+}
+
+.status-badge--changed {
+  background-color: rgba(99, 102, 241, 0.1);
+  color: rgb(79, 70, 229);
 }
 
 [data-theme='dark'] .status-badge--published {
   color: rgb(74, 222, 128);
 }
 
-[data-theme='dark'] .status-badge--draft,
-[data-theme='dark'] .status-badge--changed {
+[data-theme='dark'] .status-badge--draft {
   color: rgb(250, 204, 21);
+}
+
+[data-theme='dark'] .status-badge--changed {
+  color: rgb(129, 140, 248);
 }

@@ -1,6 +1,6 @@
 # Fork Development Workflow
 
-Guide for building this fork and publishing via GitHub Releases.
+Guide for building this Payload CMS fork and publishing via GitHub Releases to `Dynogic/payload`.
 
 ## Prerequisites
 
@@ -8,124 +8,105 @@ Guide for building this fork and publishing via GitHub Releases.
 - pnpm 10.27.0+
 - GitHub CLI (`brew install gh`)
 
-## Building Packages
+## Versioning Scheme
 
-### Incremental Build (fast, uses cache)
+The fork uses a 4-segment version: `v<upstream-version>.<fork-patch>`
+
+- Upstream `3.76.1` → fork releases `v3.76.1.1`, `v3.76.1.2`, `v3.76.1.3`, ...
+- When upstream bumps (e.g. `3.76.1` → `3.77.0`), reset fork patch to `.1` → `v3.77.0.1`
+
+## Release Workflow
+
+Run these steps in order from the repo root. This is the complete process — no other steps are needed.
+
+### Step 1: Determine the next version
+
+```bash
+# Get the latest release tag
+LATEST=$(gh release list --repo Dynogic/payload --limit 1 --json tagName --jq '.[0].tagName')
+echo "Latest: $LATEST"
+
+# Bump the fork patch segment (e.g. v3.76.1.3 → v3.76.1.4)
+NEXT=$(echo "$LATEST" | sed 's/v//' | awk -F. '{$NF=$NF+1; print "v"$0}' OFS=.)
+echo "Next:   $NEXT"
+```
+
+> If the upstream version changed since the last release, set `NEXT` manually (e.g. `NEXT=v3.77.0.1`).
+
+### Step 2: Build
 
 ```bash
 pnpm build
 ```
 
-### Force Build (clean + rebuild everything)
+Use `pnpm bf` instead if cached builds aren't picking up your changes.
+
+### Step 3: Pack
 
 ```bash
-pnpm bf
+pnpm script:pack --all --dest ./packed
 ```
 
-### Force Build Single Package
+### Step 4: Create the GitHub release
+
+```bash
+gh release create "$NEXT" ./packed/*.tgz \
+  --title "$NEXT" \
+  --notes "Description of changes" \
+  --repo Dynogic/payload
+```
+
+### Step 5: Update the consuming project
+
+**Ask the user for the absolute path to their project's `package.json`** (e.g. `/Users/agua/myproject/package.json`).
+
+Then find all Dynogic/payload release URLs in that file and replace the old version tag with `$NEXT`. The URLs follow this pattern:
+
+```
+https://github.com/Dynogic/payload/releases/download/<VERSION_TAG>/package-name.tgz
+```
+
+Only the version tag in the download path changes — the tgz filename stays the same.
+
+```bash
+# Replace the old release tag with the new one in package.json
+# Example: v3.76.1.3 → v3.76.1.4
+OLD_TAG="$LATEST"   # from Step 1
+NEW_TAG="$NEXT"     # from Step 1
+PROJECT_PKG="/path/to/project/package.json"  # ask the user for this
+
+sed -i '' "s|/download/${OLD_TAG}/|/download/${NEW_TAG}/|g" "$PROJECT_PKG"
+```
+
+Then reinstall dependencies:
+
+```bash
+cd "$(dirname "$PROJECT_PKG")" && npm install
+```
+
+> **Note:** The tgz filenames use the upstream version (e.g. `payload-3.76.1.tgz`), not the fork patch version. Only the release tag in the download URL path changes between fork releases.
+
+## Other Operations
+
+### Update a single package in an existing release
 
 ```bash
 pnpm turbo run build --filter=@payloadcms/ui --force
-```
-
-## Publishing to GitHub Releases
-
-### 1. Build and Pack
-
-```bash
-pnpm build
 pnpm script:pack --all --dest ./packed
+gh release upload v3.76.1.3 ./packed/payloadcms-ui-*.tgz --clobber --repo Dynogic/payload
 ```
 
-### 2. Create a New Release
+### Sync with upstream
 
 ```bash
-gh release create v3.71.1.1 ./packed/*.tgz \
-  --title "v3.71.1.1" \
-  --notes "Fix: description of changes" \
-  --repo Dynogic/payload
-```
-
-### 3. Or Update an Existing Release
-
-To replace a single package in an existing release:
-
-```bash
-gh release upload v3.71.1 ./packed/payloadcms-ui-*.tgz --clobber --repo Dynogic/payload
-```
-
-## Using in Local Projects
-
-In your project's `package.json`, reference the GitHub release URLs:
-
-```json
-{
-  "dependencies": {
-    "payload": "https://github.com/Dynogic/payload/releases/download/v3.71.1/payload-3.71.1.tgz",
-    "@payloadcms/db-mongodb": "https://github.com/Dynogic/payload/releases/download/v3.71.1/payloadcms-db-mongodb-3.71.1.tgz",
-    "@payloadcms/next": "https://github.com/Dynogic/payload/releases/download/v3.71.1/payloadcms-next-3.71.1.tgz",
-    "@payloadcms/plugin-cloud-storage": "https://github.com/Dynogic/payload/releases/download/v3.71.1/payloadcms-plugin-cloud-storage-3.71.1.tgz",
-    "@payloadcms/richtext-lexical": "https://github.com/Dynogic/payload/releases/download/v3.71.1/payloadcms-richtext-lexical-3.71.1.tgz",
-    "@payloadcms/translations": "https://github.com/Dynogic/payload/releases/download/v3.71.1/payloadcms-translations-3.71.1.tgz",
-    "@payloadcms/ui": "https://github.com/Dynogic/payload/releases/download/v3.71.1/payloadcms-ui-3.71.1.tgz"
-  }
-}
-```
-
-Then run `npm install` in your project.
-
-### Force Reinstall
-
-If npm doesn't pick up the new release, clear cache and reinstall:
-
-```bash
-rm -rf node_modules package-lock.json
-npm install
-```
-
-## Syncing with Upstream
-
-```bash
-# Fetch latest from upstream
 git fetch payloadcms
-
-# Merge into your branch
 git merge payloadcms/main
-
-# Resolve any conflicts, then rebuild and publish
-pnpm build
-pnpm script:pack --all --dest ./packed
-gh release create vX.X.X ./packed/*.tgz --title "vX.X.X" --notes "Sync with upstream"
+# Resolve any conflicts, then follow the Release Workflow above
 ```
 
-## Full Update Workflow
+### View releases
 
 ```bash
-# 1. Sync with upstream (if needed)
-git fetch payloadcms && git merge payloadcms/main
-
-# 2. Build (use --force if changes aren't picked up)
-pnpm build
-
-# 3. Pack
-pnpm script:pack --all --dest ./packed
-
-# 4. Create GitHub release
-gh release create v3.71.1.1 ./packed/*.tgz \
-  --title "v3.71.1.1" \
-  --notes "Description of changes" \
-  --repo Dynogic/payload
-
-# 5. In your project, update package.json URLs to new version and reinstall
-npm install
-```
-
-## Viewing Releases
-
-```bash
-# List all releases
 gh release list --repo Dynogic/payload
-
-# View a specific release
-gh release view v3.71.1 --repo Dynogic/payload
+gh release view v3.76.1.3 --repo Dynogic/payload
 ```

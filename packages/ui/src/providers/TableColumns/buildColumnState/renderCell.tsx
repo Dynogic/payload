@@ -125,7 +125,7 @@ export function renderCell({
         options: [
           ...(clientField.options || []),
           {
-            label: i18n.t('version:draftHasPublishedVersion'),
+            label: i18n.t('version:changed'),
             value: 'changed',
           },
         ],
