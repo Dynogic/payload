@@ -203,6 +203,16 @@ Useful for displaying data from related collections in list views (e.g., showing
 }
 ```
 
+### 21. Styled Status Cell Badges
+
+**Files:** `packages/ui/src/elements/Table/DefaultCell/fields/Status/index.tsx`, `packages/ui/src/elements/Table/DefaultCell/fields/Status/index.scss`, `packages/ui/src/elements/Table/DefaultCell/index.tsx`
+
+- The `_status` column in list views now renders as styled tinted badge pills instead of plain text
+- **Published** → green badge (subtle green background, green text)
+- **Draft / Changed** → yellow/amber badge (subtle yellow background, yellow text)
+- Works in both light and dark mode via `[data-theme]`
+- Uses Payload's `--style-radius-s` CSS variable for consistent border radius
+
 ---
 
 ## Configuration/Documentation
@@ -220,5 +230,5 @@ Useful for displaying data from related collections in list views (e.g., showing
 | Category      | Count |
 | ------------- | ----- |
 | Bug Fixes     | 4     |
-| Features      | 15    |
+| Features      | 16    |
 | Documentation | 1     |

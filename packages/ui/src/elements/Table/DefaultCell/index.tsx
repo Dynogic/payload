@@ -13,6 +13,7 @@ import { isValidReactElement } from '../../../utilities/isValidReactElement.js'
 import { Link } from '../../Link/index.js'
 import { CodeCell } from './fields/Code/index.js'
 import { cellComponents } from './fields/index.js'
+import { StatusCell } from './fields/Status/index.js'
 
 export const DefaultCell: React.FC<DefaultCellComponentProps> = (props) => {
   const {
@@ -155,6 +156,14 @@ export const DefaultCell: React.FC<DefaultCellComponentProps> = (props) => {
         </WrapElement>
       )
     }
+  }
+
+  if (field.type === 'select' && 'name' in field && field.name === '_status' && cellData) {
+    return (
+      <WrapElement {...wrapElementProps}>
+        <StatusCell cellData={cellData} field={field} />
+      </WrapElement>
+    )
   }
 
   if ((field.type === 'select' || field.type === 'radio') && field.options.length && cellData) {
