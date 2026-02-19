@@ -840,6 +840,10 @@ export type Config = {
      */
     components?: {
       /**
+       * Replace the account button in the admin header with a custom component
+       */
+      accountMenu?: CustomComponent
+      /**
        * Add custom components to the top right of the Admin Panel
        */
       actions?: CustomComponent[]

@@ -54,6 +54,7 @@ export function iterateConfig({
     addToImportMap(config.admin?.avatar?.Component)
   }
 
+  addToImportMap(config.admin?.components?.accountMenu)
   addToImportMap(config.admin?.components?.Nav)
   addToImportMap(config.admin?.components?.header)
   addToImportMap(config.admin?.components?.logout?.Button)

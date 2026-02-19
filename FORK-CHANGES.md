@@ -234,7 +234,22 @@ Useful for displaying data from related collections in list views (e.g., showing
 - The `filesize` column in upload collection list views now displays human-readable sizes (e.g., "2.5 MB") instead of raw byte numbers
 - Locale-aware formatting via `Intl.NumberFormat` — decimal and thousand separators adapt to the user's language (e.g., `2,5 MB` in German, `2.5 MB` in English)
 - Formatting rules: B (no decimals), KB (1 decimal), MB (1 decimal), GB (2 decimals)
-- Shows `—` (em dash) when filesize is empty instead of `<No File Size>`
+
+### 25. Em Dash for Empty Cell Values
+
+**File:** `packages/ui/src/elements/Table/DefaultCell/index.tsx`
+
+- Empty cell values now show `—` (em dash) instead of `<No File Name>`, `<No Link Path>`, `<No Data>`, etc.
+
+### 26. Custom Account Menu in Admin Header
+
+**Files:** `packages/ui/src/elements/AppHeader/index.tsx`, `packages/next/src/templates/Default/index.tsx`, `packages/payload/src/config/types.ts`, `packages/payload/src/bin/generateImportMap/iterateConfig.ts`
+
+- New `CustomAccountMenu` prop on `AppHeader` to replace the default account link with a custom component (e.g., a dropdown menu)
+- Configured via `admin.components.accountMenu` in the Payload config
+- Added `accountMenu` to the admin components type definition and import map generation
+- Follows the same pattern as `CustomAvatar` and `CustomIcon`
+- Backward compatible — no `accountMenu` in config = existing behavior
 
 ---
 
@@ -253,5 +268,5 @@ Useful for displaying data from related collections in list views (e.g., showing
 | Category      | Count |
 | ------------- | ----- |
 | Bug Fixes     | 6     |
-| Features      | 17    |
+| Features      | 19    |
 | Documentation | 1     |

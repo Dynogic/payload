@@ -113,11 +113,12 @@ export const DefaultCell: React.FC<DefaultCellComponentProps> = (props) => {
     collectionConfig?.upload &&
     field.type === 'number' &&
     'name' in field &&
-    field.name === 'filesize'
+    field.name === 'filesize' &&
+    typeof cellData === 'number'
   ) {
     return (
       <WrapElement {...wrapElementProps}>
-        {typeof cellData === 'number' ? <FileSizeCell cellData={cellData} /> : '—'}
+        <FileSizeCell cellData={cellData} />
       </WrapElement>
     )
   }
@@ -159,9 +160,7 @@ export const DefaultCell: React.FC<DefaultCellComponentProps> = (props) => {
           {(displayedValue === '' ||
             typeof displayedValue === 'undefined' ||
             displayedValue === null) &&
-            i18n.t('general:noLabel', {
-              label: getTranslation(('label' in field ? field.label : null) || 'data', i18n),
-            })}
+            '—'}
           {typeof displayedValue === 'string' && displayedValue}
           {typeof displayedValue === 'number' && displayedValue}
           {typeof displayedValue === 'object' &&
