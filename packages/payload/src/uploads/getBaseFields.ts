@@ -65,6 +65,8 @@ export const getBaseUploadFields = ({ collection, config }: Options): Field[] =>
     name: 'width',
     type: 'number',
     admin: {
+      disableListColumn: true,
+      disableListFilter: true,
       hidden: true,
       readOnly: true,
     },
@@ -75,6 +77,8 @@ export const getBaseUploadFields = ({ collection, config }: Options): Field[] =>
     name: 'height',
     type: 'number',
     admin: {
+      disableListColumn: true,
+      disableListFilter: true,
       hidden: true,
       readOnly: true,
     },

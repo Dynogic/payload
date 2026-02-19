@@ -177,6 +177,10 @@ export const reduceFieldsToOptions = ({
     }
 
     if (field.type === 'array' && 'fields' in field) {
+      if (field.admin?.disableListFilter) {
+        return reduced
+      }
+
       const translatedLabel = getTranslation(field.label || '', i18n)
 
       const labelWithPrefix = labelPrefix

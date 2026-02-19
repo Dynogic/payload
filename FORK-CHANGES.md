@@ -26,11 +26,23 @@ Strikethrough (`~~text~~`) wasn't being parsed because single `~` (subscript) wa
 
 Fixed folder column not updating after changing folder assignment. The cell had a ref guard that prevented re-fetching once loaded, even when `folderID` changed. Now tracks `lastLoadedFolderID` and re-fetches when it differs.
 
+### 5. Array Fields with `disableListFilter` Still Show Sub-Fields in Filter Dropdown
+
+**File:** `packages/ui/src/utilities/reduceFieldsToOptions.tsx`
+
+When an array field had `admin.disableListFilter: true`, the function still recursed into its child fields, causing sub-fields (like auto-generated `id`) to appear in the filter dropdown. Fixed by checking `disableListFilter` before recursing into array children.
+
+### 6. Upload Width/Height Fields Appear in Column Picker and Filters
+
+**File:** `packages/payload/src/uploads/getBaseFields.ts`
+
+The auto-generated `width` and `height` fields on upload collections had `admin.hidden` and `admin.readOnly` but were missing `disableListColumn` and `disableListFilter`. Added both flags so they no longer appear in the column picker or filter dropdown.
+
 ---
 
 ## Features
 
-### 5. Hash-Based Tab Navigation
+### 7. Hash-Based Tab Navigation
 
 **File:** `packages/ui/src/fields/Tabs/index.tsx`
 
@@ -41,7 +53,7 @@ Fixed folder column not updating after changing folder assignment. The cell had 
 - SSR-safe: initializes to first visible tab, then switches to hash-selected tab after hydration
 - Removed dependency on `usePreferences` and `useDocumentInfo`
 
-### 6. Dynamic Routes for Multi-Tenant
+### 8. Dynamic Routes for Multi-Tenant
 
 **Files:** `packages/payload/src/config/createDynamicRoutes.ts`, `packages/payload/src/config/defaults.ts`
 
@@ -49,14 +61,14 @@ Fixed folder column not updating after changing folder assignment. The cell had 
 - Fixed `defaults.ts` to preserve getters when merging routes (spread was resolving them prematurely)
 - Useful for multi-tenant setups where admin/api routes vary by request context
 
-### 7. Field-Level URL Parameter Defaults
+### 9. Field-Level URL Parameter Defaults
 
 **Files:** `packages/payload/src/fields/config/types.ts`, `packages/payload/src/admin/forms/Form.ts`, `packages/next/src/views/Document/index.tsx`
 
 - New `urlParam` field config option to populate default values from URL query parameters
 - Passes search params as `defaultValues` during document creation
 
-### 8. MIME Type Validation for Uploads
+### 10. MIME Type Validation for Uploads
 
 **Files:** `packages/ui/src/elements/Upload/index.tsx`, `packages/ui/src/fields/Upload/index.tsx`, `packages/ui/src/elements/BulkUpload/EditForm/index.tsx`
 
@@ -66,7 +78,7 @@ Fixed folder column not updating after changing folder assignment. The cell had 
 - Supports wildcard patterns like `audio/*`, `image/*`
 - `data.mimeType` is now available in field `condition` callbacks immediately when a file is dropped. The Upload component dispatches the file's MIME type string into form state on file change, so conditions can check `data.mimeType` without waiting for server upload. The `File` object itself is stripped during serialization (`excludeFiles: true`), so `data.file` is not usable in conditions.
 
-### 9. Upload filterOptions in Lexical Rich Text
+### 11. Upload filterOptions in Lexical Rich Text
 
 **Files:** `packages/richtext-lexical/src/features/upload/server/index.ts`, `packages/richtext-lexical/src/features/upload/client/drawer/index.tsx`, `packages/ui/src/elements/DocumentDrawer/*`
 
@@ -74,7 +86,7 @@ Fixed folder column not updating after changing folder assignment. The cell had 
 - Allows filtering upload collections based on context (user, field values, etc.)
 - Passes through DocumentDrawer for filtered upload selection
 
-### 10. File Type Icons in Folder View
+### 12. File Type Icons in Folder View
 
 **Files:** `packages/ui/src/elements/FolderView/FolderFileCard/index.tsx`, `packages/ui/src/elements/FolderView/FolderFileCard/getFileIcon.tsx`, `packages/ui/src/icons/*`
 
@@ -82,7 +94,7 @@ Fixed folder column not updating after changing folder assignment. The cell had 
 - Folder view now shows appropriate icon based on file MIME type
 - Images show image icon, videos show video icon, others show generic file icon
 
-### 11. Upload Progress in UI
+### 13. Upload Progress in UI
 
 **Files:** `packages/ui/src/forms/Form/index.tsx`, `packages/translations/src/languages/*.ts` (43 files)
 
@@ -90,7 +102,7 @@ Fixed folder column not updating after changing folder assignment. The cell had 
 - Bulk upload shows: `"Uploading {{current}} of {{total}} ({{progress}}%)"`
 - Upload forms always show a progress/loading toast, even during document creation (where `disableSuccessStatus` is true and other form types skip the toast). This ensures users see feedback during client-side uploads which can take time.
 
-### 12. Upload Handler Enhancements
+### 14. Upload Handler Enhancements
 
 **Files:** `packages/plugin-cloud-storage/src/client/createClientUploadHandler.tsx`, `packages/ui/src/providers/UploadHandlers/index.tsx`, `packages/ui/src/forms/Form/index.tsx`
 
@@ -98,7 +110,7 @@ Fixed folder column not updating after changing folder assignment. The cell had 
 - Enables progress tracking for cloud storage uploads
 - `createFormData` passes `formData` and `onProgress` to the upload handler, updating the loading toast with real-time upload percentage
 
-### 13. Markdown Paste Support in Lexical
+### 15. Markdown Paste Support in Lexical
 
 **Files:** `packages/richtext-lexical/src/lexical/plugins/MarkdownPaste/index.tsx`, `packages/richtext-lexical/src/lexical/LexicalEditor.tsx`
 
@@ -107,7 +119,7 @@ Fixed folder column not updating after changing folder assignment. The cell had 
 - Cmd+Shift+V (or Ctrl+Shift+V) pastes without markdown formatting
 - Detects markdown patterns to avoid false positives on regular text
 
-### 14. HighlightFeature and Extended Markdown Transformers
+### 16. HighlightFeature and Extended Markdown Transformers
 
 **Files:** `packages/richtext-lexical/src/features/format/highlight/*`, `packages/richtext-lexical/src/features/format/subscript/markdownTransformers.ts`, `packages/richtext-lexical/src/features/format/superscript/markdownTransformers.ts`, `packages/richtext-lexical/src/features/format/underline/markdownTransformers.ts`
 
@@ -117,7 +129,7 @@ Fixed folder column not updating after changing folder assignment. The cell had 
   - Superscript: `^text^`
   - Underline: `++text++`
 
-### 15. Document Header and Breadcrumb Customization
+### 17. Document Header and Breadcrumb Customization
 
 **Files:** `packages/payload/src/collections/config/types.ts`, `packages/ui/src/elements/StepNav/*`, `packages/ui/src/views/Edit/SetDocumentStepNav/index.tsx`, `packages/ui/src/elements/DocumentControls/*`, `packages/next/src/views/Document/index.tsx`
 
@@ -138,7 +150,7 @@ Document controls:
 - Added `flex-shrink: 0` to title to prevent shrinking
 - Hide "Creating new [label]" text when `showTitleInControls` is enabled
 
-### 16. List View Relationship Population
+### 18. List View Relationship Population
 
 **Files:** `packages/payload/src/collections/config/types.ts`, `packages/next/src/views/List/index.tsx`, `packages/next/src/views/List/handleGroupBy.ts`
 
@@ -159,7 +171,7 @@ admin: {
 
 Useful for displaying data from related collections in list views (e.g., showing thumbnails from upload relationships) without fetching entire nested documents.
 
-### 17. Assign Folder from List View Selection
+### 19. Assign Folder from List View Selection
 
 **Files:** `packages/ui/src/views/List/ListSelection/index.tsx`, `packages/payload/src/collections/operations/update.ts`, `packages/translations/src/languages/*.ts`
 
@@ -169,7 +181,7 @@ Useful for displaying data from related collections in list views (e.g., showing
 - Allows folder assignment even on collections with `disableBulkEdit: true` (folder-only PATCH requests are permitted)
 - Translations added for all 44 languages
 
-### 19. Tab Change Events
+### 21. Tab Change Events
 
 **File:** `packages/ui/src/fields/Tabs/index.tsx`
 
@@ -177,7 +189,7 @@ Useful for displaying data from related collections in list views (e.g., showing
 - Event detail includes `{ label, name, index, parentPath }`
 - Enables live preview view mode switching based on admin tab selection
 
-### 20. Custom List Column Headers (`admin.listLabel`)
+### 22. Custom List Column Headers (`admin.listLabel`)
 
 **Files:** `packages/payload/src/fields/config/types.ts`, `packages/payload/src/utilities/flattenTopLevelFields.ts`
 
@@ -203,7 +215,7 @@ Useful for displaying data from related collections in list views (e.g., showing
 }
 ```
 
-### 21. Styled Status Cell Badges
+### 23. Styled Status Cell Badges
 
 **Files:** `packages/ui/src/elements/Table/DefaultCell/fields/Status/index.tsx`, `packages/ui/src/elements/Table/DefaultCell/fields/Status/index.scss`, `packages/ui/src/elements/Table/DefaultCell/index.tsx`, `packages/ui/src/providers/TableColumns/buildColumnState/renderCell.tsx`
 
@@ -215,11 +227,20 @@ Useful for displaying data from related collections in list views (e.g., showing
 - Works in both light and dark mode via `[data-theme]`
 - Uses Payload's `--style-radius-s` CSS variable for consistent border radius
 
+### 24. Human-Readable File Size in List View
+
+**Files:** `packages/ui/src/elements/Table/DefaultCell/fields/FileSize/index.tsx`, `packages/ui/src/elements/Table/DefaultCell/index.tsx`
+
+- The `filesize` column in upload collection list views now displays human-readable sizes (e.g., "2.5 MB") instead of raw byte numbers
+- Locale-aware formatting via `Intl.NumberFormat` — decimal and thousand separators adapt to the user's language (e.g., `2,5 MB` in German, `2.5 MB` in English)
+- Formatting rules: B (no decimals), KB (1 decimal), MB (1 decimal), GB (2 decimals)
+- Shows `—` (em dash) when filesize is empty instead of `<No File Size>`
+
 ---
 
 ## Configuration/Documentation
 
-### 18. Fork Development Workflow
+### 20. Fork Development Workflow
 
 **Files:** `FORK-DEVELOPMENT.md`, `.gitignore`
 
@@ -231,6 +252,6 @@ Useful for displaying data from related collections in list views (e.g., showing
 
 | Category      | Count |
 | ------------- | ----- |
-| Bug Fixes     | 4     |
-| Features      | 16    |
+| Bug Fixes     | 6     |
+| Features      | 17    |
 | Documentation | 1     |
