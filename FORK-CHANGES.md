@@ -32,7 +32,13 @@ Fixed folder column not updating after changing folder assignment. The cell had 
 
 When an array field had `admin.disableListFilter: true`, the function still recursed into its child fields, causing sub-fields (like auto-generated `id`) to appear in the filter dropdown. Fixed by checking `disableListFilter` before recursing into array children.
 
-### 6. Upload Width/Height Fields Appear in Column Picker and Filters
+### 6. Folder Field Label Not Translating in List View
+
+**Files:** `packages/payload/src/folders/buildFolderField.ts`, `packages/translations/src/clientKeys.ts`, `packages/translations/src/languages/*.ts`
+
+The folder field added by `folders: { browseByFolder: true }` had a hardcoded `'Folder'` label instead of using the i18n translation system. Changed to `({ t }) => t('folder:folder')` and added the `folder:folder` translation key to all 43 language files.
+
+### 7. Upload Width/Height Fields Appear in Column Picker and Filters
 
 **File:** `packages/payload/src/uploads/getBaseFields.ts`
 
@@ -42,7 +48,7 @@ The auto-generated `width` and `height` fields on upload collections had `admin.
 
 ## Features
 
-### 7. Hash-Based Tab Navigation
+### 8. Hash-Based Tab Navigation
 
 **File:** `packages/ui/src/fields/Tabs/index.tsx`
 
@@ -53,7 +59,7 @@ The auto-generated `width` and `height` fields on upload collections had `admin.
 - SSR-safe: initializes to first visible tab, then switches to hash-selected tab after hydration
 - Removed dependency on `usePreferences` and `useDocumentInfo`
 
-### 8. Dynamic Routes for Multi-Tenant
+### 9. Dynamic Routes for Multi-Tenant
 
 **Files:** `packages/payload/src/config/createDynamicRoutes.ts`, `packages/payload/src/config/defaults.ts`
 
@@ -61,14 +67,14 @@ The auto-generated `width` and `height` fields on upload collections had `admin.
 - Fixed `defaults.ts` to preserve getters when merging routes (spread was resolving them prematurely)
 - Useful for multi-tenant setups where admin/api routes vary by request context
 
-### 9. Field-Level URL Parameter Defaults
+### 10. Field-Level URL Parameter Defaults
 
 **Files:** `packages/payload/src/fields/config/types.ts`, `packages/payload/src/admin/forms/Form.ts`, `packages/next/src/views/Document/index.tsx`
 
 - New `urlParam` field config option to populate default values from URL query parameters
 - Passes search params as `defaultValues` during document creation
 
-### 10. MIME Type Validation for Uploads
+### 11. MIME Type Validation for Uploads
 
 **Files:** `packages/ui/src/elements/Upload/index.tsx`, `packages/ui/src/fields/Upload/index.tsx`, `packages/ui/src/elements/BulkUpload/EditForm/index.tsx`
 
@@ -78,7 +84,7 @@ The auto-generated `width` and `height` fields on upload collections had `admin.
 - Supports wildcard patterns like `audio/*`, `image/*`
 - `data.mimeType` is now available in field `condition` callbacks immediately when a file is dropped. The Upload component dispatches the file's MIME type string into form state on file change, so conditions can check `data.mimeType` without waiting for server upload. The `File` object itself is stripped during serialization (`excludeFiles: true`), so `data.file` is not usable in conditions.
 
-### 11. Upload filterOptions in Lexical Rich Text
+### 12. Upload filterOptions in Lexical Rich Text
 
 **Files:** `packages/richtext-lexical/src/features/upload/server/index.ts`, `packages/richtext-lexical/src/features/upload/client/drawer/index.tsx`, `packages/ui/src/elements/DocumentDrawer/*`
 
@@ -86,7 +92,7 @@ The auto-generated `width` and `height` fields on upload collections had `admin.
 - Allows filtering upload collections based on context (user, field values, etc.)
 - Passes through DocumentDrawer for filtered upload selection
 
-### 12. File Type Icons in Folder View
+### 13. File Type Icons in Folder View
 
 **Files:** `packages/ui/src/elements/FolderView/FolderFileCard/index.tsx`, `packages/ui/src/elements/FolderView/FolderFileCard/getFileIcon.tsx`, `packages/ui/src/icons/*`
 
@@ -94,7 +100,7 @@ The auto-generated `width` and `height` fields on upload collections had `admin.
 - Folder view now shows appropriate icon based on file MIME type
 - Images show image icon, videos show video icon, others show generic file icon
 
-### 13. Upload Progress in UI
+### 14. Upload Progress in UI
 
 **Files:** `packages/ui/src/forms/Form/index.tsx`, `packages/translations/src/languages/*.ts` (43 files)
 
@@ -102,7 +108,7 @@ The auto-generated `width` and `height` fields on upload collections had `admin.
 - Bulk upload shows: `"Uploading {{current}} of {{total}} ({{progress}}%)"`
 - Upload forms always show a progress/loading toast, even during document creation (where `disableSuccessStatus` is true and other form types skip the toast). This ensures users see feedback during client-side uploads which can take time.
 
-### 14. Upload Handler Enhancements
+### 15. Upload Handler Enhancements
 
 **Files:** `packages/plugin-cloud-storage/src/client/createClientUploadHandler.tsx`, `packages/ui/src/providers/UploadHandlers/index.tsx`, `packages/ui/src/forms/Form/index.tsx`
 
@@ -110,7 +116,7 @@ The auto-generated `width` and `height` fields on upload collections had `admin.
 - Enables progress tracking for cloud storage uploads
 - `createFormData` passes `formData` and `onProgress` to the upload handler, updating the loading toast with real-time upload percentage
 
-### 15. Markdown Paste Support in Lexical
+### 16. Markdown Paste Support in Lexical
 
 **Files:** `packages/richtext-lexical/src/lexical/plugins/MarkdownPaste/index.tsx`, `packages/richtext-lexical/src/lexical/LexicalEditor.tsx`
 
@@ -119,7 +125,7 @@ The auto-generated `width` and `height` fields on upload collections had `admin.
 - Cmd+Shift+V (or Ctrl+Shift+V) pastes without markdown formatting
 - Detects markdown patterns to avoid false positives on regular text
 
-### 16. HighlightFeature and Extended Markdown Transformers
+### 17. HighlightFeature and Extended Markdown Transformers
 
 **Files:** `packages/richtext-lexical/src/features/format/highlight/*`, `packages/richtext-lexical/src/features/format/subscript/markdownTransformers.ts`, `packages/richtext-lexical/src/features/format/superscript/markdownTransformers.ts`, `packages/richtext-lexical/src/features/format/underline/markdownTransformers.ts`
 
@@ -129,7 +135,7 @@ The auto-generated `width` and `height` fields on upload collections had `admin.
   - Superscript: `^text^`
   - Underline: `++text++`
 
-### 17. Document Header and Breadcrumb Customization
+### 18. Document Header and Breadcrumb Customization
 
 **Files:** `packages/payload/src/collections/config/types.ts`, `packages/ui/src/elements/StepNav/*`, `packages/ui/src/views/Edit/SetDocumentStepNav/index.tsx`, `packages/ui/src/elements/DocumentControls/*`, `packages/next/src/views/Document/index.tsx`
 
@@ -150,7 +156,7 @@ Document controls:
 - Added `flex-shrink: 0` to title to prevent shrinking
 - Hide "Creating new [label]" text when `showTitleInControls` is enabled
 
-### 18. List View Relationship Population
+### 19. List View Relationship Population
 
 **Files:** `packages/payload/src/collections/config/types.ts`, `packages/next/src/views/List/index.tsx`, `packages/next/src/views/List/handleGroupBy.ts`
 
@@ -171,7 +177,7 @@ admin: {
 
 Useful for displaying data from related collections in list views (e.g., showing thumbnails from upload relationships) without fetching entire nested documents.
 
-### 19. Assign Folder from List View Selection
+### 20. Assign Folder from List View Selection
 
 **Files:** `packages/ui/src/views/List/ListSelection/index.tsx`, `packages/payload/src/collections/operations/update.ts`, `packages/translations/src/languages/*.ts`
 
@@ -181,7 +187,7 @@ Useful for displaying data from related collections in list views (e.g., showing
 - Allows folder assignment even on collections with `disableBulkEdit: true` (folder-only PATCH requests are permitted)
 - Translations added for all 44 languages
 
-### 21. Tab Change Events
+### 22. Tab Change Events
 
 **File:** `packages/ui/src/fields/Tabs/index.tsx`
 
@@ -189,7 +195,7 @@ Useful for displaying data from related collections in list views (e.g., showing
 - Event detail includes `{ label, name, index, parentPath }`
 - Enables live preview view mode switching based on admin tab selection
 
-### 22. Custom List Column Headers (`admin.listLabel`)
+### 23. Custom List Column Headers (`admin.listLabel`)
 
 **Files:** `packages/payload/src/fields/config/types.ts`, `packages/payload/src/utilities/flattenTopLevelFields.ts`
 
@@ -215,7 +221,7 @@ Useful for displaying data from related collections in list views (e.g., showing
 }
 ```
 
-### 23. Styled Status Cell Badges
+### 24. Styled Status Cell Badges
 
 **Files:** `packages/ui/src/elements/Table/DefaultCell/fields/Status/index.tsx`, `packages/ui/src/elements/Table/DefaultCell/fields/Status/index.scss`, `packages/ui/src/elements/Table/DefaultCell/index.tsx`, `packages/ui/src/providers/TableColumns/buildColumnState/renderCell.tsx`
 
@@ -227,7 +233,7 @@ Useful for displaying data from related collections in list views (e.g., showing
 - Works in both light and dark mode via `[data-theme]`
 - Uses Payload's `--style-radius-s` CSS variable for consistent border radius
 
-### 24. Human-Readable File Size in List View
+### 25. Human-Readable File Size in List View
 
 **Files:** `packages/ui/src/elements/Table/DefaultCell/fields/FileSize/index.tsx`, `packages/ui/src/elements/Table/DefaultCell/index.tsx`
 
@@ -235,13 +241,13 @@ Useful for displaying data from related collections in list views (e.g., showing
 - Locale-aware formatting via `Intl.NumberFormat` — decimal and thousand separators adapt to the user's language (e.g., `2,5 MB` in German, `2.5 MB` in English)
 - Formatting rules: B (no decimals), KB (1 decimal), MB (1 decimal), GB (2 decimals)
 
-### 25. Em Dash for Empty Cell Values
+### 26. Em Dash for Empty Cell Values
 
 **File:** `packages/ui/src/elements/Table/DefaultCell/index.tsx`
 
 - Empty cell values now show `—` (em dash) instead of `<No File Name>`, `<No Link Path>`, `<No Data>`, etc.
 
-### 26. Custom Account Menu in Admin Header
+### 27. Custom Account Menu in Admin Header
 
 **Files:** `packages/ui/src/elements/AppHeader/index.tsx`, `packages/next/src/templates/Default/index.tsx`, `packages/payload/src/config/types.ts`, `packages/payload/src/bin/generateImportMap/iterateConfig.ts`
 
@@ -255,7 +261,7 @@ Useful for displaying data from related collections in list views (e.g., showing
 
 ## Configuration/Documentation
 
-### 20. Fork Development Workflow
+### 21. Fork Development Workflow
 
 **Files:** `FORK-DEVELOPMENT.md`, `.gitignore`
 
@@ -267,6 +273,6 @@ Useful for displaying data from related collections in list views (e.g., showing
 
 | Category      | Count |
 | ------------- | ----- |
-| Bug Fixes     | 6     |
+| Bug Fixes     | 7     |
 | Features      | 19    |
 | Documentation | 1     |
