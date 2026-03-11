@@ -200,6 +200,7 @@ export const plTranslations: DefaultTranslationsObject = {
     byFolder: 'Według Folderu',
     confirmAssignment: 'Potwierdź przypisanie',
     deleteFolder: 'Usuń folder',
+    folder: 'Folder',
     folderName: 'Nazwa folderu',
     folders: 'Foldery',
     folderTypeDescription:

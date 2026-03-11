@@ -202,6 +202,7 @@ export const rsTranslations: DefaultTranslationsObject = {
     byFolder: 'Po folderu',
     confirmAssignment: 'Потврди доделу',
     deleteFolder: 'Obriši fasciklu',
+    folder: 'Фасцикла',
     folderName: 'Ime fascikle',
     folders: 'Fascikle',
     folderTypeDescription:

@@ -201,6 +201,7 @@ export const isTranslations: DefaultTranslationsObject = {
     byFolder: 'Eftir möppu',
     confirmAssignment: 'Staðfesta úthlutun',
     deleteFolder: 'Eyða möppu',
+    folder: 'Mappa',
     folderName: 'Möppunafn',
     folders: 'Möppurnar',
     folderTypeDescription: 'Veldu hvaða tegund safnskjala ætti að vera leyfð í þessari möppu.',

@@ -193,6 +193,7 @@ export const zhTranslations: DefaultTranslationsObject = {
     byFolder: '按文件夹',
     confirmAssignment: '确认分配',
     deleteFolder: '删除文件夹',
+    folder: '文件夹',
     folderName: '文件夹名称',
     folders: '文件夹',
     folderTypeDescription: '在此文件夹中选择应允许哪种类型的集合文档。',

@@ -206,6 +206,7 @@ export const deTranslations: DefaultTranslationsObject = {
     byFolder: 'Nach Ordner',
     confirmAssignment: 'Zuweisung bestätigen',
     deleteFolder: 'Ordner löschen',
+    folder: 'Ordner',
     folderName: 'Ordnername',
     folders: 'Ordner',
     folderTypeDescription:

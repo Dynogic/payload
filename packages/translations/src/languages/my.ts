@@ -202,6 +202,7 @@ export const myTranslations: DefaultTranslationsObject = {
     byFolder: 'Dengan Folder',
     confirmAssignment: 'သတ်မှတ်မှုကိုအတည်ပြုပါ',
     deleteFolder: 'Padam Folder',
+    folder: 'ဖိုင်တွဲ',
     folderName: 'ဖိုင်နာမည်',
     folders: 'Fail',
     folderTypeDescription: 'Pilih jenis dokumen koleksi yang harus diizinkan dalam folder ini.',

@@ -203,6 +203,7 @@ export const nlTranslations: DefaultTranslationsObject = {
     byFolder: 'Op Map',
     confirmAssignment: 'Bevestig toewijzing',
     deleteFolder: 'Verwijder map',
+    folder: 'Map',
     folderName: 'Mapnaam',
     folders: 'Mappen',
     folderTypeDescription:

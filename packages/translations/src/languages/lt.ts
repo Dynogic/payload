@@ -203,6 +203,7 @@ export const ltTranslations: DefaultTranslationsObject = {
     byFolder: 'Pagal aplanką',
     confirmAssignment: 'Patvirtinti priskyrimą',
     deleteFolder: 'Ištrinti aplanką',
+    folder: 'Aplankas',
     folderName: 'Aplanko pavadinimas',
     folders: 'Aplankai',
     folderTypeDescription:

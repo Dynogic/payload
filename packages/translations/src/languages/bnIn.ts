@@ -202,6 +202,7 @@ export const bnInTranslations: DefaultTranslationsObject = {
     byFolder: 'ফোল্ডার দ্বারা',
     confirmAssignment: 'বরাদ্দ নিশ্চিত করুন',
     deleteFolder: 'ফোল্ডার মুছুন',
+    folder: 'ফোল্ডার',
     folderName: 'ফোল্ডারের নাম',
     folders: 'ফোল্ডারগুলি',
     folderTypeDescription:

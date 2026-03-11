@@ -203,6 +203,7 @@ export const trTranslations: DefaultTranslationsObject = {
     byFolder: 'Klasör Bazında',
     confirmAssignment: 'Atamayı onayla',
     deleteFolder: 'Klasörü Sil',
+    folder: 'Klasör',
     folderName: 'Klasör Adı',
     folders: 'Klasörler',
     folderTypeDescription:

@@ -201,6 +201,7 @@ export const nbTranslations: DefaultTranslationsObject = {
     byFolder: 'Etter mappe',
     confirmAssignment: 'Bekreft tilordning',
     deleteFolder: 'Slett mappe',
+    folder: 'Mappe',
     folderName: 'Mappenavn',
     folders: 'Mapper',
     folderTypeDescription: 'Velg hvilken type samling dokumenter som skal tillates i denne mappen.',

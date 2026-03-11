@@ -201,6 +201,7 @@ export const azTranslations: DefaultTranslationsObject = {
     byFolder: 'Qovluğa görə',
     confirmAssignment: 'Təyinatı təsdiqlə',
     deleteFolder: 'Qovluğu Sil',
+    folder: 'Qovluq',
     folderName: 'Qovluq Adı',
     folders: 'Qovluqlar',
     folderTypeDescription: 'Bu qovluqda hangi tip kolleksiya sənədlərinə icazə verilməlidir seçin.',

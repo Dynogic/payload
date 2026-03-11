@@ -202,6 +202,7 @@ export const jaTranslations: DefaultTranslationsObject = {
     byFolder: 'フォルダー別に',
     confirmAssignment: '割り当てを確認',
     deleteFolder: 'フォルダーを削除する',
+    folder: 'フォルダー',
     folderName: 'フォルダー名',
     folders: 'フォルダー',
     folderTypeDescription:

@@ -202,6 +202,7 @@ export const ukTranslations: DefaultTranslationsObject = {
     byFolder: 'За папкою',
     confirmAssignment: 'Підтвердити призначення',
     deleteFolder: 'Видалити папку',
+    folder: 'Папка',
     folderName: 'Назва папки',
     folders: 'Папки',
     folderTypeDescription:

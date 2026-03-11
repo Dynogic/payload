@@ -201,6 +201,7 @@ export const csTranslations: DefaultTranslationsObject = {
     byFolder: 'Podle složky',
     confirmAssignment: 'Potvrdit přiřazení',
     deleteFolder: 'Smazat složku',
+    folder: 'Složka',
     folderName: 'Název složky',
     folders: 'Složky',
     folderTypeDescription:

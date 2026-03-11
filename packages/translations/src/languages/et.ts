@@ -200,6 +200,7 @@ export const etTranslations: DefaultTranslationsObject = {
     byFolder: 'Kausta järgi',
     confirmAssignment: 'Kinnita määramine',
     deleteFolder: 'Kustuta kaust',
+    folder: 'Kaust',
     folderName: 'Kausta nimi',
     folders: 'Kaustad',
     folderTypeDescription: 'Valige, millist tüüpi kogumiku dokumente peaks selles kaustas lubama.',

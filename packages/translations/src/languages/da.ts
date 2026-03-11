@@ -200,6 +200,7 @@ export const daTranslations: DefaultTranslationsObject = {
     byFolder: 'Ved Mappe',
     confirmAssignment: 'Bekræft tildeling',
     deleteFolder: 'Slet mappe',
+    folder: 'Mappe',
     folderName: 'Mappenavn',
     folders: 'Mapper',
     folderTypeDescription:

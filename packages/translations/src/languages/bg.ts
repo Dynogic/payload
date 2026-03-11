@@ -201,6 +201,7 @@ export const bgTranslations: DefaultTranslationsObject = {
     byFolder: 'По папка',
     confirmAssignment: 'Потвърди задаването',
     deleteFolder: 'Изтрий папка',
+    folder: 'Папка',
     folderName: 'Име на папка',
     folders: 'Папки',
     folderTypeDescription:

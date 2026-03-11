@@ -201,6 +201,7 @@ export const slTranslations: DefaultTranslationsObject = {
     byFolder: 'Po mapi',
     confirmAssignment: 'Potrdi dodelitev',
     deleteFolder: 'Izbriši mapo',
+    folder: 'Mapa',
     folderName: 'Ime mape',
     folders: 'Mape',
     folderTypeDescription:

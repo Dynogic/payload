@@ -198,6 +198,7 @@ export const thTranslations: DefaultTranslationsObject = {
     byFolder: 'ตามโฟลเดอร์',
     confirmAssignment: 'ยืนยันการกำหนด',
     deleteFolder: 'ลบโฟลเดอร์',
+    folder: 'โฟลเดอร์',
     folderName: 'ชื่อโฟลเดอร์',
     folders: 'โฟลเดอร์',
     folderTypeDescription: 'เลือกประเภทของเอกสารคอลเลกชันที่ควรอนุญาตในโฟลเดอร์นี้',

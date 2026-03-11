@@ -202,6 +202,7 @@ export const rsLatinTranslations: DefaultTranslationsObject = {
     byFolder: 'Po fascikli',
     confirmAssignment: 'Potvrdi dodelu',
     deleteFolder: 'Obriši mapu',
+    folder: 'Fascikla',
     folderName: 'Naziv fascikle',
     folders: 'Fascikle',
     folderTypeDescription:

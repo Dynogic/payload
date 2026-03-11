@@ -201,6 +201,7 @@ export const viTranslations: DefaultTranslationsObject = {
     byFolder: 'Theo Thư mục',
     confirmAssignment: 'Xác nhận gán',
     deleteFolder: 'Xóa Thư mục',
+    folder: 'Thư mục',
     folderName: 'Tên thư mục',
     folders: 'Thư mục',
     folderTypeDescription: 'Chọn loại tài liệu bộ sưu tập nào nên được cho phép trong thư mục này.',

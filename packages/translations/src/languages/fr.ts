@@ -207,6 +207,7 @@ export const frTranslations: DefaultTranslationsObject = {
     byFolder: 'Par Dossier',
     confirmAssignment: "Confirmer l'attribution",
     deleteFolder: 'Supprimer le dossier',
+    folder: 'Dossier',
     folderName: 'Nom du dossier',
     folders: 'Dossiers',
     folderTypeDescription:

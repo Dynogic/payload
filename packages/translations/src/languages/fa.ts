@@ -197,6 +197,7 @@ export const faTranslations: DefaultTranslationsObject = {
     byFolder: 'بر اساس پوشه',
     confirmAssignment: 'تأیید تخصیص',
     deleteFolder: 'حذف پوشه',
+    folder: 'پوشه',
     folderName: 'نام پوشه',
     folders: 'پوشه‌ها',
     folderTypeDescription: 'انتخاب کنید چه نوع اسنادی می‌توانند در این پوشه قرار بگیرند.',

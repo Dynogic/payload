@@ -191,6 +191,7 @@ export const zhTwTranslations: DefaultTranslationsObject = {
     byFolder: '依資料夾',
     confirmAssignment: '確認指定',
     deleteFolder: '刪除資料夾',
+    folder: '資料夾',
     folderName: '資料夾名稱',
     folders: '資料夾',
     folderTypeDescription: '選取此資料夾中允許存放哪種類型的集合文件。',

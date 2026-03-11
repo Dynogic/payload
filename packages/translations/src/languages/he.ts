@@ -195,6 +195,7 @@ export const heTranslations: DefaultTranslationsObject = {
     byFolder: 'לפי תיקייה',
     confirmAssignment: 'אשר הקצאה',
     deleteFolder: 'מחק תיקייה',
+    folder: 'תיקייה',
     folderName: 'שם תיקייה',
     folders: 'תיקיות',
     folderTypeDescription: 'בחר איזה סוג של מסמכים מהאוסף יותרו להיות בתיקייה זו.',

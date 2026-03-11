@@ -197,6 +197,7 @@ export const arTranslations: DefaultTranslationsObject = {
     byFolder: 'حسب المجلد',
     confirmAssignment: 'تأكيد التعيين',
     deleteFolder: 'حذف المجلد',
+    folder: 'مجلد',
     folderName: 'اسم المجلد',
     folders: 'مجلدات',
     folderTypeDescription: 'حدد نوع المستندات التي يجب السماح بها في هذا المجلد من المجموعات.',

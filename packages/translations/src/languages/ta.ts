@@ -200,6 +200,7 @@ export const taTranslations: DefaultTranslationsObject = {
     byFolder: 'கோப்புறை அடிப்படையில்',
     confirmAssignment: 'ஒதுக்கீட்டை உறுதிப்படுத்து',
     deleteFolder: 'கோப்புறையை நீக்கவும்',
+    folder: 'கோப்புறை',
     folderName: 'கோப்புறை பெயர்',
     folders: 'கோப்புறைகள்',
     folderTypeDescription:

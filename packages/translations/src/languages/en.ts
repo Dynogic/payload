@@ -201,6 +201,7 @@ export const enTranslations = {
     byFolder: 'By Folder',
     confirmAssignment: 'Confirm assignment',
     deleteFolder: 'Delete Folder',
+    folder: 'Folder',
     folderName: 'Folder Name',
     folders: 'Folders',
     folderTypeDescription:

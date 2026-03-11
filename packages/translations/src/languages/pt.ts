@@ -201,6 +201,7 @@ export const ptTranslations: DefaultTranslationsObject = {
     byFolder: 'Por Pasta',
     confirmAssignment: 'Confirmar atribuição',
     deleteFolder: 'Apagar Pasta',
+    folder: 'Pasta',
     folderName: 'Nome da Pasta',
     folders: 'Pastas',
     folderTypeDescription:

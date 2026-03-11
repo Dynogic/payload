@@ -202,6 +202,7 @@ export const idTranslations: DefaultTranslationsObject = {
     byFolder: 'Berdasarkan Folder',
     confirmAssignment: 'Konfirmasi penetapan',
     deleteFolder: 'Hapus Folder',
+    folder: 'Folder',
     folderName: 'Nama Folder',
     folders: 'Folder',
     folderTypeDescription: 'Pilih jenis dokumen koleksi yang diizinkan di folder ini.',

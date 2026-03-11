@@ -205,6 +205,7 @@ export const esTranslations: DefaultTranslationsObject = {
     byFolder: 'Por Carpeta',
     confirmAssignment: 'Confirmar asignación',
     deleteFolder: 'Eliminar Carpeta',
+    folder: 'Carpeta',
     folderName: 'Nombre de la Carpeta',
     folders: 'Carpetas',
     folderTypeDescription:

@@ -202,6 +202,7 @@ export const hrTranslations: DefaultTranslationsObject = {
     byFolder: 'Po mapi',
     confirmAssignment: 'Potvrdi dodjelu',
     deleteFolder: 'Izbriši mapu',
+    folder: 'Mapa',
     folderName: 'Naziv mape',
     folders: 'Mape',
     folderTypeDescription:

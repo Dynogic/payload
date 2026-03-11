@@ -148,6 +148,7 @@ export const clientTranslationKeys = createClientTranslationKeys([
   'folder:itemsRemovedFromFolder',
   'folder:byFolder',
   'folder:browseByFolder',
+  'folder:folder',
   'folder:deleteFolder',
   'folder:folders',
   'folder:folderTypeDescription',

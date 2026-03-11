@@ -205,6 +205,7 @@ export const itTranslations: DefaultTranslationsObject = {
     byFolder: 'Per Cartella',
     confirmAssignment: 'Conferma assegnazione',
     deleteFolder: 'Elimina cartella',
+    folder: 'Cartella',
     folderName: 'Nome Cartella',
     folders: 'Cartelle',
     folderTypeDescription:

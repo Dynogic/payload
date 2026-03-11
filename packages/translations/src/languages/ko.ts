@@ -201,6 +201,7 @@ export const koTranslations: DefaultTranslationsObject = {
     byFolder: '폴더별로',
     confirmAssignment: '할당 확인',
     deleteFolder: '폴더 삭제',
+    folder: '폴더',
     folderName: '폴더 이름',
     folders: '폴더들',
     folderTypeDescription: '이 폴더에서 어떤 유형의 컬렉션 문서가 허용되어야 하는지 선택하세요.',

@@ -203,6 +203,7 @@ export const ruTranslations: DefaultTranslationsObject = {
     byFolder: 'По папке',
     confirmAssignment: 'Подтвердить назначение',
     deleteFolder: 'Удалить папку',
+    folder: 'Папка',
     folderName: 'Название папки',
     folders: 'Папки',
     folderTypeDescription:

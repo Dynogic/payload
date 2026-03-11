@@ -201,6 +201,7 @@ export const svTranslations: DefaultTranslationsObject = {
     byFolder: 'Efter mapp',
     confirmAssignment: 'Bekräfta tilldelning',
     deleteFolder: 'Ta bort mapp',
+    folder: 'Mapp',
     folderName: 'Mappnamn',
     folders: 'Mappar',
     folderTypeDescription: 'Välj vilka typer av dokument som ska tillåtas i denna mapp.',

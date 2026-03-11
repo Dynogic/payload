@@ -205,6 +205,7 @@ export const roTranslations: DefaultTranslationsObject = {
     byFolder: 'După dosar',
     confirmAssignment: 'Confirmă atribuirea',
     deleteFolder: 'Ștergeți dosarul',
+    folder: 'Dosar',
     folderName: 'Nume dosar',
     folders: 'Dosare',
     folderTypeDescription:

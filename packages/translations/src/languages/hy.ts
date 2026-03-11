@@ -201,6 +201,7 @@ export const hyTranslations: DefaultTranslationsObject = {
     byFolder: 'ըստ թղթապանակի',
     confirmAssignment: 'Հաստատել նշանակումը',
     deleteFolder: 'Ջնջել թղթապանակը',
+    folder: 'Թղթապանակ',
     folderName: 'Տեսակավորման անվանում',
     folders: 'Պատուհաններ',
     folderTypeDescription:

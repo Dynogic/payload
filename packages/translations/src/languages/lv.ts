@@ -201,6 +201,7 @@ export const lvTranslations: DefaultTranslationsObject = {
     byFolder: 'Pēc mapi',
     confirmAssignment: 'Apstiprināt piešķiršanu',
     deleteFolder: 'Dzēst mapi',
+    folder: 'Mape',
     folderName: 'Mapes nosaukums',
     folders: 'Mapes',
     folderTypeDescription:

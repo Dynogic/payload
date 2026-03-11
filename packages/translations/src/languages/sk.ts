@@ -204,6 +204,7 @@ export const skTranslations: DefaultTranslationsObject = {
     byFolder: 'Podľa priečinka',
     confirmAssignment: 'Potvrdiť priradenie',
     deleteFolder: 'Odstrániť priečinok',
+    folder: 'Priečinok',
     folderName: 'Názov priečinka',
     folders: 'Priečinky',
     folderTypeDescription:

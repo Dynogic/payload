@@ -203,6 +203,7 @@ export const huTranslations: DefaultTranslationsObject = {
     byFolder: 'Mappánként',
     confirmAssignment: 'Hozzárendelés megerősítése',
     deleteFolder: 'Mappa törlése',
+    folder: 'Mappa',
     folderName: 'Mappa neve',
     folders: 'Mappák',
     folderTypeDescription:
