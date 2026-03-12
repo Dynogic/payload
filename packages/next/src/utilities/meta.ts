@@ -22,7 +22,7 @@ export const generateMetadata = async (
    * It is a result of needing to `DeepCopy` the `MetaConfig` type from Payload.
    * This is required for the `DeepRequired` from `Config` to `SanitizedConfig`.
    */
-  const incomingMetadata = rest as Metadata
+  const { title: _title, ...incomingMetadata } = rest as Metadata
 
   const icons: Metadata['icons'] =
     incomingMetadata.icons ||
@@ -43,11 +43,7 @@ export const generateMetadata = async (
       },
     ] satisfies Array<Icon>)
 
-  const metaTitle: Metadata['title'] = [incomingMetadata.title, titleSuffix]
-    .filter(Boolean)
-    .join(' ')
-
-  const ogTitle = `${typeof incomingMetadata.openGraph?.title === 'string' ? incomingMetadata.openGraph.title : incomingMetadata.title} ${titleSuffix}`
+  const ogTitle = `${typeof incomingMetadata.openGraph?.title === 'string' ? incomingMetadata.openGraph.title : _title} ${titleSuffix}`
 
   const mergedOpenGraph: Metadata['openGraph'] = {
     ...(defaultOpenGraph || {}),
@@ -97,6 +93,5 @@ export const generateMetadata = async (
         `http://localhost:${process.env.PORT || 3000}`,
     ),
     openGraph: mergedOpenGraph,
-    title: metaTitle,
   })
 }

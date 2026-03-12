@@ -267,6 +267,14 @@ Useful for displaying data from related collections in list views (e.g., showing
 
 - Documentation for building and using the fork locally
 
+### 28. Disable HTML Document Title
+
+**File:** `packages/next/src/utilities/meta.ts`
+
+- Removed `title` from the returned Next.js `Metadata` object
+- Payload no longer sets the HTML `<title>` tag on any admin view
+- Allows the consuming app to manage `document.title` independently
+
 ---
 
 ## Summary
@@ -274,5 +282,5 @@ Useful for displaying data from related collections in list views (e.g., showing
 | Category      | Count |
 | ------------- | ----- |
 | Bug Fixes     | 7     |
-| Features      | 19    |
+| Features      | 20    |
 | Documentation | 1     |
