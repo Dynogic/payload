@@ -1517,7 +1517,7 @@ export type SanitizedConfig = {
   editor?: RichTextAdapter<any, any, any>
   endpoints: Endpoint[]
   globals: SanitizedGlobalConfig[]
-  i18n: Required<I18nOptions>
+  i18n: Pick<I18nOptions, 'resolveLanguage'> & Required<Omit<I18nOptions, 'resolveLanguage'>>
   jobs: SanitizedJobsConfig
   localization: false | SanitizedLocalizationConfig
   paths: {

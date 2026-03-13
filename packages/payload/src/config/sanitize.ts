@@ -182,6 +182,10 @@ export const sanitizeConfig = async (incomingConfig: Config): Promise<SanitizedC
     i18nConfig.translations =
       (incomingConfig.i18n?.translations as SanitizedConfig['i18n']['translations']) ||
       i18nConfig.translations
+
+    if (incomingConfig.i18n.resolveLanguage) {
+      i18nConfig.resolveLanguage = incomingConfig.i18n.resolveLanguage
+    }
   }
 
   config.i18n = i18nConfig

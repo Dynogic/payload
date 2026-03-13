@@ -20,9 +20,20 @@ export const getRequestLanguage = ({
   const supportedLanguageKeys = Object.keys(config.i18n.supportedLanguages) as AcceptedLanguages[]
   const langCookie = cookies.get(`${config.cookiePrefix || 'payload'}-lng`)
 
-  const languageFromCookie: AcceptedLanguages = (
-    typeof langCookie === 'string' ? langCookie : langCookie?.value
-  ) as AcceptedLanguages
+  const cookieValue = typeof langCookie === 'string' ? langCookie : langCookie?.value
+
+  // If a custom resolver is provided, use it
+  if (config.i18n.resolveLanguage) {
+    return config.i18n.resolveLanguage({
+      acceptLanguageHeader: headers.get('Accept-Language') || undefined,
+      cookieValue,
+      fallbackLanguage: config.i18n.fallbackLanguage,
+      supportedLanguages: supportedLanguageKeys,
+    }) as AcceptedLanguages
+  }
+
+  // Default exact-match behavior
+  const languageFromCookie = cookieValue as AcceptedLanguages
 
   if (languageFromCookie && supportedLanguageKeys.includes(languageFromCookie)) {
     return languageFromCookie

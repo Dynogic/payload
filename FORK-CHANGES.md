@@ -275,6 +275,25 @@ Useful for displaying data from related collections in list views (e.g., showing
 - Payload no longer sets the HTML `<title>` tag on any admin view
 - Allows the consuming app to manage `document.title` independently
 
+### 29. Custom Language Resolution (`resolveLanguage`)
+
+**Files:** `packages/payload/src/config/sanitize.ts`, `packages/payload/src/utilities/getRequestLanguage.ts`, `packages/translations/src/types.ts`
+
+- New `resolveLanguage` option on `i18n` config for custom language resolution logic
+- Receives `{ acceptLanguageHeader, cookieValue, fallbackLanguage, supportedLanguages }` and returns the language key to use
+- Useful for multi-tenant setups where language should be determined by domain, tenant, or custom headers rather than the default cookie/Accept-Language matching
+- When not provided, existing exact-match behavior is preserved
+
+```ts
+// Example usage
+i18n: {
+  resolveLanguage: ({ cookieValue, acceptLanguageHeader, supportedLanguages, fallbackLanguage }) => {
+    // Custom logic to determine language
+    return cookieValue || fallbackLanguage
+  },
+}
+```
+
 ---
 
 ## Summary
@@ -282,5 +301,5 @@ Useful for displaying data from related collections in list views (e.g., showing
 | Category      | Count |
 | ------------- | ----- |
 | Bug Fixes     | 7     |
-| Features      | 20    |
+| Features      | 21    |
 | Documentation | 1     |
