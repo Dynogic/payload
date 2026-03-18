@@ -106,6 +106,19 @@ export const renderListViewSlots = ({
     )
   }
 
+  const listActions = collectionConfig.admin.components?.views?.list?.titleActions
+
+  if (Array.isArray(listActions) && listActions.length > 0) {
+    result.TitleActions = [
+      RenderServerComponent({
+        clientProps,
+        Component: listActions,
+        importMap: payload.importMap,
+        serverProps,
+      }),
+    ]
+  }
+
   if (collectionConfig.admin.components?.Description) {
     result.Description = RenderServerComponent({
       clientProps: {

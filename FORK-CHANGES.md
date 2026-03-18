@@ -294,6 +294,48 @@ i18n: {
 }
 ```
 
+### 30. `views.list.titleActions` — Custom Buttons in List Header
+
+**Files:**
+
+- `packages/payload/src/collections/config/types.ts`
+- `packages/payload/src/bin/generateImportMap/iterateCollections.ts`
+- `packages/payload/src/admin/views/list.ts`
+- `packages/next/src/views/List/renderListViewSlots.tsx`
+- `packages/ui/src/views/List/index.tsx`
+- `packages/ui/src/views/List/ListHeader/index.tsx`
+
+Two separate extension points exist for collection list view actions:
+
+- `admin.components.views.list.actions` — upstream behavior, renders in the **top-right app header** (via `getRouteData.ts` → `DefaultTemplate` → `ActionsProvider` → `AppHeader`)
+- `admin.components.views.list.titleActions` — new fork addition, renders in the **list header title area** alongside "Create New" and "Bulk Upload"
+
+Wired `titleActions` through the render pipeline into the collection list header:
+
+- Added `titleActions?: CustomComponent[]` to the `views.list` type in `packages/payload/src/collections/config/types.ts`
+- Added `titleActions` to `iterateCollections.ts` so the import map generator registers its components
+- Added `TitleActions?: React.ReactNode[]` to `ListViewSlots` type
+- `renderListViewSlots` renders `views.list.titleActions` components into `result.TitleActions`
+- `DefaultListView` destructures `TitleActions` and passes it to `CollectionListHeader`
+- `CollectionListHeader` destructures and spreads custom actions after the built-in buttons
+
+```ts
+// Example usage in a collection config
+admin: {
+  components: {
+    views: {
+      list: {
+        // Renders next to "Create New" / "Bulk Upload" in the list header
+        titleActions: ['@/components/admin/my-import-button'],
+
+        // Renders in the top-right app header (upstream behavior, unchanged)
+        // actions: ['@/components/admin/my-global-action'],
+      },
+    },
+  },
+}
+```
+
 ---
 
 ## Summary
@@ -301,5 +343,5 @@ i18n: {
 | Category      | Count |
 | ------------- | ----- |
 | Bug Fixes     | 7     |
-| Features      | 21    |
+| Features      | 22    |
 | Documentation | 1     |

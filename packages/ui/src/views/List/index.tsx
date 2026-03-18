@@ -56,6 +56,7 @@ export function DefaultListView(props: ListViewClientProps) {
     renderedFilters,
     resolvedFilterOptions,
     Table: InitialTable,
+    TitleActions,
     viewType,
   } = props
 
@@ -187,6 +188,7 @@ export function DefaultListView(props: ListViewClientProps) {
                 newDocumentURL={newDocumentURL}
                 openBulkUpload={openBulkUpload}
                 smallBreak={smallBreak}
+                TitleActions={TitleActions}
                 viewType={viewType}
               />
               <ListControls

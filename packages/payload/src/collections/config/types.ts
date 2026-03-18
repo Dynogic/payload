@@ -456,6 +456,7 @@ export type CollectionAdminOptions = {
       list?: {
         actions?: CustomComponent[]
         Component?: PayloadComponent
+        titleActions?: CustomComponent[]
       }
     }
   }

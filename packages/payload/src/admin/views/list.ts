@@ -18,6 +18,7 @@ export type ListViewSlots = {
   Description?: React.ReactNode
   listMenuItems?: React.ReactNode[]
   Table: React.ReactNode | React.ReactNode[]
+  TitleActions?: React.ReactNode[]
 }
 
 /**

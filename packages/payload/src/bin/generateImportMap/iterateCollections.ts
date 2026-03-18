@@ -69,5 +69,6 @@ export function iterateCollections({
 
     addToImportMap(collection.admin?.components?.views?.list?.Component)
     addToImportMap(collection.admin?.components?.views?.list?.actions)
+    addToImportMap(collection.admin?.components?.views?.list?.titleActions)
   }
 }
