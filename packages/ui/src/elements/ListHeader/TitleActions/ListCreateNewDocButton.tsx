@@ -35,7 +35,7 @@ export function ListCreateNewButton({
       icon="plus"
       iconPosition="left"
       key="create-new-button"
-      size="small"
+      size="medium"
       to={newDocumentURL}
     >
       {t('general:createNew')}

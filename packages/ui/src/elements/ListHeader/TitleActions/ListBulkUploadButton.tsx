@@ -69,7 +69,7 @@ export function ListBulkUploadButton({
       iconPosition="left"
       key="bulk-upload-button"
       onClick={openBulkUpload}
-      size="small"
+      size="medium"
     >
       {t('upload:bulkUpload')}
     </Button>
