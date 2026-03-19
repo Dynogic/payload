@@ -4,6 +4,7 @@ import React, { Fragment, isValidElement } from 'react'
 import type { Props } from './types.js'
 
 import { ChevronIcon } from '../../icons/Chevron/index.js'
+import { DownloadIcon } from '../../icons/Download/index.js'
 import { EditIcon } from '../../icons/Edit/index.js'
 import { LinkIcon } from '../../icons/Link/index.js'
 import { PlusIcon } from '../../icons/Plus/index.js'
@@ -17,6 +18,7 @@ import { Tooltip } from '../Tooltip/index.js'
 
 const icons = {
   chevron: ChevronIcon,
+  download: DownloadIcon,
   edit: EditIcon,
   link: LinkIcon,
   plus: PlusIcon,

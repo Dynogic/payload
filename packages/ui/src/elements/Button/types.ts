@@ -28,7 +28,7 @@ export type Props = {
    */
   enableSubMenu?: boolean
   extraButtonProps?: Record<string, any>
-  icon?: ['chevron' | 'edit' | 'plus' | 'upload' | 'x'] | React.ReactNode
+  icon?: ['chevron' | 'download' | 'edit' | 'plus' | 'upload' | 'x'] | React.ReactNode
   iconPosition?: 'left' | 'right'
   iconStyle?: 'none' | 'with-border' | 'without-border'
   id?: string
