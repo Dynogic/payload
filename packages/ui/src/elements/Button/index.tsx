@@ -8,6 +8,7 @@ import { EditIcon } from '../../icons/Edit/index.js'
 import { LinkIcon } from '../../icons/Link/index.js'
 import { PlusIcon } from '../../icons/Plus/index.js'
 import { SwapIcon } from '../../icons/Swap/index.js'
+import { UploadIcon } from '../../icons/Upload/index.js'
 import { XIcon } from '../../icons/X/index.js'
 import { Link } from '../Link/index.js'
 import { Popup } from '../Popup/index.js'
@@ -20,6 +21,7 @@ const icons = {
   link: LinkIcon,
   plus: PlusIcon,
   swap: SwapIcon,
+  upload: UploadIcon,
   x: XIcon,
 }
 

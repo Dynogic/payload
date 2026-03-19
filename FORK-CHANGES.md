@@ -257,6 +257,14 @@ Useful for displaying data from related collections in list views (e.g., showing
 - Follows the same pattern as `CustomAvatar` and `CustomIcon`
 - Backward compatible — no `accountMenu` in config = existing behavior
 
+### 33. Styled List Header Action Buttons
+
+**Files:** `packages/ui/src/elements/ListHeader/TitleActions/ListCreateNewDocButton.tsx`, `packages/ui/src/elements/ListHeader/TitleActions/ListBulkUploadButton.tsx`, `packages/ui/src/elements/Button/index.tsx`, `packages/ui/src/elements/Button/types.ts`, `packages/ui/src/icons/Upload/index.tsx`
+
+- **"Create New"** button changed from `buttonStyle="pill"` to `buttonStyle="primary"` with `icon="plus"` (left) — makes it the visually prominent primary action across all collection list views
+- **"Bulk Upload"** button gains `icon="upload"` (left) — secondary action with visual texture
+- New `UploadIcon` added to Payload's icon set (`packages/ui/src/icons/Upload/`) and registered in the Button icon map
+
 ---
 
 ## Configuration/Documentation
@@ -336,6 +344,30 @@ admin: {
 }
 ```
 
+### 31. Rename "File/Files" to "Media" in Upload Translations (all 44 languages)
+
+**File:** `packages/translations/src/languages/*.ts`
+
+Updated in English (`en.ts`) and all 43 other language files:
+
+- `upload.addFile`: `'Add file'` → `'Add media'` (native equivalent)
+- `upload.addFiles`: `'Add files'` → `'Add media'` (native equivalent)
+- `upload.filesToUpload`: `'Files to Upload'` → `'Media to Upload'` (native equivalent)
+- `upload.fileToUpload`: `'File to Upload'` → `'Media to Upload'` (native equivalent)
+- `upload.dragAndDrop`: `'Drag and drop a file'` → `'Drag and drop media'` (native equivalent)
+- `upload.dragAndDropHere`: `'or drag and drop a file here'` → `'or drag and drop media here'` (native equivalent)
+- `upload.noFile`: `'No file'` → `'No media'` (native equivalent)
+- `upload.selectFile`: `'Select a file'` → `'Select media'` (native equivalent)
+
+### 32. Hide No-Results Message When BeforeListTable CTA Is Present
+
+**File:** `packages/ui/src/views/List/index.tsx`
+
+- The "no results" message is now hidden when a `beforeListTable` component is registered AND the query is unmodified (no active search or filters)
+- When filters/search are active (`modified === true`), Payload's no-results message is always shown regardless of `BeforeListTable`
+- This allows CTA components in `beforeListTable` to cleanly replace the empty state without CSS hacks
+- Uses `modified` from `useListQuery()` to distinguish "truly empty collection" from "filtered to zero results"
+
 ---
 
 ## Summary
@@ -343,5 +375,5 @@ admin: {
 | Category      | Count |
 | ------------- | ----- |
 | Bug Fixes     | 7     |
-| Features      | 22    |
+| Features      | 23    |
 | Documentation | 1     |

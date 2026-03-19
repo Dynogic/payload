@@ -78,7 +78,7 @@ export function DefaultListView(props: ListViewClientProps) {
   } = useConfig()
   const router = useRouter()
 
-  const { data, isGroupingBy } = useListQuery()
+  const { data, isGroupingBy, modified } = useListQuery()
 
   const { openModal } = useModal()
   const { drawerSlug: bulkUploadDrawerSlug, setCollectionSlug, setOnSuccess } = useBulkUpload()
@@ -216,7 +216,7 @@ export function DefaultListView(props: ListViewClientProps) {
                   <RelationshipProvider>{Table}</RelationshipProvider>
                 </div>
               )}
-              {docs?.length === 0 && (
+              {docs?.length === 0 && (modified || !BeforeListTable) && (
                 <div className={`${baseClass}__no-results`}>
                   <p>
                     {i18n.t(viewType === 'trash' ? 'general:noTrashResults' : 'general:noResults', {

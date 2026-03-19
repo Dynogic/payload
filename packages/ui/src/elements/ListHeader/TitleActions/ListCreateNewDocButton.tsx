@@ -29,9 +29,11 @@ export function ListCreateNewButton({
       aria-label={t('general:createNewLabel', {
         label: getTranslation(collectionConfig?.labels?.singular, i18n),
       })}
-      buttonStyle="pill"
+      buttonStyle="primary"
       className={`${baseClass}__create-new-button`}
       el={'link'}
+      icon="plus"
+      iconPosition="left"
       key="create-new-button"
       size="small"
       to={newDocumentURL}
