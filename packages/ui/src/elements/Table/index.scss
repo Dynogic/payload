@@ -26,8 +26,9 @@
 
     th,
     td {
-      vertical-align: top;
+      vertical-align: middle;
       padding: calc(var(--base) * 0.6);
+      height: calc(var(--base) * 2.7);
       min-width: 150px;
       position: relative;
       z-index: 1;
@@ -49,6 +50,7 @@
     tbody {
       tr {
         position: relative;
+        cursor: pointer;
         &:nth-child(odd) {
           background: var(--theme-elevation-50);
           border-radius: var(--style-radius-s);

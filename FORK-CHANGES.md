@@ -266,9 +266,9 @@ Useful for displaying data from related collections in list views (e.g., showing
 - **"Bulk Upload"** button gains `icon="upload"` (left) — secondary action with visual texture
 - New `UploadIcon` added to Payload's icon set (`packages/ui/src/icons/Upload/`) and registered in the Button icon map
 
-### 34. Clickable Table Rows
+### 34. Clickable Table Rows and List View Improvements
 
-**Files:** `packages/ui/src/elements/Table/index.tsx`, `packages/ui/src/elements/Table/index.scss`, `packages/ui/src/utilities/renderTable.tsx`
+**Files:** `packages/ui/src/elements/Table/index.tsx`, `packages/ui/src/elements/Table/index.scss`, `packages/ui/src/utilities/renderTable.tsx`, `packages/ui/src/providers/TableColumns/buildColumnState/index.tsx`, `packages/ui/src/elements/Table/DefaultCell/index.tsx`
 
 - Entire table rows are now clickable in list views, not just the first cell's link
 - In list view: clicking a row navigates to the document edit page
@@ -277,6 +277,10 @@ Useful for displaying data from related collections in list views (e.g., showing
 - Select (`_select`) and drag handle (`_dragHandle`) columns are also excluded
 - New `collectionSlug` prop on `Table` component, passed through from `renderTable()`
 - Added `cursor: pointer` to table body rows
+- Disabled first-cell linked column (`enableLinkedCell` defaults to `false`) — row click handles navigation, so no underlined link on the first column
+- Changed `vertical-align: top` to `vertical-align: middle` on `th`/`td` for centered cell content
+- Added `height: calc(var(--base) * 2.7)` on `th`/`td` for consistent row height across all collections
+- Removed built-in `FileCellComponent` rendering on `filename` fields in upload collections — the filename column now renders as plain text instead of a thumbnail+filename composite
 
 ---
 

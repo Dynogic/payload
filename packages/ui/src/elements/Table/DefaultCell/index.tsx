@@ -136,39 +136,19 @@ export const DefaultCell: React.FC<DefaultCellComponentProps> = (props) => {
   } else if (DefaultCellComponent) {
     CellComponent = <DefaultCellComponent cellData={cellData} rowData={rowData} {...props} />
   } else if (!DefaultCellComponent) {
-    // DefaultCellComponent does not exist for certain field types like `text`
-    if (
-      collectionConfig?.upload &&
-      fieldAffectsData(field) &&
-      field.name === 'filename' &&
-      field.type === 'text'
-    ) {
-      const FileCellComponent = cellComponents.File
-
-      CellComponent = (
-        <FileCellComponent
-          cellData={cellData}
-          rowData={rowData}
-          {...(props as DefaultCellComponentProps<UploadFieldClient>)}
-          collectionConfig={collectionConfig}
-          field={field}
-        />
-      )
-    } else {
-      return (
-        <WrapElement {...wrapElementProps}>
-          {(displayedValue === '' ||
-            typeof displayedValue === 'undefined' ||
-            displayedValue === null) &&
-            '—'}
-          {typeof displayedValue === 'string' && displayedValue}
-          {typeof displayedValue === 'number' && displayedValue}
-          {typeof displayedValue === 'object' &&
-            displayedValue !== null &&
-            JSON.stringify(displayedValue)}
-        </WrapElement>
-      )
-    }
+    return (
+      <WrapElement {...wrapElementProps}>
+        {(displayedValue === '' ||
+          typeof displayedValue === 'undefined' ||
+          displayedValue === null) &&
+          '—'}
+        {typeof displayedValue === 'string' && displayedValue}
+        {typeof displayedValue === 'number' && displayedValue}
+        {typeof displayedValue === 'object' &&
+          displayedValue !== null &&
+          JSON.stringify(displayedValue)}
+      </WrapElement>
+    )
   }
 
   if (field.type === 'select' && 'name' in field && field.name === '_status' && cellData) {
