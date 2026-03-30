@@ -266,6 +266,18 @@ Useful for displaying data from related collections in list views (e.g., showing
 - **"Bulk Upload"** button gains `icon="upload"` (left) — secondary action with visual texture
 - New `UploadIcon` added to Payload's icon set (`packages/ui/src/icons/Upload/`) and registered in the Button icon map
 
+### 34. Clickable Table Rows
+
+**Files:** `packages/ui/src/elements/Table/index.tsx`, `packages/ui/src/elements/Table/index.scss`, `packages/ui/src/utilities/renderTable.tsx`
+
+- Entire table rows are now clickable in list views, not just the first cell's link
+- In list view: clicking a row navigates to the document edit page
+- In drawer mode (relationship picker): clicking a row selects the document
+- Interactive elements (checkboxes, buttons, links, inputs) are excluded — clicks on these don't trigger row navigation
+- Select (`_select`) and drag handle (`_dragHandle`) columns are also excluded
+- New `collectionSlug` prop on `Table` component, passed through from `renderTable()`
+- Added `cursor: pointer` to table body rows
+
 ---
 
 ## Configuration/Documentation
@@ -369,6 +381,13 @@ Updated in English (`en.ts`) and all 43 other language files:
 - This allows CTA components in `beforeListTable` to cleanly replace the empty state without CSS hacks
 - Uses `modified` from `useListQuery()` to distinguish "truly empty collection" from "filtered to zero results"
 
+### 35. Consistent Capitalization in "Create New" Labels
+
+**Files:** `packages/translations/src/languages/en.ts`, `packages/translations/src/languages/it.ts`, `packages/translations/src/languages/id.ts`, `packages/translations/src/languages/pt.ts`
+
+- `createNewLabel` and `creatingNewLabel` had inconsistent capitalization with `createNew` (e.g., "Create New" button vs "Create new Offer" empty state CTA)
+- Fixed in all 4 affected languages: English, Italian, Indonesian, Portuguese
+
 ---
 
 ## Summary
@@ -376,5 +395,5 @@ Updated in English (`en.ts`) and all 43 other language files:
 | Category      | Count |
 | ------------- | ----- |
 | Bug Fixes     | 7     |
-| Features      | 23    |
+| Features      | 25    |
 | Documentation | 1     |

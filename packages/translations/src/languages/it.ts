@@ -294,7 +294,7 @@ export const itTranslations: DefaultTranslationsObject = {
     created: 'Data di creazione',
     createdAt: 'Creato il',
     createNew: 'Crea Nuovo',
-    createNewLabel: 'Crea nuovo {{label}}',
+    createNewLabel: 'Crea Nuovo {{label}}',
     creating: 'Crea nuovo',
     creatingNewLabel: 'Creazione di un nuovo {{label}}',
     currentlyEditing:

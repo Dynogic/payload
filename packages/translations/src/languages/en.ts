@@ -292,9 +292,9 @@ export const enTranslations = {
     created: 'Created',
     createdAt: 'Created At',
     createNew: 'Create New',
-    createNewLabel: 'Create new {{label}}',
+    createNewLabel: 'Create New {{label}}',
     creating: 'Creating',
-    creatingNewLabel: 'Creating new {{label}}',
+    creatingNewLabel: 'Creating New {{label}}',
     currentlyEditing:
       'is currently editing this document. If you take over, they will be blocked from continuing to edit, and may also lose unsaved changes.',
     custom: 'Custom',

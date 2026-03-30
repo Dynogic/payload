@@ -292,9 +292,9 @@ export const ptTranslations: DefaultTranslationsObject = {
     created: 'Criado',
     createdAt: 'Criado Em',
     createNew: 'Criar Novo',
-    createNewLabel: 'Criar novo(a) {{label}}',
+    createNewLabel: 'Criar Novo(a) {{label}}',
     creating: 'Criando',
-    creatingNewLabel: 'Criando novo(a) {{label}}',
+    creatingNewLabel: 'Criando Novo(a) {{label}}',
     currentlyEditing:
       'está editando este documento no momento. Se você assumir, eles serão impedidos de continuar editando e poderão perder alterações não salvas.',
     custom: 'Personalizado',

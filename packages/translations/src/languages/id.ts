@@ -292,9 +292,9 @@ export const idTranslations: DefaultTranslationsObject = {
     created: 'Dibuat',
     createdAt: 'Dibuat Pada',
     createNew: 'Buat Baru',
-    createNewLabel: 'Buat {{label}} baru',
+    createNewLabel: 'Buat {{label}} Baru',
     creating: 'Membuat',
-    creatingNewLabel: 'Membuat {{label}} baru',
+    creatingNewLabel: 'Membuat {{label}} Baru',
     currentlyEditing:
       'sedang mengedit dokumen ini. Jika Anda mengambil alih, mereka akan diblokir untuk melanjutkan pengeditan, dan mungkin juga kehilangan perubahan yang belum disimpan.',
     custom: 'Kustom',
