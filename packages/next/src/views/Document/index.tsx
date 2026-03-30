@@ -330,9 +330,13 @@ export const renderDocument = async ({
   let id = idFromArgs
 
   if (shouldAutosave && !validateDraftData && !idFromArgs && collectionSlug) {
+    // Merge URL param defaults into create data so fields with urlParam config
+    // are populated in the auto-created draft (otherwise query params are lost on redirect)
+    const createData = { ...(initialData || {}), ...(defaultValues || {}) }
+
     doc = await payload.create({
       collection: collectionSlug,
-      data: initialData || {},
+      data: createData,
       depth: 0,
       draft: true,
       fallbackLocale: false,

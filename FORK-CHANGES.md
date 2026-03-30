@@ -73,6 +73,7 @@ The auto-generated `width` and `height` fields on upload collections had `admin.
 
 - New `urlParam` field config option to populate default values from URL query parameters
 - Passes search params as `defaultValues` during document creation
+- Fixed: when autosave+drafts are enabled, the create route immediately creates a draft and redirects — URL param defaults are now merged into the `payload.create()` data so they survive the redirect
 
 ### 11. MIME Type Validation for Uploads
 
