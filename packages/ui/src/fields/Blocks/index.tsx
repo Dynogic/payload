@@ -50,7 +50,14 @@ const BlocksFieldComponent: BlocksFieldClientComponent = (props) => {
     field: {
       name,
       type,
-      admin: { className, description, isSortable = true } = {},
+      admin: {
+        className,
+        description,
+        hideAddBelow = false,
+        hideAddButton = false,
+        hideClipboard = false,
+        isSortable = true,
+      } = {},
       blockReferences,
       blocks,
       label,
@@ -119,7 +126,7 @@ const BlocksFieldComponent: BlocksFieldClientComponent = (props) => {
 
   const {
     blocksFilterOptions,
-    customComponents: { AfterInput, BeforeInput, Description, Error, Label } = {},
+    customComponents: { AfterInput, BeforeInput, Description, Error, HeaderActions, Label } = {},
     disabled,
     errorPaths,
     path,
@@ -355,6 +362,7 @@ const BlocksFieldComponent: BlocksFieldClientComponent = (props) => {
             )}
           </div>
           <ul className={`${baseClass}__header-actions`}>
+            {HeaderActions}
             {rows.length > 0 && (
               <Fragment>
                 <li>
@@ -377,24 +385,26 @@ const BlocksFieldComponent: BlocksFieldClientComponent = (props) => {
                 </li>
               </Fragment>
             )}
-            <li>
-              <ClipboardAction
-                allowCopy={rows?.length > 0}
-                allowPaste={!readOnly}
-                blocks={clientBlocks}
-                className={`${baseClass}__header-action`}
-                disabled={disabled}
-                getDataToCopy={() =>
-                  reduceFormStateByPath({
-                    formState: { ...getFields() },
-                    path,
-                  })
-                }
-                onPaste={pasteBlocks}
-                path={path}
-                type={type}
-              />
-            </li>
+            {!hideClipboard && (
+              <li>
+                <ClipboardAction
+                  allowCopy={rows?.length > 0}
+                  allowPaste={!readOnly}
+                  blocks={clientBlocks}
+                  className={`${baseClass}__header-action`}
+                  disabled={disabled}
+                  getDataToCopy={() =>
+                    reduceFormStateByPath({
+                      formState: { ...getFields() },
+                      path,
+                    })
+                  }
+                  onPaste={pasteBlocks}
+                  path={path}
+                  type={type}
+                />
+              </li>
+            )}
           </ul>
         </div>
         <RenderCustomComponent
@@ -441,20 +451,22 @@ const BlocksFieldComponent: BlocksFieldClientComponent = (props) => {
                       block={blockConfig}
                       // Pass all blocks, not just clientBlocksAfterFilter, as existing blocks should still be displayed even if they don't match the new filter
                       blocks={clientBlocks}
-                      copyRow={copyRow}
+                      copyRow={hideClipboard ? undefined : copyRow}
                       duplicateRow={duplicateRow}
                       errorCount={rowErrorCount}
                       fields={blockConfig.fields}
                       hasMaxRows={hasMaxRows}
+                      hideAddBelow={hideAddBelow}
                       isLoading={isLoading}
                       isSortable={isSortable}
                       Label={rows?.[i]?.customComponents?.RowLabel}
                       labels={labels}
                       moveRow={moveRow}
                       parentPath={path}
-                      pasteRow={pasteRow}
+                      pasteRow={hideClipboard ? undefined : pasteRow}
                       path={rowPath}
                       permissions={permissions}
+                      PillComponent={rows?.[i]?.customComponents?.Pill}
                       readOnly={readOnly || disabled}
                       removeRow={removeRow}
                       row={row}
@@ -491,7 +503,7 @@ const BlocksFieldComponent: BlocksFieldClientComponent = (props) => {
           )}
         </DraggableSortable>
       )}
-      {!hasMaxRows && (
+      {!hasMaxRows && !hideAddButton && (
         <Fragment>
           <DrawerToggler
             className={`${baseClass}__drawer-toggler`}

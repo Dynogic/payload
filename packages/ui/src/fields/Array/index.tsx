@@ -49,7 +49,14 @@ export const ArrayFieldComponent: ArrayFieldClientComponent = (props) => {
     field: {
       name,
       type,
-      admin: { className, description, isSortable = true } = {},
+      admin: {
+        className,
+        description,
+        hideAddBelow = false,
+        hideAddButton = false,
+        hideClipboard = false,
+        isSortable = true,
+      } = {},
       fields,
       label,
       localized,
@@ -130,7 +137,7 @@ export const ArrayFieldComponent: ArrayFieldClientComponent = (props) => {
   )
 
   const {
-    customComponents: { AfterInput, BeforeInput, Description, Error, Label } = {},
+    customComponents: { AfterInput, BeforeInput, Description, Error, HeaderActions, Label } = {},
     disabled,
     errorPaths,
     path,
@@ -347,6 +354,7 @@ export const ArrayFieldComponent: ArrayFieldClientComponent = (props) => {
             )}
           </div>
           <ul className={`${baseClass}__header-actions`}>
+            {HeaderActions}
             {rows?.length > 0 && (
               <Fragment>
                 <li>
@@ -369,19 +377,21 @@ export const ArrayFieldComponent: ArrayFieldClientComponent = (props) => {
                 </li>
               </Fragment>
             )}
-            <li>
-              <ClipboardAction
-                allowCopy={rows?.length > 0}
-                allowPaste={!readOnly}
-                className={`${baseClass}__header-action`}
-                disabled={disabled}
-                fields={fields}
-                getDataToCopy={getDataToCopy}
-                onPaste={pasteField}
-                path={path}
-                type={type}
-              />
-            </li>
+            {!hideClipboard && (
+              <li>
+                <ClipboardAction
+                  allowCopy={rows?.length > 0}
+                  allowPaste={!readOnly}
+                  className={`${baseClass}__header-action`}
+                  disabled={disabled}
+                  fields={fields}
+                  getDataToCopy={getDataToCopy}
+                  onPaste={pasteField}
+                  path={path}
+                  type={type}
+                />
+              </li>
+            )}
           </ul>
         </div>
         <RenderCustomComponent
@@ -421,19 +431,20 @@ export const ArrayFieldComponent: ArrayFieldClientComponent = (props) => {
                   <ArrayRow
                     {...draggableSortableItemProps}
                     addRow={addRow}
-                    copyRow={copyRow}
+                    copyRow={hideClipboard ? undefined : copyRow}
                     CustomRowLabel={rows?.[i]?.customComponents?.RowLabel}
                     duplicateRow={duplicateRow}
                     errorCount={rowErrorCount}
                     fields={fields}
                     forceRender={forceRender}
                     hasMaxRows={hasMaxRows}
+                    hideAddBelow={hideAddBelow}
                     isLoading={isLoading}
                     isSortable={isSortable}
                     labels={labels}
                     moveRow={moveRow}
                     parentPath={path}
-                    pasteRow={pasteRow}
+                    pasteRow={hideClipboard ? undefined : pasteRow}
                     path={rowPath}
                     permissions={permissions}
                     readOnly={readOnly || disabled}
@@ -470,7 +481,7 @@ export const ArrayFieldComponent: ArrayFieldClientComponent = (props) => {
           )}
         </DraggableSortable>
       )}
-      {!hasMaxRows && !readOnly && (
+      {!hasMaxRows && !readOnly && !hideAddButton && (
         <Button
           buttonStyle="icon-label"
           className={`${baseClass}__add-row`}

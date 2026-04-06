@@ -15,13 +15,15 @@ const baseClass = 'array-actions'
 
 export type Props = {
   addRow: (current: number, blockType?: string) => Promise<void> | void
-  copyRow: (index: number) => void
+  copyRow?: (index: number) => void
+  customRowActions?: React.ReactNode
   duplicateRow: (current: number) => void
   hasMaxRows: boolean
+  hideAddBelow?: boolean
   index: number
   isSortable?: boolean
   moveRow: (from: number, to: number) => void
-  pasteRow: (index: number) => void
+  pasteRow?: (index: number) => void
   removeRow: (index: number) => void
   rowCount: number
 }
@@ -29,8 +31,10 @@ export type Props = {
 export const ArrayAction: React.FC<Props> = ({
   addRow,
   copyRow,
+  customRowActions,
   duplicateRow,
   hasMaxRows,
+  hideAddBelow = false,
   index,
   isSortable,
   moveRow,
@@ -77,18 +81,21 @@ export const ArrayAction: React.FC<Props> = ({
                 {t('general:moveDown')}
               </PopupList.Button>
             )}
+            {customRowActions}
             {!hasMaxRows && (
               <React.Fragment>
-                <PopupList.Button
-                  className={`${baseClass}__action ${baseClass}__add`}
-                  onClick={() => {
-                    void addRow(index + 1)
-                    close()
-                  }}
-                >
-                  <PlusIcon />
-                  {t('general:addBelow')}
-                </PopupList.Button>
+                {!hideAddBelow && (
+                  <PopupList.Button
+                    className={`${baseClass}__action ${baseClass}__add`}
+                    onClick={() => {
+                      void addRow(index + 1)
+                      close()
+                    }}
+                  >
+                    <PlusIcon />
+                    {t('general:addBelow')}
+                  </PopupList.Button>
+                )}
                 <PopupList.Button
                   className={`${baseClass}__action ${baseClass}__duplicate`}
                   onClick={() => {
@@ -101,24 +108,28 @@ export const ArrayAction: React.FC<Props> = ({
                 </PopupList.Button>
               </React.Fragment>
             )}
-            <PopupList.Button
-              className={`${baseClass}__action ${baseClass}__copy`}
-              onClick={() => {
-                copyRow(index)
-                close()
-              }}
-            >
-              <ClipboardActionLabel isRow />
-            </PopupList.Button>
-            <PopupList.Button
-              className={`${baseClass}__action ${baseClass}__paste`}
-              onClick={() => {
-                pasteRow(index)
-                close()
-              }}
-            >
-              <ClipboardActionLabel isPaste isRow />
-            </PopupList.Button>
+            {copyRow && (
+              <PopupList.Button
+                className={`${baseClass}__action ${baseClass}__copy`}
+                onClick={() => {
+                  copyRow(index)
+                  close()
+                }}
+              >
+                <ClipboardActionLabel isRow />
+              </PopupList.Button>
+            )}
+            {pasteRow && (
+              <PopupList.Button
+                className={`${baseClass}__action ${baseClass}__paste`}
+                onClick={() => {
+                  pasteRow(index)
+                  close()
+                }}
+              >
+                <ClipboardActionLabel isPaste isRow />
+              </PopupList.Button>
+            )}
             <PopupList.Button
               className={`${baseClass}__action ${baseClass}__remove`}
               onClick={() => {

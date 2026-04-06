@@ -30,10 +30,6 @@ export const editDrawerSlug = 'edit-upload'
 export const sizePreviewSlug = 'preview-sizes'
 
 const validate = (value) => {
-  if (!value && value !== undefined) {
-    return 'A file is required.'
-  }
-
   if (value && (!value.name || value.name === '')) {
     return 'A file name is required.'
   }
@@ -109,6 +105,7 @@ export type UploadProps = {
   readonly allowedMimeTypes?: string[]
   readonly collectionSlug: string
   readonly customActions?: React.ReactNode[]
+  readonly FileIcon?: React.ComponentType<{ mimeType: string }>
   readonly initialState?: FormState
   readonly onChange?: (file?: File) => void
   readonly onInvalidFile?: (file: File, allowedTypes: string[]) => void
@@ -141,6 +138,7 @@ export const Upload_v4: React.FC<UploadProps_v4> = (props) => {
     allowedMimeTypes,
     collectionSlug,
     customActions,
+    FileIcon,
     initialState,
     onChange,
     onInvalidFile,
@@ -540,21 +538,27 @@ export const Upload_v4: React.FC<UploadProps_v4> = (props) => {
           )}
           {value && fileSrc && (
             <React.Fragment>
-              <div className={`${baseClass}__thumbnail-wrap`}>
-                <Thumbnail
-                  collectionSlug={collectionSlug}
-                  fileSrc={isImage(value.type) ? fileSrc : null}
-                />
-              </div>
+              {isImage(value.type) && (
+                <div className={`${baseClass}__thumbnail-wrap`}>
+                  <Thumbnail collectionSlug={collectionSlug} fileSrc={fileSrc} />
+                </div>
+              )}
               <div className={`${baseClass}__file-adjustments`}>
-                {/* eslint-disable-next-line jsx-a11y/control-has-associated-label */}
-                <input
-                  className={`${baseClass}__filename`}
-                  onChange={handleFileNameChange}
-                  title={filename || value.name}
-                  type="text"
-                  value={filename || value.name}
-                />
+                <div className={`${baseClass}__filename-row`}>
+                  {!isImage(value.type) && FileIcon && (
+                    <div className={`${baseClass}__file-icon`}>
+                      <FileIcon mimeType={value.type} />
+                    </div>
+                  )}
+                  {/* eslint-disable-next-line jsx-a11y/control-has-associated-label */}
+                  <input
+                    className={`${baseClass}__filename`}
+                    onChange={handleFileNameChange}
+                    title={filename || value.name}
+                    type="text"
+                    value={filename || value.name}
+                  />
+                </div>
                 <UploadActions
                   customActions={customActions}
                   enableAdjustments={showCrop || showFocalPoint}

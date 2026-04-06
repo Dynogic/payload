@@ -16,6 +16,7 @@ export const RowActions: React.FC<{
   readonly duplicateRow: (rowIndex: number, blockType: string) => void
   readonly fields: ClientField[]
   readonly hasMaxRows?: boolean
+  readonly hideAddBelow?: boolean
   readonly isSortable?: boolean
   readonly labels: Labels
   readonly moveRow: (fromIndex: number, toIndex: number) => void
@@ -31,6 +32,7 @@ export const RowActions: React.FC<{
     copyRow,
     duplicateRow,
     hasMaxRows,
+    hideAddBelow,
     isSortable,
     labels,
     moveRow,
@@ -67,6 +69,7 @@ export const RowActions: React.FC<{
         copyRow={copyRow}
         duplicateRow={() => duplicateRow(rowIndex, blockType)}
         hasMaxRows={hasMaxRows}
+        hideAddBelow={hideAddBelow}
         index={rowIndex}
         isSortable={isSortable}
         moveRow={moveRow}

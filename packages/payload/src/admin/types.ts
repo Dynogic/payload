@@ -562,6 +562,7 @@ export type RenderedField = {
 }
 
 export type FieldRow = {
+  Pill?: React.ReactNode
   RowLabel?: React.ReactNode
 }
 

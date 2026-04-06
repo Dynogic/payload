@@ -1404,6 +1404,18 @@ export type ArrayField = {
       Label?: CustomComponent<ArrayFieldLabelClientComponent | ArrayFieldLabelServerComponent>
       RowLabel?: RowLabelComponent
     } & FieldAdmin['components']
+    /**
+     * Hide the "Add Below" action from each row's action menu.
+     */
+    hideAddBelow?: boolean
+    /**
+     * Hide the default "Add Row" button. Use afterInput for custom add buttons.
+     */
+    hideAddButton?: boolean
+    /**
+     * Hide the clipboard copy/paste actions from the header and row menus.
+     */
+    hideClipboard?: boolean
     initCollapsed?: boolean
     /**
      * Disable drag and drop sorting
@@ -1431,7 +1443,11 @@ export type ArrayField = {
 
 export type ArrayFieldClient = {
   // @ts-expect-error - vestiges of when tsconfig was not strict. Feel free to improve
-  admin?: AdminClient & Pick<ArrayField['admin'], 'initCollapsed' | 'isSortable'>
+  admin?: AdminClient &
+    Pick<
+      ArrayField['admin'],
+      'hideAddBelow' | 'hideAddButton' | 'hideClipboard' | 'initCollapsed' | 'isSortable'
+    >
   fields: ClientField[]
   labels?: LabelsClient
 } & FieldBaseClient &
@@ -1550,6 +1566,11 @@ export type Block = {
        */
       Block?: PayloadComponent<any, any>
       Label?: PayloadComponent<any, any>
+      /**
+       * Custom component rendered inside the block type pill in the row header.
+       * Replaces the default block label text. Receives standard client props.
+       */
+      Pill?: PayloadComponent<any, any>
     }
     /** Extension point to add your custom data. Available in server and client. */
     custom?: Record<string, any>
@@ -1605,6 +1626,18 @@ export type BlocksField = {
       Error?: CustomComponent<BlocksFieldErrorClientComponent | BlocksFieldErrorServerComponent>
       Label?: CustomComponent<BlocksFieldLabelClientComponent | BlocksFieldLabelServerComponent>
     } & FieldAdmin['components']
+    /**
+     * Hide the "Add Below" action from each row's action menu.
+     */
+    hideAddBelow?: boolean
+    /**
+     * Hide the default "Add Block" button. Use afterInput for custom add buttons.
+     */
+    hideAddButton?: boolean
+    /**
+     * Hide the clipboard copy/paste actions from the header and row menus.
+     */
+    hideClipboard?: boolean
     initCollapsed?: boolean
     /**
      * Disable drag and drop sorting
@@ -1658,7 +1691,11 @@ export type BlocksField = {
 
 export type BlocksFieldClient = {
   // @ts-expect-error - vestiges of when tsconfig was not strict. Feel free to improve
-  admin?: AdminClient & Pick<BlocksField['admin'], 'initCollapsed' | 'isSortable'>
+  admin?: AdminClient &
+    Pick<
+      BlocksField['admin'],
+      'hideAddBelow' | 'hideAddButton' | 'hideClipboard' | 'initCollapsed' | 'isSortable'
+    >
   /**
    * Like `blocks`, but allows you to also pass strings that are slugs of blocks defined in `config.blocks`.
    *

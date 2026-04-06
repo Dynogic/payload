@@ -30,6 +30,7 @@ type BlocksFieldProps = {
   errorCount: number
   fields: ClientField[]
   hasMaxRows?: boolean
+  hideAddBelow?: boolean
   isLoading?: boolean
   isSortable?: boolean
   Label?: React.ReactNode
@@ -39,6 +40,7 @@ type BlocksFieldProps = {
   pasteRow: (rowIndex: number) => void
   path: string
   permissions: SanitizedFieldPermissions
+  PillComponent?: React.ReactNode
   readOnly: boolean
   removeRow: (rowIndex: number) => void
   row: Row
@@ -58,6 +60,7 @@ export const BlockRow: React.FC<BlocksFieldProps> = ({
   errorCount,
   fields,
   hasMaxRows,
+  hideAddBelow,
   isLoading: isLoadingFromProps,
   isSortable,
   Label,
@@ -68,6 +71,7 @@ export const BlockRow: React.FC<BlocksFieldProps> = ({
   pasteRow,
   path,
   permissions,
+  PillComponent,
   readOnly,
   removeRow,
   row,
@@ -150,6 +154,7 @@ export const BlockRow: React.FC<BlocksFieldProps> = ({
               duplicateRow={duplicateRow}
               fields={block.fields}
               hasMaxRows={hasMaxRows}
+              hideAddBelow={hideAddBelow}
               isSortable={isSortable}
               labels={labels}
               moveRow={moveRow}
@@ -188,7 +193,7 @@ export const BlockRow: React.FC<BlocksFieldProps> = ({
                       pillStyle="white"
                       size="small"
                     >
-                      {getTranslation(block.labels.singular, i18n)}
+                      {PillComponent || getTranslation(block.labels.singular, i18n)}
                     </Pill>
                     {showBlockName && (
                       <SectionTitle path={`${path}.blockName`} readOnly={readOnly} />

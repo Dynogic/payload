@@ -33,6 +33,20 @@
       }
     }
 
+    &__filename-row {
+      display: flex;
+      align-items: center;
+      gap: var(--base);
+      width: 100%;
+    }
+
+    &__file-icon {
+      display: flex;
+      align-items: center;
+      flex-shrink: 0;
+      color: var(--theme-elevation-500);
+    }
+
     &__remove {
       margin: calc($baseline * 1.5) $baseline $baseline 0;
       place-self: flex-start;

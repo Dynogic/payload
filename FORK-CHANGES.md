@@ -392,12 +392,115 @@ Updated in English (`en.ts`) and all 43 other language files:
 - `createNewLabel` and `creatingNewLabel` had inconsistent capitalization with `createNew` (e.g., "Create New" button vs "Create new Offer" empty state CTA)
 - Fixed in all 4 affected languages: English, Italian, Indonesian, Portuguese
 
+### 36. `headerActions` Custom Component Slot for Blocks and Array Fields
+
+**Files:** `packages/ui/src/fields/Blocks/index.tsx`, `packages/ui/src/fields/Array/index.tsx`, `packages/ui/src/forms/fieldSchemasToFormState/renderField.tsx`
+
+- New `admin.components.headerActions` slot for blocks and array fields
+- Renders custom components inside the field header `<ul>` alongside "Collapse All", "Show All", and the clipboard action menu
+- Processed via `renderField.tsx` the same way as `beforeInput`/`afterInput`
+- Components receive `path` and `schemaPath` via `clientProps`
+- Useful for adding field-level action buttons (e.g., bulk import, batch operations) directly in the header bar
+
+```ts
+// Example usage
+{
+  name: 'myBlocks',
+  type: 'blocks',
+  blocks: [...],
+  admin: {
+    components: {
+      headerActions: ['@/components/admin/my-header-action'],
+    },
+  },
+}
+```
+
+### 38. `hideAddButton` for Blocks and Array Fields
+
+**Files:** `packages/payload/src/fields/config/types.ts`, `packages/ui/src/fields/Blocks/index.tsx`, `packages/ui/src/fields/Array/index.tsx`
+
+- New `admin.hideAddButton` boolean option for blocks and array fields
+- When `true`, hides the default "Add Block" / "Add Row" button
+- Use `admin.components.afterInput` to provide custom add buttons when the default is hidden
+- Follows the same pattern as `isSortable` and `initCollapsed`
+
+```ts
+{
+  name: 'series',
+  type: 'blocks',
+  blocks: [...],
+  admin: {
+    hideAddButton: true,
+    components: {
+      afterInput: ['@/components/admin/custom-add-button'],
+    },
+  },
+}
+```
+
+### 37. Custom File Icon for Non-Image Uploads
+
+**Files:** `packages/ui/src/elements/Upload/index.tsx`, `packages/ui/src/elements/Upload/index.scss`
+
+- New `FileIcon` prop on the `Upload` component: `React.ComponentType<{ mimeType: string }>`
+- When a non-image file is selected, renders `<FileIcon mimeType={value.type} />` instead of the generic white document SVG
+- If no `FileIcon` prop is provided, non-image uploads show just the filename and actions (no placeholder icon)
+- Image uploads still show the actual thumbnail preview as before
+- File icon renders inline with the filename input row (not in a separate column)
+- New `__filename-row` and `__file-icon` CSS classes for layout
+
+### 40. Custom `Pill` Component for Block Row Headers
+
+**Files:** `packages/payload/src/fields/config/types.ts`, `packages/ui/src/fields/Blocks/BlockRow.tsx`, `packages/ui/src/fields/Blocks/index.tsx`, `packages/ui/src/forms/fieldSchemasToFormState/renderField.tsx`, `packages/payload/src/bin/generateImportMap/iterateFields.ts`
+
+- New `admin.components.Pill` slot on `Block` type
+- Replaces the default block type label text inside the pill badge in row headers
+- The custom component receives standard client props and can read form state to render dynamic labels
+- Useful for blocks that need context-aware labels (e.g., "Module" vs "Season" vs "Section" based on a parent field value)
+
+```ts
+// Example usage in a block definition
+{
+  slug: 'seriesSectionBlock',
+  admin: {
+    components: {
+      Pill: '@/components/admin/series-section-pill',
+    },
+  },
+}
+```
+
+### 42. `hideAddBelow` for Blocks and Array Fields
+
+**Files:** `packages/payload/src/fields/config/types.ts`, `packages/ui/src/fields/Blocks/index.tsx`, `packages/ui/src/fields/Blocks/BlockRow.tsx`, `packages/ui/src/fields/Blocks/RowActions.tsx`, `packages/ui/src/fields/Array/index.tsx`, `packages/ui/src/fields/Array/ArrayRow.tsx`, `packages/ui/src/elements/ArrayAction/index.tsx`
+
+- New `admin.hideAddBelow` boolean option — hides the "Add Below" action from each row's action menu
+- Row action menus with `hideAddBelow: true` show: Move Up, Move Down, Duplicate, Remove (no Add Below)
+
+### 41. `hideClipboard` for Blocks and Array Fields
+
+**Files:** `packages/payload/src/fields/config/types.ts`, `packages/ui/src/fields/Blocks/index.tsx`, `packages/ui/src/fields/Array/index.tsx`, `packages/ui/src/elements/ArrayAction/index.tsx`
+
+- New `admin.hideClipboard` boolean option for blocks and array fields
+- When `true`, hides the "Copy Field" / "Paste Field" menu from the header and the "Copy Row" / "Paste Row" buttons from each row's action menu
+- Row action menus still show Move Up, Move Down, Add Below, Duplicate, and Remove
+
+### 39. Remove Client-Side "A file is required" Validation from Upload
+
+**File:** `packages/ui/src/elements/Upload/index.tsx`
+
+- Removed the hardcoded `if (!value && value !== undefined) return 'A file is required.'` check from the Upload component's client-side `validate` function
+- This validation conflicted with collections using `filesRequiredOnCreate: false` (e.g., collections supporting both file uploads and YouTube source types)
+- File-required validation should be handled by collection-level `beforeValidate` hooks, which can apply conditional logic based on source type
+- The filename-required check (`'A file name is required.'`) is preserved
+
 ---
 
 ## Summary
 
 | Category      | Count |
 | ------------- | ----- |
-| Bug Fixes     | 7     |
-| Features      | 25    |
+| Bug Fixes     | 8     |
+| Features      | 27    |
 | Documentation | 1     |
