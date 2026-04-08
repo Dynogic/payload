@@ -417,6 +417,7 @@ export const itTranslations: DefaultTranslationsObject = {
     row: 'Riga',
     rows: 'Righe',
     save: 'Salva',
+    saveAndAdd: 'Salva e aggiungi',
     saving: 'Salvo...',
     schedulePublishFor: 'Pianifica la pubblicazione per {{title}}',
     searchBy: 'Cerca per {{label}}',

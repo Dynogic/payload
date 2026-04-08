@@ -393,6 +393,7 @@ export const zhTranslations: DefaultTranslationsObject = {
     row: '行',
     rows: '行',
     save: '保存',
+    saveAndAdd: '保存并添加',
     saving: '保存中...',
     schedulePublishFor: '为 {{title}} 安排发布时间',
     searchBy: '搜索 {{label}}',

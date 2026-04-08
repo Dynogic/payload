@@ -417,6 +417,7 @@ export const myTranslations: DefaultTranslationsObject = {
     row: 'အတန်း',
     rows: 'Rows',
     save: 'သိမ်းဆည်းမည်။',
+    saveAndAdd: 'သိမ်းဆည်းပြီး ထည့်ရန်',
     saving: 'သိမ်းနေဆဲ ...',
     schedulePublishFor: 'Jadualkan penerbitan untuk {{title}}',
     searchBy: 'ရှာဖွေပါ။',

@@ -401,6 +401,7 @@ export const heTranslations: DefaultTranslationsObject = {
     row: 'שורה',
     rows: 'שורות',
     save: 'שמירה',
+    saveAndAdd: 'שמור והוסף',
     saving: 'שומר...',
     schedulePublishFor: 'לתזמן פרסום עבור {{כותרת}}',
     searchBy: 'חיפוש לפי {{label}}',

@@ -403,6 +403,7 @@ export const arTranslations: DefaultTranslationsObject = {
     row: 'سطر',
     rows: 'أسطُر',
     save: 'حفظ',
+    saveAndAdd: 'حفظ وإضافة',
     saving: 'جاري الحفظ...',
     schedulePublishFor: 'جدولة النشر لـ {{العنوان}}',
     searchBy: 'البحث عن طريق {{label}}',

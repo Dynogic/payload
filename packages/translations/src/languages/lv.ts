@@ -413,6 +413,7 @@ export const lvTranslations: DefaultTranslationsObject = {
     row: 'Rinda',
     rows: 'Rindas',
     save: 'Saglabāt',
+    saveAndAdd: 'Saglabāt un pievienot',
     saving: 'Saglabā...',
     schedulePublishFor: 'Ieplānot publicēšanu priekš {{title}}',
     searchBy: 'Meklēt pēc {{label}}',

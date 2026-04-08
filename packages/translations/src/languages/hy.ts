@@ -415,6 +415,7 @@ export const hyTranslations: DefaultTranslationsObject = {
     row: 'Տող',
     rows: 'Տողեր',
     save: 'Պահպանել',
+    saveAndAdd: 'Պահպանել և ավելացնել',
     saving: 'Պահպանվում է...',
     schedulePublishFor: 'Հրապարակման ժամանակ նշանակել {{title}}-ի համար',
     searchBy: 'Որոնել ըստ {{label}}-ի',

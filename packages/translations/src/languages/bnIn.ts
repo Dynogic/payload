@@ -417,6 +417,7 @@ export const bnInTranslations: DefaultTranslationsObject = {
     row: 'সারি',
     rows: 'সারিগুলি',
     save: 'সংরক্ষণ করুন',
+    saveAndAdd: 'সংরক্ষণ করুন এবং যোগ করুন',
     saving: 'সংরক্ষণ করা হচ্ছে...',
     schedulePublishFor: '{{title}} এর জন্য প্রকাশ নির্ধারণ করুন',
     searchBy: '{{label}} দ্বারা অনুসন্ধান করুন',

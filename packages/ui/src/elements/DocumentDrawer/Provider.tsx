@@ -14,6 +14,7 @@ export type DocumentDrawerContextProps = {
   readonly drawerContext?: Record<string, unknown>
   readonly drawerSlug: string
   readonly filterOptions?: FilterOptionsResult
+  readonly isCreateDrawer?: boolean
   readonly onDelete?: (args: {
     collectionConfig?: ClientCollectionConfig
     id: string

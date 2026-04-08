@@ -329,7 +329,7 @@ export const renderDocument = async ({
 
   let id = idFromArgs
 
-  if (shouldAutosave && !validateDraftData && !idFromArgs && collectionSlug) {
+  if (shouldAutosave && !validateDraftData && !idFromArgs && !drawerSlug && collectionSlug) {
     // Merge URL param defaults into create data so fields with urlParam config
     // are populated in the auto-created draft (otherwise query params are lost on redirect)
     const createData = { ...(initialData || {}), ...(defaultValues || {}) }

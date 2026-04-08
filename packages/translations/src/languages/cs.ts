@@ -411,6 +411,7 @@ export const csTranslations: DefaultTranslationsObject = {
     row: 'Řádek',
     rows: 'Řádky',
     save: 'Uložit',
+    saveAndAdd: 'Uložit a přidat',
     saving: 'Ukládání...',
     schedulePublishFor: 'Naplánovat publikaci pro {{title}}',
     searchBy: 'Vyhledat podle {{label}}',

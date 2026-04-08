@@ -404,6 +404,7 @@ export const faTranslations: DefaultTranslationsObject = {
     row: 'ردیف',
     rows: 'ردیف‌ها',
     save: 'ذخیره',
+    saveAndAdd: 'ذخیره و افزودن',
     saving: 'در حال ذخیره...',
     schedulePublishFor: 'زمان‌بندی انتشار برای "{{title}}"',
     searchBy: 'جستجو بر اساس {{label}}',

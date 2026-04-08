@@ -414,6 +414,7 @@ export const idTranslations: DefaultTranslationsObject = {
     row: 'Baris',
     rows: 'Baris',
     save: 'Simpan',
+    saveAndAdd: 'Simpan dan Tambah',
     saving: 'Menyimpan...',
     schedulePublishFor: 'Jadwalkan publikasi untuk {{title}}',
     searchBy: 'Cari berdasarkan {{label}}',

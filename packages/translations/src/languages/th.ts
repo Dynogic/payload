@@ -405,6 +405,7 @@ export const thTranslations: DefaultTranslationsObject = {
     row: 'แถว',
     rows: 'แถว',
     save: 'บันทึก',
+    saveAndAdd: 'บันทึกและเพิ่ม',
     saving: 'กำลังบันทึก...',
     schedulePublishFor: 'ตั้งเวลาเผยแพร่สำหรับ {{title}}',
     searchBy: 'ค้นหาด้วย {{label}}',

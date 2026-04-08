@@ -411,6 +411,7 @@ export const koTranslations: DefaultTranslationsObject = {
     row: '행',
     rows: '행',
     save: '저장',
+    saveAndAdd: '저장 후 추가',
     saving: '저장 중...',
     schedulePublishFor: '{{title}}에 대한 게시 일정 설정',
     searchBy: '{{label}}로 검색',

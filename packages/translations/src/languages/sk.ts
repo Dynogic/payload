@@ -412,6 +412,7 @@ export const skTranslations: DefaultTranslationsObject = {
     row: 'Riadok',
     rows: 'Riadky',
     save: 'Uložiť',
+    saveAndAdd: 'Uložiť a pridať',
     saving: 'Ukladanie...',
     schedulePublishFor: 'Naplánovať publikovanie pre {{title}}',
     searchBy: 'Vyhľadať podľa {{label}}',

@@ -22,6 +22,7 @@ import { Autosave } from '../Autosave/index.js'
 import { Button } from '../Button/index.js'
 import { CopyLocaleData } from '../CopyLocaleData/index.js'
 import { DeleteDocument } from '../DeleteDocument/index.js'
+import { useOptionalDocumentDrawerContext } from '../DocumentDrawer/Provider.js'
 import { DuplicateDocument } from '../DuplicateDocument/index.js'
 import { MoveDocToFolder } from '../FolderView/MoveDocToFolder/index.js'
 import { Gutter } from '../Gutter/index.js'
@@ -119,6 +120,9 @@ export const DocumentControls: React.FC<{
 
   const editDepth = useEditDepth()
 
+  const drawerCtx = useOptionalDocumentDrawerContext()
+  const isCreateDrawer = drawerCtx?.isCreateDrawer ?? false
+
   const { config, getEntityConfig } = useConfig()
 
   const collectionConfig = getEntityConfig({ collectionSlug: slug })
@@ -140,7 +144,11 @@ export const DocumentControls: React.FC<{
   const hasDeletePermission = permissions && 'delete' in permissions && permissions.delete
 
   const showDotMenu = Boolean(
-    collectionConfig && id && !disableActions && (hasCreatePermission || hasDeletePermission),
+    collectionConfig &&
+      id &&
+      !disableActions &&
+      !isCreateDrawer &&
+      (hasCreatePermission || hasDeletePermission),
   )
 
   const unsavedDraftWithValidations =
@@ -211,6 +219,7 @@ export const DocumentControls: React.FC<{
                 {hasSavePermission &&
                   autosaveEnabled &&
                   !unsavedDraftWithValidations &&
+                  !isInDrawer &&
                   !isTrashed && (
                     <li className={`${baseClass}__list-item`}>
                       <Autosave
@@ -237,7 +246,9 @@ export const DocumentControls: React.FC<{
             )}
             {hasSavePermission && !isTrashed && (
               <Fragment>
-                {collectionHasDraftsEnabled || globalHasDraftsEnabled ? (
+                {isInDrawer ? (
+                  <SaveButton label={isCreateDrawer ? t('general:saveAndAdd') : undefined} />
+                ) : collectionHasDraftsEnabled || globalHasDraftsEnabled ? (
                   <Fragment>
                     {(unsavedDraftWithValidations ||
                       !autosaveEnabled ||
@@ -311,25 +322,6 @@ export const DocumentControls: React.FC<{
                 {showCopyToLocale && <CopyLocaleData />}
                 {hasCreatePermission && (
                   <React.Fragment>
-                    {!disableCreate && (
-                      <Fragment>
-                        {editDepth > 1 ? (
-                          <PopupList.Button id="action-create" onClick={onDrawerCreateNew}>
-                            {i18n.t('general:createNew')}
-                          </PopupList.Button>
-                        ) : (
-                          <PopupList.Button
-                            href={formatAdminURL({
-                              adminRoute,
-                              path: `/collections/${collectionConfig?.slug}/create`,
-                            })}
-                            id="action-create"
-                          >
-                            {i18n.t('general:createNew')}
-                          </PopupList.Button>
-                        )}
-                      </Fragment>
-                    )}
                     {collectionConfig.disableDuplicate !== true && isEditing && (
                       <>
                         <DuplicateDocument

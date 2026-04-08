@@ -418,6 +418,7 @@ export const roTranslations: DefaultTranslationsObject = {
     row: 'Rând',
     rows: 'Rânduri',
     save: 'Salvează',
+    saveAndAdd: 'Salvează și adaugă',
     saving: 'Salvare...',
     schedulePublishFor: 'Planificați publicarea pentru {{title}}',
     searchBy: 'Căutați după {{label}}',

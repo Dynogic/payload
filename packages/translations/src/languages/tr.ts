@@ -417,6 +417,7 @@ export const trTranslations: DefaultTranslationsObject = {
     row: 'Satır',
     rows: 'Satır',
     save: 'Kaydet',
+    saveAndAdd: 'Kaydet ve Ekle',
     saving: 'Kaydediliyor...',
     schedulePublishFor: '{{title}} için yayınlama programı ayarlayın.',
     searchBy: 'Şuna göre sırala: {{label}}',

@@ -415,6 +415,7 @@ export const ltTranslations: DefaultTranslationsObject = {
     row: 'Eilutė',
     rows: 'Eilutės',
     save: 'Išsaugoti',
+    saveAndAdd: 'Išsaugoti ir pridėti',
     saving: 'Išsaugoti...',
     schedulePublishFor: 'Suplanuokite publikaciją „{{title}}“',
     searchBy: 'Ieškokite pagal {{label}}',

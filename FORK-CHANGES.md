@@ -530,6 +530,30 @@ Updated in English (`en.ts`) and all 43 other language files:
 />
 ```
 
+### 45. "Save & Add" Behavior in DocumentDrawer
+
+**Files:** `packages/ui/src/elements/DocumentControls/index.tsx`, `packages/ui/src/elements/DocumentDrawer/DrawerContent.tsx`, `packages/ui/src/elements/DocumentDrawer/Provider.tsx`, `packages/next/src/views/Document/index.tsx`, `packages/translations/src/languages/*.ts`, `packages/translations/src/clientKeys.ts`
+
+When a document is opened in a `DocumentDrawer` (e.g., from a relationship field):
+
+- **Create mode:** Shows "Save & Add" button instead of Publish/SaveDraft — saves the document and auto-closes the drawer. The `onSave` callback fires before close so the parent can add the relationship.
+- **Edit mode:** Shows standard "Save" button (no "& Add" since the item is already in the relationship).
+- **Autosave:** Disabled in drawers — no background saves while editing inline.
+- **No auto-draft in drawers:** Skips the server-side auto-draft creation for `autosave + drafts` collections when inside a drawer. The document is only created when the user explicitly clicks "Save & Add".
+- **Draft-enabled collections:** Saved as draft (user can publish later from the collection list).
+- **Non-draft collections:** Saved normally.
+- **Dot menu:** Hidden in create drawers (no Create New / Duplicate / Delete for a document being created).
+
+This applies universally to all DocumentDrawers, not just specific collections.
+
+Changes:
+
+- `Document/index.tsx`: Skip auto-draft creation when `drawerSlug` is present (`!drawerSlug` added to condition).
+- `DocumentControls`: When `isInDrawer`, renders only `SaveButton` (with "Save & Add" label for create, default "Save" for edit). Hides `PublishButton`, `SaveDraftButton`, `Autosave`, and dot menu (in create drawers). Removed "Create New" from the dot menu globally — Duplicate and Delete remain.
+- `DrawerContent.onSave`: On create, closes the drawer (`closeModal`) instead of reloading with the new document (`getDocumentView`). Calls `onSaveFromProps` before closing. Uses `isCreateDrawer` (based on original `docID` prop) instead of `operation` to handle draft+autosave collections correctly.
+- `Provider.tsx`: Added `isCreateDrawer` to drawer context type and value.
+- Added `general:saveAndAdd` translation key to all 44 language files and `clientKeys.ts`.
+
 ---
 
 ## Summary
@@ -537,5 +561,5 @@ Updated in English (`en.ts`) and all 43 other language files:
 | Category      | Count |
 | ------------- | ----- |
 | Bug Fixes     | 9     |
-| Features      | 28    |
+| Features      | 29    |
 | Documentation | 1     |

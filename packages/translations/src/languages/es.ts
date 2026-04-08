@@ -419,6 +419,7 @@ export const esTranslations: DefaultTranslationsObject = {
     row: 'Fila',
     rows: 'Filas',
     save: 'Guardar',
+    saveAndAdd: 'Guardar y añadir',
     saving: 'Guardando...',
     schedulePublishFor: 'Programar publicación para {{title}}',
     searchBy: 'Buscar por {{label}}',

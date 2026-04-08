@@ -411,6 +411,7 @@ export const plTranslations: DefaultTranslationsObject = {
     row: 'Wiersz',
     rows: 'Wiersze',
     save: 'Zapisz',
+    saveAndAdd: 'Zapisz i dodaj',
     saving: 'Zapisywanie...',
     schedulePublishFor: 'Zaplanuj publikację dla {{title}}',
     searchBy: 'Szukaj według',

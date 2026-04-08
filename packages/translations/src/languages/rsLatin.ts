@@ -414,6 +414,7 @@ export const rsLatinTranslations: DefaultTranslationsObject = {
     row: 'Red',
     rows: 'Redovi',
     save: 'Sačuvaj',
+    saveAndAdd: 'Sačuvaj i dodaj',
     saving: 'Čuvanje u toku...',
     schedulePublishFor: 'Zakaži objavljivanje za {{title}}',
     searchBy: 'Traži po {{label}}',

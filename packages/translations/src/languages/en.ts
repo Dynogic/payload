@@ -414,6 +414,7 @@ export const enTranslations = {
     row: 'Row',
     rows: 'Rows',
     save: 'Save',
+    saveAndAdd: 'Save & Add',
     saving: 'Saving...',
     schedulePublishFor: 'Schedule publish for {{title}}',
     searchBy: 'Search by {{label}}',

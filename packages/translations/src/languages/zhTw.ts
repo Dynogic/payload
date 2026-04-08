@@ -392,6 +392,7 @@ export const zhTwTranslations: DefaultTranslationsObject = {
     row: '列',
     rows: '列',
     save: '儲存',
+    saveAndAdd: '儲存並新增',
     saving: '儲存中…',
     schedulePublishFor: '排程發佈 {{title}}',
     searchBy: '依 {{label}} 搜尋',

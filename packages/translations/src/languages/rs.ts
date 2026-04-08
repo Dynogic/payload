@@ -413,6 +413,7 @@ export const rsTranslations: DefaultTranslationsObject = {
     row: 'Ред',
     rows: 'Редови',
     save: 'Сачувај',
+    saveAndAdd: 'Sačuvaj i dodaj',
     saving: 'Чување у току...',
     schedulePublishFor: 'Zakažite objavljivanje za {{title}}',
     searchBy: 'Тражи по {{label}}',
