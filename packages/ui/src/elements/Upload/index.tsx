@@ -17,6 +17,7 @@ import { useTranslation } from '../../providers/Translation/index.js'
 import { UploadControlsProvider, useUploadControls } from '../../providers/UploadControls/index.js'
 import { useUploadEdits } from '../../providers/UploadEdits/index.js'
 import { Button } from '../Button/index.js'
+import { useOptionalDocumentDrawerContext } from '../DocumentDrawer/Provider.js'
 import { Drawer } from '../Drawer/index.js'
 import { Dropzone } from '../Dropzone/index.js'
 import { EditUpload } from '../EditUpload/index.js'
@@ -135,7 +136,7 @@ export type UploadProps_v4 = {
 
 export const Upload_v4: React.FC<UploadProps_v4> = (props) => {
   const {
-    allowedMimeTypes,
+    allowedMimeTypes: allowedMimeTypesFromProps,
     collectionSlug,
     customActions,
     FileIcon,
@@ -148,6 +149,10 @@ export const Upload_v4: React.FC<UploadProps_v4> = (props) => {
     UploadControls,
     uploadEdits,
   } = props
+
+  // Fall back to drawer context for allowedMimeTypes
+  const drawerCtx = useOptionalDocumentDrawerContext()
+  const allowedMimeTypes = allowedMimeTypesFromProps || drawerCtx?.allowedMimeTypes
 
   const {
     setUploadControlFile,

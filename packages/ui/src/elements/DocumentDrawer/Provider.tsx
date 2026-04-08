@@ -1,9 +1,17 @@
-import type { ClientCollectionConfig, Data, FilterOptionsResult, FormState, TypeWithID } from 'payload'
+import type {
+  ClientCollectionConfig,
+  Data,
+  FilterOptionsResult,
+  FormState,
+  TypeWithID,
+} from 'payload'
 
 import { createContext, use } from 'react'
 
 export type DocumentDrawerContextProps = {
+  readonly allowedMimeTypes?: string[]
   readonly clearDoc?: () => void
+  readonly drawerContext?: Record<string, unknown>
   readonly drawerSlug: string
   readonly filterOptions?: FilterOptionsResult
   readonly onDelete?: (args: {
@@ -55,4 +63,13 @@ export const useDocumentDrawerContext = (): DocumentDrawerContextType => {
   }
 
   return context
+}
+
+/**
+ * Safe version that returns null when not inside a DocumentDrawerProvider.
+ * Useful for components that may render both inside and outside drawers.
+ */
+export const useOptionalDocumentDrawerContext = (): DocumentDrawerContextType | null => {
+  const context = use(DocumentDrawerCallbacksContext)
+  return context && Object.keys(context).length > 0 ? context : null
 }

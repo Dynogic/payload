@@ -84,7 +84,10 @@ export type {
 } from '../../elements/DocumentDrawer/types.js'
 export { useClickOutside } from '../../hooks/useClickOutside.js'
 export { useClickOutsideContext } from '../../providers/ClickOutside/index.js'
-export { useDocumentDrawerContext } from '../../elements/DocumentDrawer/Provider.js'
+export {
+  useDocumentDrawerContext,
+  useOptionalDocumentDrawerContext,
+} from '../../elements/DocumentDrawer/Provider.js'
 export { DocumentFields } from '../../elements/DocumentFields/index.js'
 export { Drawer, DrawerToggler, formatDrawerSlug } from '../../elements/Drawer/index.js'
 export { useDrawerSlug } from '../../elements/Drawer/useDrawerSlug.js'

@@ -504,6 +504,32 @@ Updated in English (`en.ts`) and all 43 other language files:
 - Does NOT use `hideDocumentHeader` — that would also hide tabs (Content/Teaser etc.) which are needed in drawers
 - Affects all collections using `showTitleInControls: true` when opened via DocumentDrawer
 
+### 44. `allowedMimeTypes` and `drawerContext` on DocumentDrawer
+
+**Files:** `packages/ui/src/elements/DocumentDrawer/types.ts`, `packages/ui/src/elements/DocumentDrawer/Provider.tsx`, `packages/ui/src/elements/DocumentDrawer/DrawerContent.tsx`, `packages/ui/src/elements/Upload/index.tsx`, `packages/ui/src/exports/client/index.ts`
+
+- New `allowedMimeTypes` prop on `DocumentDrawer` — restricts file uploads to specific MIME types when creating documents in a drawer (e.g., `['video/*']` for video-only uploads)
+- New `drawerContext` prop (`Record<string, unknown>`) — arbitrary context data accessible to custom field components inside the drawer via `useDocumentDrawerContext().drawerContext`
+- Both flow through `DocumentDrawerContent` → `DocumentDrawerContextProvider` → context
+- Upload component reads `allowedMimeTypes` from drawer context as fallback when not passed as direct prop
+- New `useOptionalDocumentDrawerContext()` hook — safe version that returns `null` when not inside a provider (for components that render both inside and outside drawers)
+
+```ts
+// Example: video-only upload drawer
+<DocumentDrawer
+  collectionSlug="files"
+  allowedMimeTypes={['video/*']}
+  onSave={handleSave}
+/>
+
+// Example: product drawer with custom field filtering
+<DocumentDrawer
+  collectionSlug="products"
+  drawerContext={{ excludeProductTypes: ['course', 'series', 'collection', 'playlist'] }}
+  onSave={handleSave}
+/>
+```
+
 ---
 
 ## Summary
@@ -511,5 +537,5 @@ Updated in English (`en.ts`) and all 43 other language files:
 | Category      | Count |
 | ------------- | ----- |
 | Bug Fixes     | 9     |
-| Features      | 27    |
+| Features      | 28    |
 | Documentation | 1     |

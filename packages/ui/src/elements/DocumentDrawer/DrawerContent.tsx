@@ -15,8 +15,10 @@ import { DocumentDrawerContextProvider } from './Provider.js'
 
 export const DocumentDrawerContent: React.FC<DocumentDrawerProps> = ({
   id: docID,
+  allowedMimeTypes,
   collectionSlug,
   disableActions,
+  drawerContext,
   drawerSlug,
   filterOptions,
   initialData,
@@ -172,7 +174,9 @@ export const DocumentDrawerContent: React.FC<DocumentDrawerProps> = ({
 
   return (
     <DocumentDrawerContextProvider
+      allowedMimeTypes={allowedMimeTypes}
       clearDoc={clearDoc}
+      drawerContext={drawerContext}
       drawerSlug={drawerSlug}
       filterOptions={filterOptions}
       onDelete={onDelete}
