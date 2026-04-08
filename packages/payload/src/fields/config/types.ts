@@ -1442,12 +1442,13 @@ export type ArrayField = {
 } & Omit<FieldBase, 'validate'>
 
 export type ArrayFieldClient = {
-  // @ts-expect-error - vestiges of when tsconfig was not strict. Feel free to improve
-  admin?: AdminClient &
-    Pick<
-      ArrayField['admin'],
-      'hideAddBelow' | 'hideAddButton' | 'hideClipboard' | 'initCollapsed' | 'isSortable'
-    >
+  admin?: {
+    hideAddBelow?: boolean
+    hideAddButton?: boolean
+    hideClipboard?: boolean
+    initCollapsed?: boolean
+    isSortable?: boolean
+  } & AdminClient
   fields: ClientField[]
   labels?: LabelsClient
 } & FieldBaseClient &
@@ -1690,12 +1691,13 @@ export type BlocksField = {
 } & Omit<FieldBase, 'validate'>
 
 export type BlocksFieldClient = {
-  // @ts-expect-error - vestiges of when tsconfig was not strict. Feel free to improve
-  admin?: AdminClient &
-    Pick<
-      BlocksField['admin'],
-      'hideAddBelow' | 'hideAddButton' | 'hideClipboard' | 'initCollapsed' | 'isSortable'
-    >
+  admin?: {
+    hideAddBelow?: boolean
+    hideAddButton?: boolean
+    hideClipboard?: boolean
+    initCollapsed?: boolean
+    isSortable?: boolean
+  } & AdminClient
   /**
    * Like `blocks`, but allows you to also pass strings that are slugs of blocks defined in `config.blocks`.
    *

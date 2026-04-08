@@ -495,12 +495,21 @@ Updated in English (`en.ts`) and all 43 other language files:
 - File-required validation should be handled by collection-level `beforeValidate` hooks, which can apply conditional logic based on source type
 - The filename-required check (`'A file name is required.'`) is preserved
 
+### 43. Hide Duplicate Title in DocumentDrawer When `showTitleInControls` Is Enabled
+
+**File:** `packages/ui/src/elements/DocumentControls/index.tsx`
+
+- When a document is opened in a `DocumentDrawer` (inline create/edit from relationship fields), the title was shown twice: once in the drawer header and once in the document controls bar (when `showTitleInControls: true`)
+- Now skips the controls bar title render when `isInDrawer` is true, since the drawer header already displays the document title
+- Does NOT use `hideDocumentHeader` — that would also hide tabs (Content/Teaser etc.) which are needed in drawers
+- Affects all collections using `showTitleInControls: true` when opened via DocumentDrawer
+
 ---
 
 ## Summary
 
 | Category      | Count |
 | ------------- | ----- |
-| Bug Fixes     | 8     |
+| Bug Fixes     | 9     |
 | Features      | 27    |
 | Documentation | 1     |

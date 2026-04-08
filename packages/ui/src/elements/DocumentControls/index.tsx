@@ -168,7 +168,9 @@ export const DocumentControls: React.FC<{
     <Gutter className={baseClass}>
       <div className={`${baseClass}__wrapper`}>
         <div className={`${baseClass}__content`}>
-          {showTitle && <RenderTitle className={`${baseClass}__title`} element="h1" />}
+          {showTitle && !isInDrawer && (
+            <RenderTitle className={`${baseClass}__title`} element="h1" />
+          )}
           {showLockedMetaIcon || showFolderMetaIcon ? (
             <div className={`${baseClass}__meta-icons`}>
               {showLockedMetaIcon && (
