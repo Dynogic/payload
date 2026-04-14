@@ -581,7 +581,7 @@ export const huTranslations: DefaultTranslationsObject = {
     autosave: 'Automatikus mentés',
     autosavedSuccessfully: 'Automatikus mentés sikeres.',
     autosavedVersion: 'Automatikusan mentett verzió',
-    changed: 'Megváltozott',
+    changed: 'Közzétéve · Szerkesztve',
     changedFieldsCount_one: '{{count}} megváltozott mező',
     changedFieldsCount_other: '{{count}} módosított mező',
     compareVersion: 'Hasonlítsa össze a verziót a következőkkel:',

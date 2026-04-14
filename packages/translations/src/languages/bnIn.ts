@@ -578,7 +578,7 @@ export const bnInTranslations: DefaultTranslationsObject = {
     autosave: 'স্বয়ংক্রিয় সংরক্ষণ',
     autosavedSuccessfully: 'স্বয়ংক্রিয়ভাবে সংরক্ষণ করা হয়েছে।',
     autosavedVersion: 'স্বয়ংক্রিয়ভাবে সংরক্ষণ করা সংস্করণ',
-    changed: 'পরিবর্তিত হয়েছে',
+    changed: 'প্রকাশিত · সম্পাদিত',
     changedFieldsCount_one: '{{count}} পরিবর্তিত ক্ষেত্র',
     changedFieldsCount_other: '{{count}} পরিবর্তিত ক্ষেত্রগুলি',
     compareVersion: 'সংস্করণের সাথে তুলনা করুন:',

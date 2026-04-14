@@ -576,7 +576,7 @@ export const azTranslations: DefaultTranslationsObject = {
     autosave: 'Avtomatik yadda saxlama',
     autosavedSuccessfully: 'Uğurla avtomatik olaraq yadda saxlandı.',
     autosavedVersion: 'Avtomatik yadda saxlanmış versiya',
-    changed: 'Dəyişdirildi',
+    changed: 'Dərc edilib · Redaktə edilib',
     changedFieldsCount_one: '{{count}} sahə dəyişdi',
     changedFieldsCount_other: '{{count}} dəyişdirilmiş sahələr',
     compareVersion: 'Versiyanı müqayisə et:',

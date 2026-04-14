@@ -571,7 +571,7 @@ export const plTranslations: DefaultTranslationsObject = {
     autosave: 'Autozapis',
     autosavedSuccessfully: 'Pomyślnie zapisano automatycznie.',
     autosavedVersion: 'Wersja zapisana automatycznie',
-    changed: 'Zmieniono',
+    changed: 'Opublikowane · Edytowane',
     changedFieldsCount_one: '{{count}} zmienione pole',
     changedFieldsCount_other: '{{count}} zmienione pola',
     compareVersion: 'Porównaj wersję z:',

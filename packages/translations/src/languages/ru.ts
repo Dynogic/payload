@@ -576,7 +576,7 @@ export const ruTranslations: DefaultTranslationsObject = {
     autosave: 'Автосохранение',
     autosavedSuccessfully: 'Автосохранение успешно.',
     autosavedVersion: 'Автоматически сохраненная версия',
-    changed: 'Изменено',
+    changed: 'Опубликовано · Отредактировано',
     changedFieldsCount_one: '{{count}} изменил поле',
     changedFieldsCount_other: '{{count}} измененных полей',
     compareVersion: 'Сравнить версию с:',

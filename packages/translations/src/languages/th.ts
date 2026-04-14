@@ -560,7 +560,7 @@ export const thTranslations: DefaultTranslationsObject = {
     autosave: 'บันทึกอัตโนมัติ',
     autosavedSuccessfully: 'บันทึกอัตโนมัติสำเร็จ',
     autosavedVersion: 'เวอร์ชันบันทึกอัตโนมัติ',
-    changed: 'มีการแก้ไข',
+    changed: 'เผยแพร่แล้ว · แก้ไขแล้ว',
     changedFieldsCount_one: '{{count}} เปลี่ยนฟิลด์',
     changedFieldsCount_other: '{{count}} ฟิลด์ที่มีการเปลี่ยนแปลง',
     compareVersion: 'เปรียบเทียบเวอร์ชันกับ:',

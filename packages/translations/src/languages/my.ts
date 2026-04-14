@@ -584,7 +584,7 @@ export const myTranslations: DefaultTranslationsObject = {
     autosave: 'အလိုအလျောက်သိမ်းဆည်းပါ။',
     autosavedSuccessfully: 'အလိုအလျောက် သိမ်းဆည်းပြီးပါပြီ။',
     autosavedVersion: 'အော်တို ဗားရှင်း',
-    changed: 'ပြောင်းခဲ့သည်။',
+    changed: 'ထုတ်ဝေပြီး · တည်းဖြတ်ပြီး',
     changedFieldsCount_one: '{{count}} field telah diubah',
     changedFieldsCount_other: '{{count}}ကယ်လက်ရှိအရာများပြောင်းလဲလိုက်သည်',
     compareVersion: 'ဗားရှင်းနှင့် နှိုင်းယှဉ်ချက်:',

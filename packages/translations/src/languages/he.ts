@@ -554,7 +554,7 @@ export const heTranslations: DefaultTranslationsObject = {
     autosave: 'שמירה אוטומטית',
     autosavedSuccessfully: 'נשמר בהצלחה.',
     autosavedVersion: 'גרסת שמירה אוטומטית',
-    changed: 'שונה',
+    changed: 'פורסם · נערך',
     changedFieldsCount_one: '{{count}} שינה שדה',
     changedFieldsCount_other: '{{count}} שדות ששונו',
     compareVersion: 'השווה לגרסה:',

@@ -570,7 +570,7 @@ export const ukTranslations: DefaultTranslationsObject = {
     autosave: 'Автозбереження',
     autosavedSuccessfully: 'Зміни збережено автоматично.',
     autosavedVersion: 'Автозбереження',
-    changed: 'Змінено',
+    changed: 'Опубліковано · Відредаговано',
     changedFieldsCount_one: '{{count}} змінене поле',
     changedFieldsCount_other: '{{count}} змінених полів',
     compareVersion: 'Порівняти версію з:',

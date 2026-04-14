@@ -544,7 +544,7 @@ export const zhTwTranslations: DefaultTranslationsObject = {
     autosave: '自動儲存',
     autosavedSuccessfully: '已成功自動儲存。',
     autosavedVersion: '自動儲存版本',
-    changed: '已變更',
+    changed: '已發佈 · 已編輯',
     changedFieldsCount_one: '{{count}} 個欄位已變更',
     changedFieldsCount_other: '{{count}} 個欄位已變更',
     compareVersion: '比較以下版本：',

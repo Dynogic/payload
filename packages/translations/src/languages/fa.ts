@@ -562,7 +562,7 @@ export const faTranslations: DefaultTranslationsObject = {
     autosave: 'ذخیره خودکار',
     autosavedSuccessfully: 'با موفقیت به صورت خودکار ذخیره شد.',
     autosavedVersion: 'نسخه ذخیره خودکار',
-    changed: 'تغییر کرده',
+    changed: 'منتشر شده · ویرایش شده',
     changedFieldsCount_one: '{{count}} فیلد تغییر کرد',
     changedFieldsCount_other: '{{count}} فیلد تغییر کرد',
     compareVersion: 'مقایسه با نسخه:',

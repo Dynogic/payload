@@ -55,6 +55,7 @@ export type OnSaveContext = {
 // This is solely to support custom edit views which get server-rendered
 export function DefaultEditView({
   BeforeDocumentControls,
+  DeleteButton,
   Description,
   EditMenuItems,
   LivePreview: CustomLivePreview,
@@ -640,6 +641,7 @@ export function DefaultEditView({
             apiURL={apiURL}
             BeforeDocumentControls={BeforeDocumentControls}
             customComponents={{
+              DeleteButton,
               PreviewButton,
               PublishButton,
               SaveButton,

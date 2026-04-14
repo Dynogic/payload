@@ -582,7 +582,7 @@ export const hyTranslations: DefaultTranslationsObject = {
     autosave: 'Ինքնապահպանում',
     autosavedSuccessfully: 'Հաջողությամբ ինքնապահպանվել է։',
     autosavedVersion: 'Ինքնապահպանված տարբերակ',
-    changed: 'Փոփոխված',
+    changed: 'Հրապարակված · Խմբագրված',
     changedFieldsCount_one: '{{count}} փոփոխված դաշտ',
     changedFieldsCount_other: '{{count}} փոփոխված դաշտեր',
     compareVersion: 'Համեմատել տարբերակը հետևյալի հետ՝',

@@ -583,7 +583,7 @@ export const roTranslations: DefaultTranslationsObject = {
     autosave: 'Autosalvare',
     autosavedSuccessfully: 'Autosalvare cu succes.',
     autosavedVersion: 'Versiunea salvată automat.',
-    changed: 'Schimbat',
+    changed: 'Publicat · Editat',
     changedFieldsCount_one: '{{count}} a modificat câmpul',
     changedFieldsCount_other: '{{count}} câmpuri modificate',
     compareVersion: 'Comparați versiunea cu:',

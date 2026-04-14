@@ -573,7 +573,7 @@ export const svTranslations: DefaultTranslationsObject = {
     autosave: 'Spara automatiskt',
     autosavedSuccessfully: 'Autosparades',
     autosavedVersion: 'Autosparad version',
-    changed: 'Ändrad',
+    changed: 'Publicerad · Redigerad',
     changedFieldsCount_one: '{{count}} ändrat fält',
     changedFieldsCount_other: '{{count}} ändrade fält',
     compareVersion: 'Jämför version med:',

@@ -575,7 +575,7 @@ export const idTranslations: DefaultTranslationsObject = {
     autosave: 'Simpan Otomatis',
     autosavedSuccessfully: 'Berhasil disimpan otomatis.',
     autosavedVersion: 'Versi simpan otomatis',
-    changed: 'Berubah',
+    changed: 'Diterbitkan · Diedit',
     changedFieldsCount_one: '{{count}} Isian berubah',
     changedFieldsCount_other: '{{count}} Isian berubah',
     compareVersion: 'Bandingkan versi dengan:',

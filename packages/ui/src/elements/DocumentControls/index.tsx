@@ -47,6 +47,7 @@ export const DocumentControls: React.FC<{
   readonly apiURL: string
   readonly BeforeDocumentControls?: React.ReactNode
   readonly customComponents?: {
+    readonly DeleteButton?: React.ReactNode
     readonly PreviewButton?: React.ReactNode
     readonly PublishButton?: React.ReactNode
     readonly SaveButton?: React.ReactNode
@@ -86,6 +87,7 @@ export const DocumentControls: React.FC<{
     slug,
     BeforeDocumentControls,
     customComponents: {
+      DeleteButton: CustomDeleteButton,
       PreviewButton: CustomPreviewButton,
       PublishButton: CustomPublishButton,
       SaveButton: CustomSaveButton,
@@ -346,14 +348,19 @@ export const DocumentControls: React.FC<{
                   </React.Fragment>
                 )}
                 {hasDeletePermission && (
-                  <DeleteDocument
-                    buttonId="action-delete"
-                    collectionSlug={collectionConfig?.slug}
-                    id={id.toString()}
-                    onDelete={onDelete}
-                    redirectAfterDelete={redirectAfterDelete}
-                    singularLabel={collectionConfig?.labels?.singular}
-                    useAsTitle={collectionConfig?.admin?.useAsTitle}
+                  <RenderCustomComponent
+                    CustomComponent={CustomDeleteButton}
+                    Fallback={
+                      <DeleteDocument
+                        buttonId="action-delete"
+                        collectionSlug={collectionConfig?.slug}
+                        id={id.toString()}
+                        onDelete={onDelete}
+                        redirectAfterDelete={redirectAfterDelete}
+                        singularLabel={collectionConfig?.labels?.singular}
+                        useAsTitle={collectionConfig?.admin?.useAsTitle}
+                      />
+                    }
                   />
                 )}
                 <RenderCustomComponent

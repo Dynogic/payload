@@ -566,7 +566,7 @@ export const koTranslations: DefaultTranslationsObject = {
     autosave: '자동 저장',
     autosavedSuccessfully: '자동 저장이 완료되었습니다.',
     autosavedVersion: '자동 저장된 버전',
-    changed: '변경됨',
+    changed: '게시됨 · 편집됨',
     changedFieldsCount_one: '{{count}} 변경된 필드',
     changedFieldsCount_other: '{{count}}개의 변경된 필드',
     compareVersion: '비교할 버전 선택:',

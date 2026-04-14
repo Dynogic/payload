@@ -573,7 +573,7 @@ export const jaTranslations: DefaultTranslationsObject = {
     autosave: '自動保存',
     autosavedSuccessfully: '自動保存に成功しました。',
     autosavedVersion: '自動保存されたバージョン',
-    changed: '変更済み',
+    changed: '公開済み · 編集済み',
     changedFieldsCount_one: '{{count}} 変更されたフィールド',
     changedFieldsCount_other: '{{count}}つの変更されたフィールド',
     compareVersion: 'バージョンを比較:',

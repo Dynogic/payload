@@ -583,7 +583,7 @@ export const nlTranslations: DefaultTranslationsObject = {
     autosave: 'Automatisch bewaren',
     autosavedSuccessfully: 'Succesvol automatisch bewaard.',
     autosavedVersion: 'Automatisch bewaarde versie',
-    changed: 'Gewijzigd',
+    changed: 'Gepubliceerd · Bewerkt',
     changedFieldsCount_one: '{{count}} gewijzigd veld',
     changedFieldsCount_other: '{{count}} gewijzigde velden',
     compareVersion: 'Vergelijk versie met:',

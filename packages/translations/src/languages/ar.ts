@@ -558,7 +558,7 @@ export const arTranslations: DefaultTranslationsObject = {
     autosave: 'حفظ تلقائي',
     autosavedSuccessfully: 'تمّ الحفظ التّلقائي بنجاح.',
     autosavedVersion: 'النّسخة المحفوظة تلقائياً',
-    changed: 'تمّ التّغيير',
+    changed: 'منشور · معدَّل',
     changedFieldsCount_one: '{{count}} قام بتغيير الحقل',
     changedFieldsCount_other: '{{count}} حقول تم تغييرها',
     compareVersion: 'مقارنة النّسخة مع:',

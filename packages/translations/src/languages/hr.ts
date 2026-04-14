@@ -571,7 +571,7 @@ export const hrTranslations: DefaultTranslationsObject = {
     autosave: 'Automatsko spremanje',
     autosavedSuccessfully: 'Automatsko spremanje uspješno.',
     autosavedVersion: 'Verzija automatski spremljenog dokumenta',
-    changed: 'Promijenjeno',
+    changed: 'Objavljeno · Uređeno',
     changedFieldsCount_one: '{{count}} promijenjeno polje',
     changedFieldsCount_other: '{{count}} promijenjena polja',
     compareVersion: 'Usporedi verziju sa:',

@@ -545,7 +545,7 @@ export const zhTranslations: DefaultTranslationsObject = {
     autosave: '自动保存',
     autosavedSuccessfully: '自动保存成功。',
     autosavedVersion: '自动保存的版本',
-    changed: '已更改',
+    changed: '已发布 · 已编辑',
     changedFieldsCount_one: '{{count}} 个字段已更改',
     changedFieldsCount_other: '{{count}} 个字段已更改',
     compareVersion: '对比版本：',

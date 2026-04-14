@@ -571,7 +571,7 @@ export const csTranslations: DefaultTranslationsObject = {
     autosave: 'Automatické uložení',
     autosavedSuccessfully: 'Úspěšně uloženo automaticky.',
     autosavedVersion: 'Verze automatického uložení',
-    changed: 'Změněno',
+    changed: 'Publikováno · Upraveno',
     changedFieldsCount_one: '{{count}} změněné pole',
     changedFieldsCount_other: '{{count}} změněná pole',
     compareVersion: 'Porovnat verzi s:',

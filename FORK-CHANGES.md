@@ -44,6 +44,73 @@ The folder field added by `folders: { browseByFolder: true }` had a hardcoded `'
 
 The auto-generated `width` and `height` fields on upload collections had `admin.hidden` and `admin.readOnly` but were missing `disableListColumn` and `disableListFilter`. Added both flags so they no longer appear in the column picker or filter dropdown.
 
+### 46. List Status Cell Shows "Changed" After Explicit Unpublish
+
+**File:** `packages/next/src/views/List/enrichDocsWithVersionStatus.ts`
+
+A doc that was published and then explicitly unpublished via the Unpublish action showed **"Changed"** in the list view status cell instead of **"Draft"**. Root cause: `enrichDocsWithVersionStatus` checked the `versions` table for any record with `version._status: 'published'`. That query doesn't distinguish between "doc currently published with pending draft edits" (true "Changed") and "doc was previously published but has since been unpublished" (should be "Draft") — unpublish writes a new draft version record without removing or flagging the old published ones, so both states look identical from the versions table alone.
+
+Fix: query the main collection table (committed state, no `draft: true` flag) for `_status === 'published'` instead of querying the versions table. The main table IS a reliable signal because of how `update.ts` handles writes:
+
+| Scenario                           | `main._status`                                                                  | latest `version._status` |
+| ---------------------------------- | ------------------------------------------------------------------------------- | ------------------------ |
+| Published + pending autosave draft | `published` (autosave leaves main alone since `isSavingDraft === true`)         | `draft`                  |
+| Published → unpublished            | `draft` (unpublish runs with `isSavingDraft === false`, so main is overwritten) | `draft`                  |
+
+Querying the main collection for `_status: 'published'` cleanly separates the two — only the autosave case matches, so only that case renders "Changed". A genuinely unpublished doc correctly renders "Draft".
+
+Zero schema changes, zero write-side changes, no migration — it's a one-query swap on the read path. Version history is preserved exactly as-is; old published version records remain untouched.
+
+### 47. Clearer "Changed" Status Label — `Published · Edited`
+
+**Files:** `packages/translations/src/languages/*.ts` (all 44 language files)
+
+The list view status pill showed **"Changed"** for docs that were published with pending draft edits. That label is ambiguous — _changed how?_ / _changed from what?_ / is it live or not? — and hides the two facts that actually matter to the merchant: (1) customers are still seeing a published version, (2) there are unpublished edits waiting.
+
+Swapped the `version:changed` label from a one-word state ("Changed" / "Modificado" / "Alterado" / "変更済み" / ...) to a compound form that makes both halves explicit: `Published · Edited`. The compound form says exactly what it means: the doc is live AND has been edited since the last publish.
+
+Applied across all 44 language files in `packages/translations/src/languages/`, using each locale's existing translation of `published:` as the first half. Examples:
+
+| Locale | Before       | After                          |
+| ------ | ------------ | ------------------------------ |
+| `en`   | Changed      | Published · Edited             |
+| `es`   | Modificado   | Publicado · Editado            |
+| `pt`   | Alterado     | Publicado · Editado            |
+| `fr`   | Modifié      | Publié · Modifié               |
+| `de`   | Geändert     | Veröffentlicht · Bearbeitet    |
+| `it`   | Modificato   | Pubblicato · Modificato        |
+| `ja`   | 変更済み     | 公開済み · 編集済み            |
+| `zh`   | 已更改       | 已发布 · 已编辑                |
+| `ru`   | Изменено     | Опубликовано · Отредактировано |
+| `ar`   | تمّ التّغيير | منشور · معدَّل                 |
+| ...    | ...          | ...                            |
+
+The pill container is content-sized (`padding: 2px 6px`, no `max-width`) so the longer label fits without layout changes.
+
+### 48. `DeleteButton` Slot on `admin.components.edit`
+
+**Files:** `packages/payload/src/admin/elements/DeleteButton.ts` (new), `packages/payload/src/admin/types.ts`, `packages/payload/src/collections/config/types.ts`, `packages/next/src/views/Document/renderDocumentSlots.tsx`, `packages/ui/src/elements/DocumentControls/index.tsx`, `packages/ui/src/views/Edit/index.tsx`
+
+Previously, Payload exposed `PublishButton`, `UnpublishButton`, `PreviewButton`, `SaveButton`, and `SaveDraftButton` as replaceable component slots on `admin.components.edit`, but the Delete action was hardcoded to the native `DeleteDocument` component inside `DocumentControls`. Projects that wanted to customize the delete confirmation UI (collection-specific warning copy, custom dialog shell, etc.) had no way to replace it without forking the UI package.
+
+Added a matching `DeleteButton` slot on the collection config:
+
+```ts
+admin: {
+  components: {
+    edit: {
+      DeleteButton: '@/components/admin/delete-with-confirm.client',
+    },
+  },
+}
+```
+
+Wired through the same way as `UnpublishButton`: server resolves the custom component in `renderDocumentSlots.tsx`, `DocumentSlots` type carries it, `DocumentViewClientProps` picks it up (via `DocumentSlots` extension), `DefaultEditView` destructures it, `DocumentControls` accepts it as `customComponents.DeleteButton` and renders it via `RenderCustomComponent` with the native `<DeleteDocument>` as the fallback.
+
+Scope: **collection-only**, not globals. Globals are singletons and can't be deleted.
+
+No default strings baked in — the slot is a pure abstraction point. The consuming project's custom component owns the dialog copy, the i18n keys, and the confirmation flow entirely. This matches the project-preferred pattern: abstract the UI customization surface in the fork, define strings per-collection in the consuming app.
+
 ---
 
 ## Features
@@ -560,6 +627,6 @@ Changes:
 
 | Category      | Count |
 | ------------- | ----- |
-| Bug Fixes     | 9     |
-| Features      | 29    |
+| Bug Fixes     | 11    |
+| Features      | 30    |
 | Documentation | 1     |

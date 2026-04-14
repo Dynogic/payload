@@ -569,7 +569,7 @@ export const rsTranslations: DefaultTranslationsObject = {
     autosave: 'Аутоматско чување',
     autosavedSuccessfully: 'Аутоматско чување успешно.',
     autosavedVersion: 'Верзија аутоматски сачуваног документа',
-    changed: 'Промењено',
+    changed: 'Објављено · Уређено',
     changedFieldsCount_one: '{{count}} promenjeno polje',
     changedFieldsCount_other: '{{count}} promenjena polja',
     compareVersion: 'Упореди верзију са:',

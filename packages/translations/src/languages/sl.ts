@@ -571,7 +571,7 @@ export const slTranslations: DefaultTranslationsObject = {
     autosave: 'Samodejno shranjevanje',
     autosavedSuccessfully: 'Samodejno shranjeno uspešno.',
     autosavedVersion: 'Samodejno shranjena različica',
-    changed: 'Spremenjeno',
+    changed: 'Objavljeno · Urejeno',
     changedFieldsCount_one: '{{count}} spremenjeno polje',
     changedFieldsCount_other: '{{count}} spremenjena polja',
     compareVersion: 'Primerjaj različico z:',

@@ -5,6 +5,8 @@ import type { DeepRequired, IsAny, MarkOptional } from 'ts-essentials'
 import type {
   CustomStatus,
   CustomUpload,
+  DeleteButtonClientProps,
+  DeleteButtonServerProps,
   PublishButtonClientProps,
   PublishButtonServerProps,
   UnpublishButtonClientProps,
@@ -403,6 +405,10 @@ export type CollectionAdminOptions = {
        * Inject custom components before the document controls
        */
       beforeDocumentControls?: CustomComponent[]
+      /**
+       * Replaces the "Delete" button inside the 3-dot menu dropdown
+       */
+      DeleteButton?: PayloadComponent<DeleteButtonServerProps, DeleteButtonClientProps>
       /**
        * Inject custom components within the 3-dot menu dropdown
        */

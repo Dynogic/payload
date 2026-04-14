@@ -573,7 +573,7 @@ export const bgTranslations: DefaultTranslationsObject = {
     autosave: 'Автоматично запазване',
     autosavedSuccessfully: 'Успешно автоматично запазване.',
     autosavedVersion: 'Автоматично запазена версия',
-    changed: 'Променен',
+    changed: 'Публикувано · Редактирано',
     changedFieldsCount_one: '{{count}} променено поле',
     changedFieldsCount_other: '{{count}} променени полета',
     compareVersion: 'Сравни версия с:',

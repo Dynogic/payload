@@ -572,7 +572,7 @@ export const daTranslations: DefaultTranslationsObject = {
     autosave: 'Autosave',
     autosavedSuccessfully: 'Autosaved gennemført.',
     autosavedVersion: 'Autosaved version',
-    changed: 'Ændret',
+    changed: 'Udgivet · Redigeret',
     changedFieldsCount_one: '{{count}} ændret felt',
     changedFieldsCount_other: '{{count}} ændrede felter',
     compareVersion: 'Sammenlign version med:',

@@ -574,7 +574,7 @@ export const lvTranslations: DefaultTranslationsObject = {
     autosave: 'Automātiskā saglabāšana',
     autosavedSuccessfully: 'Veiksmīgi automātiski saglabāts.',
     autosavedVersion: 'Automātiski saglabāta versija',
-    changed: 'Mainīts',
+    changed: 'Publicēts · Rediģēts',
     changedFieldsCount_one: '{{count}} mainīts lauks',
     changedFieldsCount_other: '{{count}} mainīti lauki',
     compareVersion: 'Salīdzināt versiju ar:',

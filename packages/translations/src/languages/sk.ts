@@ -572,7 +572,7 @@ export const skTranslations: DefaultTranslationsObject = {
     autosave: 'Automatické uloženie',
     autosavedSuccessfully: 'Úspešne uložené automaticky.',
     autosavedVersion: 'Verzia automatického uloženia',
-    changed: 'Zmenené',
+    changed: 'Publikované · Upravené',
     changedFieldsCount_one: '{{count}} zmenené pole',
     changedFieldsCount_other: '{{count}} zmenených polí',
     compareVersion: 'Porovnať verziu s:',

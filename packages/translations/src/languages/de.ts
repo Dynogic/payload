@@ -585,7 +585,7 @@ export const deTranslations: DefaultTranslationsObject = {
     autosave: 'Automatische Speicherung',
     autosavedSuccessfully: 'Erfolgreich automatisch gespeichert.',
     autosavedVersion: 'Automatisch gespeicherte Version',
-    changed: 'Geändert',
+    changed: 'Veröffentlicht · Bearbeitet',
     changedFieldsCount_one: '{{count}} geändertes Feld',
     changedFieldsCount_other: '{{count}} geänderte Felder',
     compareVersion: 'Vergleiche Version zu:',

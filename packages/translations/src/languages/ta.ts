@@ -575,7 +575,7 @@ export const taTranslations: DefaultTranslationsObject = {
     autosave: 'தானியங்க சேமிப்பு',
     autosavedSuccessfully: 'தானியங்க சேமிப்பு வெற்றிகரமாக முடிந்தது.',
     autosavedVersion: 'தானியங்க சேமிக்கப்பட்ட பதிப்பு',
-    changed: 'மாற்றப்பட்டது',
+    changed: 'வெளியிடப்பட்டது · திருத்தப்பட்டது',
     changedFieldsCount_one: '{{count}} புலம் மாற்றப்பட்டது',
     changedFieldsCount_other: '{{count}} புலங்கள் மாற்றப்பட்டன',
     compareVersion: 'பதிப்பை ஒப்பிடவும்:',

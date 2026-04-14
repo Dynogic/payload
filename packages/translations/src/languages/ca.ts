@@ -577,7 +577,7 @@ export const caTranslations: DefaultTranslationsObject = {
     autosave: 'Desa automàticament',
     autosavedSuccessfully: 'Desat automàticament amb èxit.',
     autosavedVersion: 'Versió desada automàticament',
-    changed: 'Canviat',
+    changed: 'Publicat · Editat',
     changedFieldsCount_one: '{{count}} camp canviat',
     changedFieldsCount_other: '{{count}} camps modificats',
     compareVersion: 'Comparar versió amb:',

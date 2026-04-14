@@ -570,7 +570,7 @@ export const isTranslations: DefaultTranslationsObject = {
     autosave: 'Sjálfvirk vistun',
     autosavedSuccessfully: 'Sjálfvirk vistun tókst.',
     autosavedVersion: 'Sjálfvirk vistuð útgáfa',
-    changed: 'Breytt',
+    changed: 'Birt · Breytt',
     changedFieldsCount_one: '{{count}} breytt svæði',
     changedFieldsCount_other: '{{count}} breytt svæði',
     compareVersion: 'Bera útgáfu saman við:',

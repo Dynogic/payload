@@ -577,7 +577,7 @@ export const ltTranslations: DefaultTranslationsObject = {
     autosave: 'Automatinis išsaugojimas',
     autosavedSuccessfully: 'Sėkmingai automatiškai išsaugota.',
     autosavedVersion: 'Automatiškai išsaugota versija',
-    changed: 'Pakeistas',
+    changed: 'Paskelbta · Redaguota',
     changedFieldsCount_one: '{{count}} pakeistas laukas',
     changedFieldsCount_other: '{{count}} pakeisti laukai',
     compareVersion: 'Palyginkite versiją su:',

@@ -575,7 +575,7 @@ export const nbTranslations: DefaultTranslationsObject = {
     autosave: 'Lagre automatisk',
     autosavedSuccessfully: 'Lagret automatisk.',
     autosavedVersion: 'Automatisk lagret versjon',
-    changed: 'Endret',
+    changed: 'Publisert · Redigert',
     changedFieldsCount_one: '{{count}} endret felt',
     changedFieldsCount_other: '{{count}} endrede felt',
     compareVersion: 'Sammenlign versjon mot:',

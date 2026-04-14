@@ -55,6 +55,11 @@ export type { DefaultCellComponentProps, DefaultServerCellComponentProps } from 
 export type { ConditionalDateProps } from './elements/DatePicker.js'
 export type { DayPickerProps, SharedProps, TimePickerProps } from './elements/DatePicker.js'
 export type {
+  DeleteButtonClientProps,
+  DeleteButtonServerProps,
+  DeleteButtonServerPropsOnly,
+} from './elements/DeleteButton.js'
+export type {
   EditMenuItemsClientProps,
   EditMenuItemsServerProps,
   EditMenuItemsServerPropsOnly,
@@ -80,6 +85,7 @@ export type {
   SaveDraftButtonServerProps,
   SaveDraftButtonServerPropsOnly,
 } from './elements/SaveDraftButton.js'
+
 export type { CustomStatus } from './elements/Status.js'
 
 export type { Column } from './elements/Table.js'
@@ -568,6 +574,7 @@ export type FieldRow = {
 
 export type DocumentSlots = {
   BeforeDocumentControls?: React.ReactNode
+  DeleteButton?: React.ReactNode
   Description?: React.ReactNode
   EditMenuItems?: React.ReactNode
   LivePreview?: React.ReactNode

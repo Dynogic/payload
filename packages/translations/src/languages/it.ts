@@ -579,7 +579,7 @@ export const itTranslations: DefaultTranslationsObject = {
     autosave: 'Salvataggio automatico',
     autosavedSuccessfully: 'Salvataggio automatico riuscito.',
     autosavedVersion: 'Versione salvata automaticamente',
-    changed: 'Modificato',
+    changed: 'Pubblicato · Modificato',
     changedFieldsCount_one: '{{count}} campo modificato',
     changedFieldsCount_other: '{{count}} campi modificati',
     compareVersion: 'Confronta versione con:',

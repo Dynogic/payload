@@ -575,7 +575,7 @@ export const ptTranslations: DefaultTranslationsObject = {
     autosave: 'Salvamento automático',
     autosavedSuccessfully: 'Salvamento automático com sucesso.',
     autosavedVersion: 'Versão de salvamento automático',
-    changed: 'Alterado',
+    changed: 'Publicado · Editado',
     changedFieldsCount_one: '{{count}} campo alterado',
     changedFieldsCount_other: '{{count}} campos alterados',
     compareVersion: 'Comparar versão com:',

@@ -574,7 +574,7 @@ export const enTranslations = {
     autosave: 'Autosave',
     autosavedSuccessfully: 'Autosaved successfully.',
     autosavedVersion: 'Autosaved version',
-    changed: 'Changed',
+    changed: 'Published · Edited',
     changedFieldsCount_one: '{{count}} changed field',
     changedFieldsCount_other: '{{count}} changed fields',
     compareVersion: 'Compare version against:',

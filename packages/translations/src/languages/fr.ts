@@ -589,7 +589,7 @@ export const frTranslations: DefaultTranslationsObject = {
     autosave: 'Enregistrement automatique',
     autosavedSuccessfully: 'Enregistrement automatique réussi.',
     autosavedVersion: 'Version enregistrée automatiquement',
-    changed: 'Modifié',
+    changed: 'Publié · Modifié',
     changedFieldsCount_one: '{{count}} champ modifié',
     changedFieldsCount_other: '{{count}} champs modifiés',
     compareVersion: 'Comparez cette version à :',
