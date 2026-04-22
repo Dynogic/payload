@@ -8,11 +8,12 @@ import './index.scss'
 const baseClass = 'group-by-header'
 
 export const GroupByHeader: React.FC<{
+  BulkDelete?: React.ReactNode
   collectionConfig?: ClientCollectionConfig
   groupByFieldPath: string
   groupByValue: string
   heading: string
-}> = ({ collectionConfig, groupByFieldPath, groupByValue, heading }) => {
+}> = ({ BulkDelete, collectionConfig, groupByFieldPath, groupByValue, heading }) => {
   return (
     <header className={baseClass}>
       <h4 className={`${baseClass}__heading`} data-group-id={groupByValue}>
@@ -20,6 +21,7 @@ export const GroupByHeader: React.FC<{
       </h4>
       <ListSelection
         collectionConfig={collectionConfig}
+        CustomBulkDelete={BulkDelete}
         label={heading}
         modalPrefix={groupByValue}
         where={{

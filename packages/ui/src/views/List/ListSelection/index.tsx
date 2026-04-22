@@ -15,6 +15,7 @@ import { EditMany_v4 } from '../../../elements/EditMany/index.js'
 import { MoveItemsToFolderDrawer } from '../../../elements/FolderView/Drawers/MoveToFolder/index.js'
 import { ListSelection_v4, ListSelectionButton } from '../../../elements/ListSelection/index.js'
 import { PublishMany_v4 } from '../../../elements/PublishMany/index.js'
+import { RenderCustomComponent } from '../../../elements/RenderCustomComponent/index.js'
 import { RestoreMany } from '../../../elements/RestoreMany/index.js'
 import { Translation } from '../../../elements/Translation/index.js'
 import { UnpublishMany_v4 } from '../../../elements/UnpublishMany/index.js'
@@ -29,6 +30,7 @@ const assignFolderConfirmModalSlug = 'assign-folder-confirm--list'
 
 export type ListSelectionProps = {
   collectionConfig?: ClientCollectionConfig
+  CustomBulkDelete?: React.ReactNode
   disableBulkDelete?: boolean
   disableBulkEdit?: boolean
   label: string
@@ -40,6 +42,7 @@ export type ListSelectionProps = {
 
 export const ListSelection: React.FC<ListSelectionProps> = ({
   collectionConfig,
+  CustomBulkDelete,
   disableBulkDelete,
   disableBulkEdit,
   label,
@@ -290,11 +293,16 @@ export const ListSelection: React.FC<ListSelectionProps> = ({
           <RestoreMany collection={collectionConfig} key="bulk-restore" viewType={viewType} />
         ),
         !disableBulkDelete && (
-          <DeleteMany
-            collection={collectionConfig}
+          <RenderCustomComponent
+            CustomComponent={CustomBulkDelete}
+            Fallback={
+              <DeleteMany
+                collection={collectionConfig}
+                modalPrefix={modalPrefix}
+                viewType={viewType}
+              />
+            }
             key="bulk-delete"
-            modalPrefix={modalPrefix}
-            viewType={viewType}
           />
         ),
       ].filter(Boolean)}

@@ -51,6 +51,11 @@ export type {
    */
   CustomComponent as CustomSaveDraftButton,
 } from '../config/types.js'
+export type {
+  BulkDeleteClientProps,
+  BulkDeleteServerProps,
+  BulkDeleteServerPropsOnly,
+} from './elements/BulkDelete.js'
 export type { DefaultCellComponentProps, DefaultServerCellComponentProps } from './elements/Cell.js'
 export type { ConditionalDateProps } from './elements/DatePicker.js'
 export type { DayPickerProps, SharedProps, TimePickerProps } from './elements/DatePicker.js'

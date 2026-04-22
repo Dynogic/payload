@@ -87,6 +87,34 @@ Applied across all 44 language files in `packages/translations/src/languages/`, 
 
 The pill container is content-sized (`padding: 2px 6px`, no `max-width`) so the longer label fits without layout changes.
 
+### 49. `BulkDelete` Slot on `admin.components.views.list`
+
+**Files:** `packages/payload/src/admin/elements/BulkDelete.ts` (new), `packages/payload/src/admin/types.ts`, `packages/payload/src/collections/config/types.ts`, `packages/payload/src/admin/views/list.ts`, `packages/payload/src/bin/generateImportMap/iterateCollections.ts`, `packages/next/src/views/List/renderListViewSlots.tsx`, `packages/ui/src/views/List/index.tsx`, `packages/ui/src/views/List/ListSelection/index.tsx`, `packages/ui/src/views/List/ListHeader/index.tsx`, `packages/ui/src/views/List/GroupByHeader/index.tsx`
+
+The list-view companion to change #48. Previously the bulk-delete action on the list selection bar was hardcoded to the native `<DeleteMany>` component — projects wanting collection-specific confirmation copy (e.g. "deleting these offers will remove customer access to the bundled products") had no replacement point.
+
+Added a `BulkDelete` slot under the existing `views.list` namespace (sibling of `titleActions` from change #30):
+
+```ts
+admin: {
+  components: {
+    views: {
+      list: {
+        BulkDelete: '@/components/admin/bulk-delete-with-confirm.client',
+      },
+    },
+  },
+}
+```
+
+Wired through the same way as the edit-view `DeleteButton` slot (change #48): server resolves the custom component in `renderListViewSlots.tsx`, `ListViewSlots` type carries it, `DefaultListView` destructures it and threads to `<CollectionListHeader>` (in the default list view) and `<ListSelection>` (in the PageControls area for small screens). `CollectionListHeader` threads it to its own `<ListSelection>`, and `GroupByHeader` accepts it for groupBy-enabled collections. `ListSelection` wraps the default `<DeleteMany>` render in `<RenderCustomComponent CustomComponent={CustomBulkDelete} Fallback={<DeleteMany />} />`.
+
+Scope: **collection-only**, not globals (singletons don't have a list view).
+
+No default strings baked in — the slot is a pure abstraction point. The consuming project's custom component owns the dialog copy and confirmation flow. Since Payload's own `<DeleteMany>` already uses the public `ConfirmationModal` from `@payloadcms/ui`, a well-behaved custom component can reuse the same modal primitive and just swap the body text — matches admin chrome automatically.
+
+---
+
 ### 48. `DeleteButton` Slot on `admin.components.edit`
 
 **Files:** `packages/payload/src/admin/elements/DeleteButton.ts` (new), `packages/payload/src/admin/types.ts`, `packages/payload/src/collections/config/types.ts`, `packages/next/src/views/Document/renderDocumentSlots.tsx`, `packages/ui/src/elements/DocumentControls/index.tsx`, `packages/ui/src/views/Edit/index.tsx`
@@ -628,5 +656,5 @@ Changes:
 | Category      | Count |
 | ------------- | ----- |
 | Bug Fixes     | 11    |
-| Features      | 30    |
+| Features      | 31    |
 | Documentation | 1     |

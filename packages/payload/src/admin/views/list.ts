@@ -15,6 +15,7 @@ export type ListViewSlots = {
   AfterListTable?: React.ReactNode
   BeforeList?: React.ReactNode
   BeforeListTable?: React.ReactNode
+  BulkDelete?: React.ReactNode
   Description?: React.ReactNode
   listMenuItems?: React.ReactNode[]
   Table: React.ReactNode | React.ReactNode[]

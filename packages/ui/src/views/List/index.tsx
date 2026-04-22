@@ -40,6 +40,7 @@ export function DefaultListView(props: ListViewClientProps) {
     beforeActions,
     BeforeList,
     BeforeListTable,
+    BulkDelete,
     collectionSlug,
     columnState,
     Description,
@@ -162,6 +163,7 @@ export function DefaultListView(props: ListViewClientProps) {
             {BeforeList}
             <Gutter className={`${baseClass}__wrap`}>
               <CollectionListHeader
+                BulkDelete={BulkDelete}
                 collectionConfig={collectionConfig}
                 Description={
                   Description || collectionConfig?.admin?.description ? (
@@ -250,6 +252,7 @@ export function DefaultListView(props: ListViewClientProps) {
                       <div className={`${baseClass}__list-selection`}>
                         <ListSelection
                           collectionConfig={collectionConfig}
+                          CustomBulkDelete={BulkDelete}
                           disableBulkDelete={disableBulkDelete}
                           disableBulkEdit={disableBulkEdit}
                           label={getTranslation(collectionConfig.labels.plural, i18n)}

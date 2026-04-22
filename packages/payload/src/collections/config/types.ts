@@ -461,6 +461,14 @@ export type CollectionAdminOptions = {
        */
       list?: {
         actions?: CustomComponent[]
+        /**
+         * Replace the default `<DeleteMany>` bulk-delete action in the list
+         * selection bar. Useful for collections that need custom confirmation
+         * copy or additional safety gates (e.g. "this will permanently remove
+         * customer access to purchased content").
+         * @link https://payloadcms.com/docs/custom-components/list-view
+         */
+        BulkDelete?: CustomComponent
         Component?: PayloadComponent
         titleActions?: CustomComponent[]
       }
