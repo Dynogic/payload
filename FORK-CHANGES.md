@@ -651,10 +651,49 @@ Changes:
 
 ---
 
+### 46. `payload.validate()` — Dry-Run Field Validation Without Database Writes
+
+**Files:** `packages/payload/src/collections/operations/validate.ts` (new), `packages/payload/src/collections/operations/local/validate.ts` (new), `packages/payload/src/index.ts`
+
+New local-API method `payload.validate({ collection, id, data, operation, user, overrideAccess })` that runs field-level validation for a hypothetical create/update **without touching the database, opening a transaction, or invoking hooks with side effects**. Throws `ValidationError` (already exported from `payload`) on field validation failure; resolves to void on success.
+
+Composes the existing internal `beforeChange` field-validation function (`packages/payload/src/fields/hooks/beforeChange/index.ts`) — the same step the real `update` operation runs prior to writing — but exposed as a standalone public operation that has no write code path.
+
+**Use case:** pre-flight cascade publishes. Before kicking off a multi-doc publish loop, ask each draft "would publishing you pass required-field validation?" without actually attempting (and partially completing) the publish. Avoids the partial-state mess of "5 of 8 published, 3 failed mid-loop and stayed draft" when one of the children has missing required fields.
+
+```ts
+import { ValidationError } from 'payload'
+
+try {
+  await payload.validate({
+    collection: 'products',
+    id: productId,
+    data: { _status: 'published' },
+    overrideAccess: false,
+    user,
+  })
+  // would publish cleanly
+} catch (err) {
+  if (err instanceof ValidationError) {
+    // err.data.errors is [{ path, message, label? }, ...]
+  }
+}
+```
+
+Signature mirrors `payload.update({ id, ... })` minus everything write-related. Defaults: `operation: 'update'`, `overrideAccess: false`.
+
+**Notes / scope:**
+
+- Runs **only field-level** `beforeChange` validation (where required-field checks and per-field validators live). Collection-level `beforeValidate` / `beforeChange` hooks are intentionally skipped — they may have side effects unsafe in a dry run. Document this constraint at the call site if hook-based validation is critical.
+- The existing doc is fetched with `overrideAccess: true` so callers can validate even without read perms; access control on the validate call itself is enforced via `overrideAccess` passed through to `beforeChange` (mirroring `update`).
+- Pure CPU after the single `findByID` read. No transaction begin/commit/rollback overhead.
+
+---
+
 ## Summary
 
 | Category      | Count |
 | ------------- | ----- |
 | Bug Fixes     | 11    |
-| Features      | 31    |
+| Features      | 32    |
 | Documentation | 1     |
