@@ -141,6 +141,32 @@ No default strings baked in — the slot is a pure abstraction point. The consum
 
 ---
 
+### 50. `SetStepNav` Stale on Browser Back/Forward Navigation
+
+**File:** `packages/ui/src/elements/StepNav/SetStepNav.tsx`
+
+`SetStepNav` is the side-effect component that pushes a breadcrumb trail into the admin's `StepNavProvider` context. It uses `useEffect` to call `setStepNav(nav)`, with `[setStepNav, nav]` as the dependency array.
+
+**Bug:** On browser back/forward navigation, the trail can render empty (or stuck on the previously visited page's breadcrumbs). Reproduces reliably on custom views: navigate forward via a breadcrumb link, then hit browser back — the destination page's breadcrumbs disappear even though `<SetStepNav nav={[...]}>` is rendered in its tree.
+
+**Cause:** Next.js App Router restores cached RSC payloads on back/forward navigation. When React reconciles the restored tree, it may preserve the `SetStepNav` component instance (same JSX position, same nav reference identity from the server-rendered payload) — so `useEffect` doesn't consider the deps changed and doesn't re-fire. The context state still holds whatever the LAST page wrote (often empty for native list views that don't render `SetStepNav` at all).
+
+**Fix:** Add `usePathname()` from `next/navigation` as an additional `useEffect` dependency. Pathname changes on every navigation, including back/forward, forcing the effect to re-fire and re-register the trail.
+
+```tsx
+const pathname = usePathname()
+
+useEffect(() => {
+  setStepNav(nav)
+}, [setStepNav, nav, pathname])
+```
+
+Why `usePathname` is safe to add: `next/navigation` is already a peer dep of `@payloadcms/ui` (used by `providers/SearchParams`, `providers/RouteTransition`, `providers/Params`). The hook returns the current pathname client-side and updates on every soft navigation. No runtime change for forward navigation; only side effect is the effect re-firing on previously-broken back/forward transitions.
+
+Affects every admin view that registers breadcrumbs via `<SetStepNav>` — including all custom views in consuming projects.
+
+---
+
 ## Features
 
 ### 8. Hash-Based Tab Navigation
