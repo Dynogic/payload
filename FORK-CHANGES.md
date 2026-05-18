@@ -141,6 +141,42 @@ No default strings baked in — the slot is a pure abstraction point. The consum
 
 ---
 
+### 51. Array Field — Disable (Not Hide) Add-Row Button in Read-only Mode
+
+**File:** `packages/ui/src/fields/Array/index.tsx`
+
+The `Array` field hid the "+ Add Row" button entirely when `readOnly === true` (`{!hasMaxRows && !readOnly && !hideAddButton && <Button>...}`). That contradicted the `Blocks` field's behavior, which renders the same affordance with `disabled={readOnly || disabled}` so the button stays in place but is inert.
+
+**Bug:** Inconsistent UX between the two fields. Read-only viewers of an Array see the whole Add-Row slot disappear (creating a visible empty gap below the field description), while read-only viewers of a Blocks field see a disabled "+ Add Block" button. Consuming projects ended up shipping sibling `type: 'ui'` placeholders just to fill the gap left by the hidden Array button.
+
+**Fix:** Drop the `!readOnly` term from the JSX guard and pass `disabled={readOnly || disabled}` to the `Button` (mirroring the Blocks pattern). Also early-return from the `onClick` handler when `readOnly || disabled` is truthy — belt-and-braces guard so even if a custom button style somehow remains clickable, no row is appended.
+
+```tsx
+// Before
+{!hasMaxRows && !readOnly && !hideAddButton && (
+  <Button disabled={disabled} onClick={() => { void addRow(value || 0) }}>
+    {t('fields:addLabel', ...)}
+  </Button>
+)}
+
+// After
+{!hasMaxRows && !hideAddButton && (
+  <Button
+    disabled={readOnly || disabled}
+    onClick={() => {
+      if (readOnly || disabled) return
+      void addRow(value || 0)
+    }}
+  >
+    {t('fields:addLabel', ...)}
+  </Button>
+)}
+```
+
+Cross-field consistency with `Blocks` is the goal — both fields now follow the same "disable, don't hide" pattern for the add-row affordance. No new props, no schema change, no migration; consuming projects that previously rendered workaround placeholders alongside arrays can drop them.
+
+---
+
 ### 50. `SetStepNav` Stale on Browser Back/Forward Navigation
 
 **File:** `packages/ui/src/elements/StepNav/SetStepNav.tsx`
@@ -720,6 +756,6 @@ Signature mirrors `payload.update({ id, ... })` minus everything write-related. 
 
 | Category      | Count |
 | ------------- | ----- |
-| Bug Fixes     | 11    |
+| Bug Fixes     | 12    |
 | Features      | 32    |
 | Documentation | 1     |
