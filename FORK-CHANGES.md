@@ -752,10 +752,42 @@ Signature mirrors `payload.update({ id, ... })` minus everything write-related. 
 
 ---
 
+### 52. Skip `initI18n` Memoization in Development for Hot-Reload
+
+**File:** `packages/translations/src/utilities/init.ts`
+
+`initI18n` is wrapped in `memoize(impl, ['language', 'context'])` so the merged-translations + dateFNS init runs once per `(language, context)` pair and the result is cached forever in module scope. In production this is desirable — translations don't change at runtime.
+
+In development this defeats hot-reload of project-side locale edits: even if the consumer rebuilds `config.translations` from fresh-on-disk JSON, `initI18n` returns the first-ever cached `I18n` (with its captured `t` closure over the stale `mergedTranslations`) and the new strings never reach Payload admin without a full Next.js restart.
+
+Fix: short-circuit `memoize` to return `fn` directly when `process.env.NODE_ENV === 'development'`. Dev hits the impl on every call — fresh merge from `config.translations[language]` each request, so JSON edits flow through with just a browser refresh. Prod behavior unchanged (cache map populated as before).
+
+Required for projects that build `config.translations[language]` lazily (e.g., via a Proxy that re-reads JSON from disk in dev). Without this patch the lazy build is wasted — the memoize layer caches the very first result.
+
+---
+
+### 53. Defer `config.i18n.translations` Editor Merge in Development
+
+**Files:** `packages/translations/src/utilities/mergeForDevHotReload.ts` (new), `packages/translations/src/exports/utilities.ts`, `packages/payload/src/config/sanitize.ts`, `packages/payload/src/fields/config/sanitize.ts`, `packages/payload/src/index.ts`, `packages/payload/src/exports/shared.ts`, `packages/richtext-lexical/src/index.ts`
+
+Sibling of #52. Multiple places in Payload's setup pipeline eagerly merge their own i18n contributions into the project-supplied `config.i18n.translations`:
+
+1. Root sanitize, editor-level — `packages/payload/src/config/sanitize.ts`
+2. Per-field sanitize, field-level editor — `packages/payload/src/fields/config/sanitize.ts`
+3. Lexical feature i18n — `packages/richtext-lexical/src/index.ts`
+
+Each used `deepMergeSimple(config.i18n.translations, X)` which **walks the project's Proxy-backed translations and writes back a plain-object snapshot**. For a project that supplies a Proxy-backed translations object (so each `[lang]` access re-reads fresh JSON from disk in dev), this defeats change #52 — the next `initI18n` call reads the snapshot and project-side strings freeze until restart.
+
+Fix: introduce `mergeForDevHotReload(original, additional)` in `@payloadcms/translations/utilities`. In dev it returns a Proxy that defers `deepMergeSimple` to per-`[lang]` access, preserving the chain of Proxies all the way back to the project's reactive translations. In prod it falls through to eager `deepMergeSimple` — identical behavior, no overhead. Replace all three call sites above. The chain composes safely: each layer wraps the previous, per-`[lang]` access cascades through every wrapper back to the original Proxy.
+
+Required for the same use case as #52: projects with Proxy-backed translations need all of these patches to fully hot-reload locale JSON without server restart.
+
+---
+
 ## Summary
 
 | Category      | Count |
 | ------------- | ----- |
-| Bug Fixes     | 12    |
-| Features      | 32    |
+| Bug Fixes     | 14    |
+| Features      | 33    |
 | Documentation | 1     |

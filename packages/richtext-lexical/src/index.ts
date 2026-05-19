@@ -8,7 +8,7 @@ import {
   beforeChangeTraverseFields,
   beforeValidateTraverseFields,
   checkDependencies,
-  deepMergeSimple,
+  mergeForDevHotReload,
   type RichTextAdapter,
   withNullableJSONSchemaType,
 } from 'payload'
@@ -94,7 +94,9 @@ export function lexicalEditor(args?: LexicalEditorProps): LexicalRichTextAdapter
       lexicalI18nForLang.general = i18n[lang] ?? {}
     }
 
-    config.i18n.translations = deepMergeSimple(config.i18n.translations, featureI18n)
+    // Use Proxy-preserving merge so dev hot-reload survives lexical's i18n
+    // contribution. See FORK-CHANGES.md #54.
+    config.i18n.translations = mergeForDevHotReload(config.i18n.translations, featureI18n)
 
     return {
       CellComponent: '@payloadcms/richtext-lexical/rsc#RscEntryLexicalCell',

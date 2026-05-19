@@ -155,4 +155,4 @@ export { wait } from '../utilities/wait.js'
 export { wordBoundariesRegex } from '../utilities/wordBoundariesRegex.js'
 export { versionDefaults } from '../versions/defaults.js'
 
-export { deepMergeSimple } from '@payloadcms/translations/utilities'
+export { deepMergeSimple, mergeForDevHotReload } from '@payloadcms/translations/utilities'

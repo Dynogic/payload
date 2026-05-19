@@ -1,7 +1,7 @@
 import type { AcceptedLanguages } from '@payloadcms/translations'
 
 import { en } from '@payloadcms/translations/languages/en'
-import { deepMergeSimple } from '@payloadcms/translations/utilities'
+import { deepMergeSimple, mergeForDevHotReload } from '@payloadcms/translations/utilities'
 
 import type { CollectionSlug, GlobalSlug, SanitizedCollectionConfig } from '../index.js'
 import type { SanitizedJobsConfig } from '../queues/config/types/index.js'
@@ -474,7 +474,13 @@ export const sanitizeConfig = async (incomingConfig: Config): Promise<SanitizedC
       parentIsLocalized: false,
     })
     if (config.editor.i18n && Object.keys(config.editor.i18n).length >= 0) {
-      config.i18n.translations = deepMergeSimple(config.i18n.translations, config.editor.i18n)
+      // Use `mergeForDevHotReload` (not raw `deepMergeSimple`) so projects with
+      // a Proxy-backed `config.i18n.translations` retain Proxy semantics past
+      // sanitization. See FORK-CHANGES.md #53.
+      config.i18n.translations = mergeForDevHotReload(
+        config.i18n.translations as Record<string, any>,
+        config.editor.i18n as Record<string, any>,
+      )
     }
   }
 
