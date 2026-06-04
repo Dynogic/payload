@@ -8,6 +8,9 @@ import { fileURLToPath } from 'url'
 import type { PayloadTestSDK } from '../__helpers/shared/sdk/index.js'
 import type { Config } from './payload-types.js'
 
+import { loginClientSide } from '../__helpers/e2e/auth/login.js'
+import { openRelationshipFieldDrawer } from '../__helpers/e2e/fields/relationship/openRelationshipFieldDrawer.js'
+import { goToListDoc } from '../__helpers/e2e/goToListDoc.js'
 import {
   changeLocale,
   ensureCompilationIsDone,
@@ -15,10 +18,6 @@ import {
   saveDocAndAssert,
   waitForFormReady,
 } from '../__helpers/e2e/helpers.js'
-import { AdminUrlUtil } from '../__helpers/shared/adminUrlUtil.js'
-import { loginClientSide } from '../__helpers/e2e/auth/login.js'
-import { openRelationshipFieldDrawer } from '../__helpers/e2e/fields/relationship/openRelationshipFieldDrawer.js'
-import { goToListDoc } from '../__helpers/e2e/goToListDoc.js'
 import {
   clearSelectInput,
   getSelectInputOptions,
@@ -26,11 +25,19 @@ import {
   selectInput,
 } from '../__helpers/e2e/selectInput.js'
 import { closeNav, openNav } from '../__helpers/e2e/toggleNav.js'
-import { initPayloadE2ENoConfig } from '../__helpers/shared/initPayloadE2ENoConfig.js'
+import { AdminUrlUtil } from '../__helpers/shared/adminUrlUtil.js'
 import { reInitializeDB } from '../__helpers/shared/clearAndSeed/reInitializeDB.js'
+import { initPayloadE2ENoConfig } from '../__helpers/shared/initPayloadE2ENoConfig.js'
 import { TEST_TIMEOUT_LONG } from '../playwright.config.js'
 import { credentials } from './credentials.js'
-import { autosaveGlobalSlug, menuItemsSlug, menuSlug, tenantsSlug, usersSlug } from './shared.js'
+import {
+  autosaveGlobalSlug,
+  mediaSlug,
+  menuItemsSlug,
+  menuSlug,
+  tenantsSlug,
+  usersSlug,
+} from './shared.js'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -40,6 +47,7 @@ test.describe('Multi Tenant', () => {
   let serverURL: string
   let globalMenuURL: AdminUrlUtil
   let autosaveGlobalURL: AdminUrlUtil
+  let mediaURL: AdminUrlUtil
   let menuItemsURL: AdminUrlUtil
   let usersURL: AdminUrlUtil
   let tenantsURL: AdminUrlUtil
@@ -53,6 +61,7 @@ test.describe('Multi Tenant', () => {
       await initPayloadE2ENoConfig<Config>({ dirname })
     serverURL = serverFromInit
     globalMenuURL = new AdminUrlUtil(serverURL, menuSlug)
+    mediaURL = new AdminUrlUtil(serverURL, mediaSlug)
     menuItemsURL = new AdminUrlUtil(serverURL, menuItemsSlug)
     usersURL = new AdminUrlUtil(serverURL, usersSlug)
     tenantsURL = new AdminUrlUtil(serverURL, tenantsSlug)
@@ -461,6 +470,64 @@ test.describe('Multi Tenant', () => {
     })
   })
 
+  test.describe('Bulk Upload', () => {
+    test('should render the tenant field inline in the Edit all drawer for bulk uploads', async () => {
+      await loginClientSide({
+        data: credentials.admin,
+        page,
+        serverURL,
+      })
+
+      await page.goto(mediaURL.list)
+      await clearTenantFilter({ page })
+
+      await page.locator('.list-header__title-actions button', { hasText: 'Bulk Upload' }).click()
+
+      await page
+        .locator('.dropzone input[type="file"]')
+        .setInputFiles([
+          path.resolve(dirname, '../uploads/image.png'),
+          path.resolve(dirname, '../uploads/test-image.png'),
+        ])
+
+      // The per-file form opens an AssignTenantFieldModal automatically; cancel it
+      // so we can drive the bulk-edit flow ourselves.
+      const perFileAssignModal = page
+        .locator('dialog#assign-tenant-field-modal')
+        .filter({ hasText: 'Assign' })
+      await expect(perFileAssignModal).toBeVisible()
+      await perFileAssignModal.locator('button', { hasText: 'Cancel' }).click()
+      await expect(perFileAssignModal).toBeHidden()
+
+      // Open the bulk-upload "Edit all" drawer and pick the Site (tenant) field.
+      await page.locator('.edit-many-bulk-uploads__toggle').click()
+      const editManyDrawer = page.locator('dialog#edit-media-bulk-uploads')
+      await expect(editManyDrawer).toBeVisible()
+
+      await selectInput({
+        multiSelect: true,
+        options: ['Site'],
+        selectLocator: editManyDrawer.locator('.edit-many-bulk-uploads__form .react-select'),
+      })
+
+      // The Site field should render inline inside the bulk-edit drawer (like Alt does).
+      // The bug: TenantField doesn't recognize 'edit-${slug}-bulk-uploads' as an
+      // edit-many context, so it wraps itself in a non-interactive AssignTenantFieldModal.
+      const inlineTenantField = editManyDrawer.locator('.tenantField .field-type.relationship')
+      await expect(inlineTenantField).toBeVisible()
+
+      await selectInput({
+        multiSelect: false,
+        option: 'Blue Dog',
+        selectLocator: inlineTenantField,
+        selectType: 'relationship',
+      })
+      await expect(
+        inlineTenantField.locator('.relationship--single-value__text', { hasText: 'Blue Dog' }),
+      ).toBeVisible()
+    })
+  })
+
   test.describe('Globals', () => {
     test('should redirect list view to edit view', async () => {
       await loginClientSide({
@@ -703,6 +770,24 @@ test.describe('Multi Tenant', () => {
         .toEqual(['Blue Dog', 'Anchor Bar'].sort())
     })
 
+    test('should not throw forbidden error when user has no tenants assigned', async () => {
+      await loginClientSide({
+        data: credentials.noTenant,
+        page,
+        serverURL,
+      })
+
+      // Navigate to a page that triggers getTenantOptions - previously caused a
+      // "Runtime Forbidden" error because payload.find() was called with an empty
+      // userTenantIds array and overrideAccess: false
+      await page.goto(menuItemsURL.list)
+
+      // Ensure the Next.js runtime error overlay is not shown
+      await expect(page.locator('body')).not.toContainText(
+        'You are not allowed to perform this action.',
+      )
+    })
+
     test('should not show public tenants to users with assigned tenants', async () => {
       await loginClientSide({
         data: credentials.owner,
@@ -883,6 +968,50 @@ test.describe('Multi Tenant', () => {
           })
         })
         .toBeFalsy()
+    })
+
+    test('should only show tenants that user has read access to whether they are assigned to tenant or not', async () => {
+      // Login as user with Steel Cat (admin), Anchor Bar (admin), and Blue Dog (member)
+      await loginClientSide({
+        data: credentials.memberUser,
+        page,
+        serverURL,
+      })
+
+      await page.goto(tenantsURL.list)
+
+      // Should see: Steel Cat (admin role), Anchor Bar (admin role)
+      // Should NOT see: Blue Dog (member role - no read access)
+      await expect
+        .poll(async () => {
+          return (await getTenantOptions({ page })).sort()
+        })
+        .toEqual(['Anchor Bar', 'Steel Cat'].sort())
+    })
+
+    test('should populate tenant selector after standard form login with tree-restructuring provider', async () => {
+      // This test verifies the fix for a bug where TenantSelectionProviderClient
+      // loses state on remount. The ConditionalWrapperProvider (registered in the
+      // test config) changes its tree structure when the user authenticates
+      // (DummyContext.Provider → Fragment), causing React to remount the subtree.
+      // Without the fix, useState(initialTenantOptions) re-initializes with stale
+      // RSC props and useRef(userID) re-initializes to the current userID, so
+      // userChanged is false and syncTenants never fires.
+
+      // Use the "owner" user who has access to multiple tenants (Blue Dog + Anchor Bar).
+      // The tenant selector only renders when options.length > 1.
+      await loginClientSide({
+        data: credentials.owner,
+        page,
+        serverURL,
+      })
+
+      // After login, the tenant selector should be populated with the owner's tenants
+      await expect
+        .poll(async () => {
+          return (await getTenantOptions({ page })).sort()
+        })
+        .toEqual(['Anchor Bar', 'Blue Dog'].sort())
     })
   })
 })

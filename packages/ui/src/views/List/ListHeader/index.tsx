@@ -32,6 +32,7 @@ export type ListHeaderProps = {
   disableBulkEdit?: boolean
   hasCreatePermission: boolean
   hasDeletePermission?: boolean
+  hasTrashPermission?: boolean
   i18n: I18nClient
   isBulkUploadEnabled: boolean
   isTrashEnabled?: boolean
@@ -60,6 +61,7 @@ export const CollectionListHeader: React.FC<ListHeaderProps> = ({
   disableBulkEdit,
   hasCreatePermission,
   hasDeletePermission,
+  hasTrashPermission,
   i18n,
   isBulkUploadEnabled,
   isTrashEnabled,
@@ -115,6 +117,8 @@ export const CollectionListHeader: React.FC<ListHeaderProps> = ({
             CustomBulkDelete={BulkDelete}
             disableBulkDelete={disableBulkDelete}
             disableBulkEdit={disableBulkEdit}
+            hasDeletePermission={hasDeletePermission}
+            hasTrashPermission={hasTrashPermission}
             key="list-selection"
             label={getTranslation(collectionConfig?.labels?.plural, i18n)}
             showSelectAllAcrossPages={!isGroupingBy}

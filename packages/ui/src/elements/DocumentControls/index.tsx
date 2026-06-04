@@ -15,6 +15,7 @@ import type { DocumentDrawerContextType } from '../DocumentDrawer/Provider.js'
 
 import { useFormInitializing, useFormProcessing } from '../../forms/Form/context.js'
 import { useConfig } from '../../providers/Config/index.js'
+import { useDocumentInfo } from '../../providers/DocumentInfo/index.js'
 import { useEditDepth } from '../../providers/EditDepth/index.js'
 import { useLivePreviewContext } from '../../providers/LivePreview/context.js'
 import { useTranslation } from '../../providers/Translation/index.js'
@@ -133,6 +134,9 @@ export const DocumentControls: React.FC<{
 
   const { isLivePreviewEnabled } = useLivePreviewContext()
 
+  const { hasDeletePermission: docHasDeletePermission, hasTrashPermission: docHasTrashPermission } =
+    useDocumentInfo()
+
   const {
     localization,
     routes: { admin: adminRoute },
@@ -143,21 +147,26 @@ export const DocumentControls: React.FC<{
 
   const hasCreatePermission = permissions && 'create' in permissions && permissions.create
 
-  const hasDeletePermission = permissions && 'delete' in permissions && permissions.delete
+  const collectionDeletePermission = permissions && 'delete' in permissions && permissions.delete
 
-  const showDotMenu = Boolean(
-    collectionConfig &&
-      id &&
-      !disableActions &&
-      !isCreateDrawer &&
-      (hasCreatePermission || hasDeletePermission),
-  )
+  const hasDeletePermission = collectionConfig?.trash
+    ? docHasTrashPermission || docHasDeletePermission
+    : collectionDeletePermission
 
   const unsavedDraftWithValidations =
     !id && collectionConfig?.versions?.drafts && collectionConfig.versions?.drafts.validate
 
   const globalHasDraftsEnabled = hasDraftsEnabled(globalConfig)
   const collectionHasDraftsEnabled = hasDraftsEnabled(collectionConfig)
+
+  const showDotMenu = Boolean(
+    !disableActions &&
+      // Fork change #45: hide the dot menu in create drawers (no Create New / Duplicate / Delete
+      // for a document being created inline).
+      !isCreateDrawer &&
+      ((collectionConfig && id && (hasCreatePermission || hasDeletePermission)) ||
+        (globalConfig && (globalHasDraftsEnabled || localization))),
+  )
   const collectionAutosaveEnabled = hasAutosaveEnabled(collectionConfig)
   const globalAutosaveEnabled = hasAutosaveEnabled(globalConfig)
   const autosaveEnabled = collectionAutosaveEnabled || globalAutosaveEnabled
@@ -273,7 +282,7 @@ export const DocumentControls: React.FC<{
                 )}
               </Fragment>
             )}
-            {hasDeletePermission && isTrashed && (
+            {docHasDeletePermission && isTrashed && (
               <PermanentlyDeleteButton
                 buttonId="action-permanently-delete"
                 collectionSlug={collectionConfig?.slug}

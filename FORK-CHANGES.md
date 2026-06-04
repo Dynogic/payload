@@ -1,5 +1,9 @@
 # Fork Changes
 
+## Upstream sync log
+
+- **2026-06-04 — synced to upstream `v3.85.0`** (from `v3.76.1`, 378 upstream commits). Merged the `v3.85.0` tag into `app-v3.85.0`. 56 conflicts resolved: 45 i18n files (kept the fork's deliberate string overrides — media wording #31, `Published · Edited` #47, progress-`%` #14, folder-assign keys #20, `saveAndAdd` #45 — while taking upstream's new keys and re-translations), 11 code files hand-merged against their fork-change entries. **Change #2 (Folder View create-button swap) was dropped — upstream independently fixed the same mislabel bug, so the fork's version is obsolete.** Build green (45/45, incl. type-check). New fork releases on this line are versioned `v3.85.0.x`.
+
 ## Bug Fixes
 
 ### 1. Tab ID State Key Fix
@@ -8,11 +12,13 @@
 
 Fixed tab condition state tracking for nested tabs. Previously used just `field.id`, now uses `parentPath.field.id` for array items. This fixes tabs inside arrays not properly tracking their condition state.
 
-### 2. Folder View "Create" Buttons Swapped
+### 2. Folder View "Create" Buttons Swapped — DROPPED (absorbed upstream in v3.85.0)
 
 **File:** `packages/ui/src/views/CollectionFolder/index.tsx`
 
 The "Create Document" and "Create Folder" buttons were swapped/mislabeled in the empty folder state. Fixed so correct labels match correct actions.
+
+**Status:** Obsolete as of the v3.85.0 sync — upstream independently fixed the same mislabel (its folder/document buttons are correctly paired and styled). The fork's override was dropped and upstream's version taken wholesale; nothing fork-specific remained in this file.
 
 ### 3. Strikethrough Markdown Not Working
 

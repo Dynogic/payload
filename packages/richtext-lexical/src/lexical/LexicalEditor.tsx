@@ -21,6 +21,7 @@ import { DraggableBlockPlugin } from './plugins/handles/DraggableBlockPlugin/ind
 import { InsertParagraphAtEndPlugin } from './plugins/InsertParagraphAtEnd/index.js'
 import { MarkdownPastePlugin } from './plugins/MarkdownPaste/index.js'
 import { MarkdownShortcutPlugin } from './plugins/MarkdownShortcut/index.js'
+import { NodeViewOverridePlugin } from './plugins/NodeViewOverridePlugin/index.js'
 import { NormalizeSelectionPlugin } from './plugins/NormalizeSelection/index.js'
 import { SelectAllPlugin } from './plugins/SelectAllPlugin/index.js'
 import { SlashMenuPlugin } from './plugins/SlashMenu/index.js'
@@ -31,9 +32,9 @@ export const LexicalEditor: React.FC<
   {
     editorContainerRef: React.RefObject<HTMLDivElement | null>
     isSmallWidthViewport: boolean
-  } & Pick<LexicalProviderProps, 'editorConfig' | 'onChange'>
+  } & Pick<LexicalProviderProps, 'editorConfig' | 'onChange' | 'rtl'>
 > = (props) => {
-  const { editorConfig, editorContainerRef, isSmallWidthViewport, onChange } = props
+  const { editorConfig, editorContainerRef, isSmallWidthViewport, onChange, rtl } = props
   const editorConfigContext = useEditorConfigContext()
   const [editor] = useLexicalComposerContext()
   const isEditable = useLexicalEditable()
@@ -94,7 +95,7 @@ export const LexicalEditor: React.FC<
           return <EditorPlugin clientProps={plugin.clientProps} key={plugin.key} plugin={plugin} />
         }
       })}
-      <div className="editor-container" ref={editorContainerRef}>
+      <div className="editor-container" dir={rtl ? 'rtl' : undefined} ref={editorContainerRef}>
         {editorConfig.features.plugins?.map((plugin) => {
           if (plugin.position === 'top') {
             return (
@@ -118,6 +119,7 @@ export const LexicalEditor: React.FC<
         <ClipboardPlugin />
         <TextPlugin features={editorConfig.features} />
         <SelectAllPlugin />
+        <NodeViewOverridePlugin />
         {isEditable && (
           <OnChangePlugin
             // Selection changes can be ignored here, reducing the

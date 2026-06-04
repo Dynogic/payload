@@ -70,7 +70,7 @@ await beforeTest()
 
 const { rootDir, adminRoute } = getNextRootDir(testSuiteArg)
 
-await runInit(testSuiteArg, true)
+await runInit(testSuiteArg, true, false, testSuiteConfigOverride)
 
 // This is needed to forward the environment variables to the next process that were created after loadEnv()
 // for example process.env.DATABASE_URL otherwise app.prepare() will clear them
@@ -78,7 +78,7 @@ nextEnvImport.updateInitialEnv(process.env)
 
 // Open the admin if the -o flag is passed
 if (args.o) {
-  await open(`http://localhost:3000${adminRoute}`)
+  await open(`http://localhost:${process.env.PORT || 3000}${adminRoute}`)
 }
 
 const findOpenPort = (startPort: number): Promise<number> => {

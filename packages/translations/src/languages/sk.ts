@@ -81,8 +81,18 @@ export const skTranslations: DefaultTranslationsObject = {
       'Ak ste o to nepožiadali, ignorujte prosím tento e-mail a vaše heslo zostane nezmenené.',
   },
   dashboard: {
+    addButton: 'Pridať +',
     addWidget: 'Pridať Widget',
     deleteWidget: 'Odstrániť widget {{id}}',
+    discardConfirmLabel: 'Zahodiť',
+    discardMessage:
+      'Máte neuložené zmeny vo vašom rozložení na paneli. Ste si istý, že ich chcete zahodiť?',
+    discardTitle: 'Zahodiť zmeny?',
+    editDashboard: 'Upraviť Nástenku',
+    editingDashboard: 'Úprava Ovládacieho Panela',
+    noItems:
+      'Na vašej nástenke nie sú žiadne miniaplikácie. Môžete ich pridať z menu "Nástenka", ktoré sa nachádza v hornej lište.',
+    resetLayout: 'Resetovať rozloženie',
     searchWidgets: 'Hľadať doplnky...',
   },
   error: {
@@ -95,6 +105,8 @@ export const skTranslations: DefaultTranslationsObject = {
     documentNotFound:
       'Dokument s ID {{id}} sa nepodarilo nájsť. Možno bol vymazaný, nikdy neexistoval, alebo k nemu nemáte prístup.',
     emailOrPasswordIncorrect: 'Zadaný email alebo heslo nie je správne.',
+    failedToResetLayout: 'Nepodarilo sa obnoviť rozloženie.',
+    failedToSaveLayout: 'Nepodarilo sa uložiť rozloženie.',
     followingFieldsInvalid_one: 'Nasledujúce pole je neplatné:',
     followingFieldsInvalid_other: 'Nasledujúce polia sú neplatné:',
     incorrectCollection: 'Nesprávna kolekcia',
@@ -314,6 +326,9 @@ export const skTranslations: DefaultTranslationsObject = {
     document: 'Dokument',
     documentIsTrashed: 'Táto {{label}} je v koši a je iba na čítanie.',
     documentLocked: 'Dokument je zamknutý',
+    documentModified: 'Dokument bol upravený',
+    documentOutOfDate:
+      'Tento dokument bol nedávno aktualizovaný iným používateľom. Váš pohľad je zastaraný.',
     documents: 'Dokumenty',
     duplicate: 'Duplikovať',
     duplicateWithoutSaving: 'Duplikovať bez uloženia zmien',
@@ -349,6 +364,7 @@ export const skTranslations: DefaultTranslationsObject = {
     items: 'položky',
     language: 'Jazyk',
     lastModified: 'Naposledy zmenené',
+    layout: 'Rozloženie',
     leaveAnyway: 'Presto odísť',
     leaveWithoutSaving: 'Odísť bez uloženia',
     light: 'Svetlý',
@@ -377,6 +393,8 @@ export const skTranslations: DefaultTranslationsObject = {
     noOptions: 'Žiadne možnosti',
     noResults:
       'Neboli nájdené žiadne {{label}}. Buď neexistujú žiadne {{label}}, alebo žiadne nespĺňajú filtre, ktoré ste zadali vyššie.',
+    noResultsDescription: 'Žiadne neexistujú alebo nesúladia s filtrami, ktoré ste vyššie určili.',
+    noResultsFound: 'Bez výsledkov.',
     notFound: 'Nenájdené',
     nothingFound: 'Nič nenájdené',
     noTrashResults: 'Žiadne {{label}} v koši.',
@@ -385,6 +403,7 @@ export const skTranslations: DefaultTranslationsObject = {
     of: 'z',
     only: 'Iba',
     open: 'Otvoriť',
+    openInNewWindow: 'Otvoriť v novom okne',
     or: 'Alebo',
     order: 'Poradie',
     overwriteExistingData: 'Prepísať existujúce pole dát',
@@ -399,6 +418,7 @@ export const skTranslations: DefaultTranslationsObject = {
     previous: 'Predchádzajúci',
     reindex: 'Reindexovať',
     reindexingAll: 'Znova sa indexujú všetky {{collections}}.',
+    reloadDocument: 'Obnoviť dokument',
     remove: 'Odstrániť',
     rename: 'Premenovať',
     reset: 'Resetovať',
@@ -413,6 +433,7 @@ export const skTranslations: DefaultTranslationsObject = {
     rows: 'Riadky',
     save: 'Uložiť',
     saveAndAdd: 'Uložiť a pridať',
+    saveChanges: 'Uložiť zmeny',
     saving: 'Ukladanie...',
     schedulePublishFor: 'Naplánovať publikovanie pre {{title}}',
     searchBy: 'Vyhľadať podľa {{label}}',

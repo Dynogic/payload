@@ -1,6 +1,6 @@
 # Payload Form Builder Example
 
-The [Payload Form Builder Example](https://github.com/payloadcms/payload/tree/main/examples/form-builder/payload) demonstrates how to implement the official [Form Builder Plugin](https://payloadcms.com/docs/plugins/form-builder) in [Payload](https://github.com/payloadcms/payload).
+The [Payload Form Builder Example](https://github.com/payloadcms/payload/tree/3.x/examples/form-builder/payload) demonstrates how to implement the official [Form Builder Plugin](https://payloadcms.com/docs/plugins/form-builder) in [Payload](https://github.com/payloadcms/payload).
 
 **IMPORTANT—This example includes a fully integrated Next.js App Router front-end that runs on the same server as Payload.**
 
@@ -11,11 +11,12 @@ The [Payload Form Builder Example](https://github.com/payloadcms/payload/tree/ma
 - `npx create-payload-app --example form-builder`
 
 2. `cp .env.example .env` to copy the example environment variables
+3. Ensure MongoDB is running and `DATABASE_URL` points to it (for example `mongodb://127.0.0.1/payload-example-form-builder`)
 
-3. `pnpm dev`, `yarn dev` or `npm run dev` to start the server
+4. `pnpm dev`, `yarn dev` or `npm run dev` to start the server
    - Press `y` when prompted to seed the database
-4. `open http://localhost:3000` to access the home page
-5. `open http://localhost:3000/admin` to access the admin panel
+5. `open http://localhost:3000` to access the home page
+6. `open http://localhost:3000/admin` to access the admin panel
    - Login with email `demo@payloadcms.com` and password `demo`
 
 That's it! Changes made in `./src` will be

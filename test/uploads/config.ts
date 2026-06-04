@@ -8,6 +8,7 @@ import { AdminThumbnailWithSearchQueries } from './collections/AdminThumbnailWit
 import { AdminUploadControl } from './collections/AdminUploadControl/index.js'
 import { AnyImageTypeCollection } from './collections/AnyImageType/index.js'
 import { BulkUploadsCollection } from './collections/BulkUploads/index.js'
+import { BulkUploadsHookErrorCollection } from './collections/BulkUploadsHookError/index.js'
 import { CustomUploadFieldCollection } from './collections/CustomUploadField/index.js'
 import { FileMimeType } from './collections/FileMimeType/index.js'
 import { NoFilesRequired } from './collections/NoFilesRequired/index.js'
@@ -36,6 +37,7 @@ import {
   noRestrictFileMimeTypesSlug,
   noRestrictFileTypesSlug,
   pdfOnlySlug,
+  prefixMediaSlug,
   reduceSlug,
   relationPreviewSlug,
   relationSlug,
@@ -1003,6 +1005,7 @@ export default buildConfigWithDefaults({
       },
     },
     BulkUploadsCollection,
+    BulkUploadsHookErrorCollection,
     SimpleRelationshipCollection,
     FileMimeType,
     {
@@ -1059,6 +1062,18 @@ export default buildConfigWithDefaults({
             width: 300,
           },
         ],
+      },
+    },
+    {
+      slug: prefixMediaSlug,
+      fields: [
+        {
+          name: 'prefix',
+          type: 'text',
+        },
+      ],
+      upload: {
+        staticDir: path.resolve(dirname, './prefix-media'),
       },
     },
   ],

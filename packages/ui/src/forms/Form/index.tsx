@@ -627,6 +627,7 @@ export const Form: React.FC<FormProps> = (props) => {
           let filename = file.name
           setUploadProgress(0)
           const clientUploadContext = await handler({
+            docPrefix: typeof data?.prefix === 'string' ? data.prefix : undefined,
             file,
             formData: data,
             onProgress: (progress) => {

@@ -2,6 +2,7 @@ import { importExportPlugin } from '@payloadcms/plugin-import-export'
 import { s3Storage } from '@payloadcms/storage-s3'
 import { en } from '@payloadcms/translations/languages/en'
 import { es } from '@payloadcms/translations/languages/es'
+import { he } from '@payloadcms/translations/languages/he'
 import dotenv from 'dotenv'
 import { fileURLToPath } from 'node:url'
 import path from 'path'
@@ -9,17 +10,37 @@ import { defaultTimezones } from 'payload/shared'
 
 import { buildConfigWithDefaults } from '../buildConfigWithDefaults.js'
 import { createTestBucket } from '../plugin-cloud-storage/utils.js'
+import { CustomIdPages } from './collections/CustomIdPages.js'
 import { Media } from './collections/Media.js'
 import { Pages } from './collections/Pages.js'
 import { Posts } from './collections/Posts.js'
 import { PostsExportsOnly } from './collections/PostsExportsOnly.js'
 import { PostsImportsOnly } from './collections/PostsImportsOnly.js'
 import { PostsNoJobsQueue } from './collections/PostsNoJobsQueue.js'
+import {
+  exportRenameMap,
+  importRenameMap,
+  PostsWithColumnMap,
+} from './collections/PostsWithColumnMap.js'
+import { PostsWithFieldHooks } from './collections/PostsWithFieldHooks.js'
+import { PostsWithHooks } from './collections/PostsWithHooks.js'
 import { PostsWithLimits } from './collections/PostsWithLimits.js'
 import { PostsWithS3 } from './collections/PostsWithS3.js'
 import { Users } from './collections/Users.js'
+import {
+  exportAfterHook,
+  exportBeforeHook,
+  importAfterHook,
+  importBeforeHook,
+} from './hookSpies.js'
 import { seed } from './seed/index.js'
-import { postsWithS3Slug } from './shared.js'
+import {
+  customIdPagesSlug,
+  postsWithColumnMapSlug,
+  postsWithFieldHooksSlug,
+  postsWithHooksSlug,
+  postsWithS3Slug,
+} from './shared.js'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -47,17 +68,27 @@ export default buildConfigWithDefaults({
     PostsNoJobsQueue,
     PostsWithLimits,
     PostsWithS3,
+    PostsWithHooks,
+    PostsWithFieldHooks,
+    PostsWithColumnMap,
     Media,
+    CustomIdPages,
   ],
   localization: {
     defaultLocale: 'en',
     fallback: true,
-    locales: ['en', 'es', 'de'],
+    locales: [
+      { code: 'en', label: 'English' },
+      { code: 'es', label: 'Spanish' },
+      { code: 'de', label: 'German' },
+      { code: 'he', label: 'Hebrew', rtl: true },
+    ],
   },
   i18n: {
     supportedLanguages: {
       en,
       es,
+      he,
     },
     fallbackLanguage: 'en',
   },
@@ -128,11 +159,15 @@ export default buildConfigWithDefaults({
         {
           slug: 'posts-exports-only',
           import: false,
+          export: {
+            format: 'csv',
+          },
         },
         {
           slug: 'posts-imports-only',
           export: false,
           import: {
+            defaultVersionStatus: 'draft',
             disableJobsQueue: true,
           },
         },
@@ -204,6 +239,101 @@ export default buildConfigWithDefaults({
         },
         {
           slug: 'media',
+        },
+        {
+          slug: customIdPagesSlug,
+        },
+        {
+          slug: postsWithHooksSlug,
+          export: {
+            batchSize: 2,
+            disableJobsQueue: true,
+            hooks: {
+              before: exportBeforeHook,
+              after: exportAfterHook,
+            },
+            overrideCollection: ({ collection }) => {
+              collection.slug = 'posts-with-hooks-export'
+              collection.upload.staticDir = path.resolve(dirname, 'uploads')
+              return collection
+            },
+          },
+          import: {
+            batchSize: 2,
+            disableJobsQueue: true,
+            hooks: {
+              before: importBeforeHook,
+              after: importAfterHook,
+            },
+            overrideCollection: ({ collection }) => {
+              collection.slug = 'posts-with-hooks-import'
+              collection.upload.staticDir = path.resolve(dirname, 'uploads')
+              return collection
+            },
+          },
+        },
+        {
+          slug: postsWithFieldHooksSlug,
+          export: {
+            disableJobsQueue: true,
+            overrideCollection: ({ collection }) => {
+              collection.slug = 'posts-with-field-hooks-export'
+              collection.upload.staticDir = path.resolve(dirname, 'uploads')
+              return collection
+            },
+          },
+          import: {
+            disableJobsQueue: true,
+            overrideCollection: ({ collection }) => {
+              collection.slug = 'posts-with-field-hooks-import'
+              collection.upload.staticDir = path.resolve(dirname, 'uploads')
+              return collection
+            },
+          },
+        },
+        {
+          slug: postsWithColumnMapSlug,
+          export: {
+            disableJobsQueue: true,
+            hooks: {
+              before: ({ data }) => {
+                return data.map((row) => {
+                  const renamed: Record<string, unknown> = {}
+                  for (const [key, value] of Object.entries(row)) {
+                    renamed[exportRenameMap[key] ?? key] = value
+                  }
+                  return renamed
+                })
+              },
+            },
+            overrideCollection: ({ collection }) => {
+              collection.slug = 'posts-with-column-map-export'
+              collection.upload.staticDir = path.resolve(dirname, 'uploads')
+              return collection
+            },
+          },
+          import: {
+            disableJobsQueue: true,
+            hooks: {
+              before: ({ data }) => {
+                return data.map((doc) => {
+                  const renamed: Record<string, unknown> = {}
+                  for (const [key, value] of Object.entries(doc)) {
+                    const payloadKey = importRenameMap[key]
+                    if (payloadKey) {
+                      renamed[payloadKey] = value
+                    }
+                  }
+                  return renamed
+                })
+              },
+            },
+            overrideCollection: ({ collection }) => {
+              collection.slug = 'posts-with-column-map-import'
+              collection.upload.staticDir = path.resolve(dirname, 'uploads')
+              return collection
+            },
+          },
         },
       ],
     }),

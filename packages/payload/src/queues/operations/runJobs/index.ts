@@ -303,27 +303,22 @@ export const runJobs = async (args: RunJobsArgs): Promise<RunJobsResult> => {
     }
   }
 
-  /**
-   * Just for logging purposes, we want to know how many jobs are new and how many are existing (= already been tried).
-   * This is only for logs - in the end we still want to run all jobs, regardless of whether they are new or existing.
-   */
-  const { existingJobs, newJobs } = jobs.reduce(
-    (acc, job) => {
-      if (job.totalTried > 0) {
-        acc.existingJobs.push(job)
-      } else {
-        acc.newJobs.push(job)
-      }
-      return acc
-    },
-    { existingJobs: [] as Job[], newJobs: [] as Job[] },
-  )
-
   if (!silent || (typeof silent === 'object' && !silent.info)) {
+    let newCount = 0
+    let retryCount = 0
+
+    for (const job of jobs) {
+      if (job.totalTried > 0) {
+        retryCount++
+      } else {
+        newCount++
+      }
+    }
+
     payload.logger.info({
       msg: `Running ${jobs.length} jobs.`,
-      new: newJobs?.length,
-      retrying: existingJobs?.length,
+      new: newCount,
+      retrying: retryCount,
     })
   }
 
@@ -340,25 +335,48 @@ export const runJobs = async (args: RunJobsArgs): Promise<RunJobsResult> => {
     }
     const jobReq = isolateObjectProperty(req, 'transactionID')
 
-    const workflowConfig: WorkflowConfig =
-      job.workflowSlug && jobsConfig.workflows?.length
-        ? jobsConfig.workflows.find(({ slug }) => slug === job.workflowSlug)!
-        : {
-            slug: 'singleTask',
-            handler: async ({ job, tasks }) => {
-              await tasks[job.taskSlug as string]!('1', {
-                input: job.input,
-              })
-            },
-          }
+    let workflowConfig: undefined | WorkflowConfig = undefined
+
+    if (job.workflowSlug && jobsConfig.workflows?.length) {
+      workflowConfig = jobsConfig.workflows.find(({ slug }) => slug === job.workflowSlug)
+    } else if (job.taskSlug && jobsConfig.tasks?.length) {
+      const taskExists = jobsConfig.tasks.some(({ slug }) => slug === job.taskSlug)
+      if (taskExists) {
+        workflowConfig = {
+          slug: 'singleTask',
+          handler: async ({ job, tasks }) => {
+            await tasks[job.taskSlug as string]!('1', {
+              input: job.input,
+            })
+          },
+        }
+      }
+    }
 
     if (!workflowConfig) {
+      // Permanently fail jobs whose task/workflow slug is no longer registered in config — they can never complete.
+      const errorMessage = `${job.taskSlug ? `Task '${job.taskSlug}'` : `Workflow '${job.workflowSlug}'`} is not registered in payload.config.jobs.`
+
+      if (!silent || (typeof silent === 'object' && !silent.error)) {
+        payload.logger.error({
+          msg: `Error running job ${job.workflowSlug || `Task: ${job.taskSlug}`} id: ${job.id} - ${errorMessage}`,
+        })
+      }
+
+      const updateJob = getUpdateJobFunction(job, jobReq)
+      await updateJob({
+        error: { message: errorMessage },
+        hasError: true,
+        processing: false,
+        totalTried: (job.totalTried ?? 0) + 1,
+      })
+
       return {
         id: job.id,
         result: {
-          status: 'error',
+          status: 'error-reached-max-retries',
         },
-      } // Skip jobs with no workflow configuration
+      }
     }
 
     try {

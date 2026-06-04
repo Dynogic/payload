@@ -9,7 +9,6 @@ import {
   beforeValidateTraverseFields,
   checkDependencies,
   mergeForDevHotReload,
-  type RichTextAdapter,
   withNullableJSONSchemaType,
 } from 'payload'
 
@@ -29,7 +28,7 @@ import { richTextValidateHOC } from './validate/index.js'
 
 let checkedDependencies = false
 
-export const lexicalTargetVersion = '0.35.0'
+export const lexicalTargetVersion = '0.41.0'
 
 export function lexicalEditor(args?: LexicalEditorProps): LexicalRichTextAdapterProvider {
   if (
@@ -95,7 +94,7 @@ export function lexicalEditor(args?: LexicalEditorProps): LexicalRichTextAdapter
     }
 
     // Use Proxy-preserving merge so dev hot-reload survives lexical's i18n
-    // contribution. See FORK-CHANGES.md #54.
+    // contribution. See FORK-CHANGES.md #53.
     config.i18n.translations = mergeForDevHotReload(config.i18n.translations, featureI18n)
 
     return {
@@ -107,11 +106,13 @@ export function lexicalEditor(args?: LexicalEditorProps): LexicalRichTextAdapter
         path: '@payloadcms/richtext-lexical/rsc#RscEntryLexicalField',
         serverProps: {
           admin: args?.admin,
+          views: args?.views,
           // SanitizedEditorConfig is manually passed by `renderField` in `fieldSchemasToFormState/renderField.tsx`
           // in order to reduce the size of the field schema
         },
       },
       generateImportMap: getGenerateImportMap({
+        lexicalEditorArgs: args,
         resolvedFeatureMap,
       }),
       generateSchemaMap: getGenerateSchemaMap({
@@ -1068,7 +1069,17 @@ export { $convertFromMarkdownString } from './packages/@lexical/markdown/index.j
 export { defaultRichTextValue } from './populateGraphQL/defaultValue.js'
 export { populate } from './populateGraphQL/populate.js'
 
-export type { LexicalEditorProps, LexicalFieldAdminProps, LexicalRichTextAdapter } from './types.js'
+export type {
+  ClientFeaturesMap,
+  LexicalEditorNodeMap,
+  LexicalEditorProps,
+  LexicalEditorViewMap,
+  LexicalFieldAdminProps,
+  LexicalRichTextAdapter,
+  NodeMapValue,
+  SerializedNodeBase,
+  ViewMapBlockComponentProps,
+} from './types.js'
 
 export { buildDefaultEditorState, buildEditorState } from './utilities/buildEditorState.js'
 export { createServerFeature } from './utilities/createServerFeature.js'

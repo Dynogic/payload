@@ -627,7 +627,7 @@ describe('General', () => {
       await page.waitForTimeout(1000)
       // wait for the search params to get injected into the URL
       const escapedAdminURL = postsUrl.admin.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
-      const pattern = new RegExp(`${escapedAdminURL}/collections/[^?]+\\?limit=[^&]+`)
+      const pattern = new RegExp(`${escapedAdminURL}/collections/[^?]+\\?.*limit=[^&]+`)
       await expect.poll(() => page.url(), { timeout: POLL_TOPASS_TIMEOUT }).toMatch(pattern)
       await page.goBack()
       await expect.poll(() => page.url(), { timeout: POLL_TOPASS_TIMEOUT }).toMatch(postsUrl.admin)
@@ -767,6 +767,37 @@ describe('General', () => {
         }),
       )
       await expect(page.locator('h1#custom-view-title')).toContainText(customNestedViewTitle)
+    })
+  })
+
+  describe('custom collection views', () => {
+    test('should render custom collection view at custom path', async () => {
+      await page.goto(
+        formatAdminURL({
+          adminRoute,
+          path: '/collections/custom-collection-view/grid',
+          serverURL,
+        }),
+      )
+      await expect(page.locator('h1#custom-collection-view-title')).toContainText(
+        'Custom Collection View',
+      )
+    })
+
+    test('should render custom collection view as a client component', async () => {
+      await page.goto(
+        formatAdminURL({
+          adminRoute,
+          path: '/collections/custom-collection-view/grid-client',
+          serverURL,
+        }),
+      )
+      await expect(page.locator('h1#custom-collection-view-client-title')).toContainText(
+        'Custom Collection View (Client)',
+      )
+      await expect(page.locator('#custom-collection-view-client-slug')).toContainText(
+        'custom-collection-view',
+      )
     })
   })
 

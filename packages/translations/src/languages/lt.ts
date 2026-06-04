@@ -81,8 +81,18 @@ export const ltTranslations: DefaultTranslationsObject = {
       'Jei to neprašėte, prašome ignoruoti šį el. laišką ir jūsų slaptažodis išliks nepakeistas.',
   },
   dashboard: {
+    addButton: 'Pridėti +',
     addWidget: 'Pridėti valdiklį',
     deleteWidget: 'Ištrinti valdiklį {{id}}',
+    discardConfirmLabel: 'Atmesti',
+    discardMessage:
+      'Jūsų prietaisų skydo išdėstymas turi neišsaugotų pokyčių. Ar tikrai norite juos atmesti?',
+    discardTitle: 'Atšaukti pakeitimus?',
+    editDashboard: 'Redaguoti informacijos skydelį',
+    editingDashboard: 'Redagavimo prietaisų skydelis',
+    noItems:
+      'Jūsų prietaisų skydelyje nėra valdiklių. Juos galite pridėti iš „Skydelio“ meniu, esančio viršutinėje juostoje.',
+    resetLayout: 'Atstatyti išdėstymą',
     searchWidgets: 'Ieškokite valdiklių...',
   },
   error: {
@@ -95,6 +105,8 @@ export const ltTranslations: DefaultTranslationsObject = {
     documentNotFound:
       'Dokumentas su ID {{id}} nerastas. Gali būti, kad jis buvo ištrintas arba niekada neegzistavo, arba jūs neturite prieigos prie jo.',
     emailOrPasswordIncorrect: 'Pateiktas el. pašto adresas arba slaptažodis yra neteisingi.',
+    failedToResetLayout: 'Nepavyko atstatyti išdėstymo.',
+    failedToSaveLayout: 'Nepavyko išsaugoti išdėstymo.',
     followingFieldsInvalid_one: 'Šis laukas yra netinkamas:',
     followingFieldsInvalid_other: 'Šie laukai yra neteisingi:',
     incorrectCollection: 'Neteisinga kolekcija',
@@ -316,6 +328,9 @@ export const ltTranslations: DefaultTranslationsObject = {
     document: 'Dokumentas',
     documentIsTrashed: 'Šis {{label}} yra ištrintas ir yra tik skaitymui.',
     documentLocked: 'Dokumentas užrakintas',
+    documentModified: 'Dokumentas modifikuotas',
+    documentOutOfDate:
+      'Šis dokumentas neseniai buvo atnaujintas kitos naudotojo. Jūsų vaizdas yra pasenusi.',
     documents: 'Dokumentai',
     duplicate: 'Dublikatas',
     duplicateWithoutSaving: 'Dubliuoti be įrašytų pakeitimų',
@@ -351,6 +366,7 @@ export const ltTranslations: DefaultTranslationsObject = {
     items: 'elementai',
     language: 'Kalba',
     lastModified: 'Paskutinį kartą modifikuota',
+    layout: 'Išdėstymas',
     leaveAnyway: 'Vis tiek išeikite',
     leaveWithoutSaving: 'Išeikite neišsaugoję',
     light: 'Šviesa',
@@ -380,6 +396,8 @@ export const ltTranslations: DefaultTranslationsObject = {
     noOptions: 'Jokių variantų',
     noResults:
       'Nerasta jokių {{label}}. Arba dar nėra sukurtų {{label}}, arba jie neatitinka nurodytų filtrų aukščiau.',
+    noResultsDescription: 'Arba jų nėra, arba jie neatitinka viršuje nurodytų filtrų.',
+    noResultsFound: 'Nėra rezultatų.',
     notFound: 'Nerasta',
     nothingFound: 'Nieko nerasta',
     noTrashResults: 'Nėra {{label}} šiukšliadėžėje.',
@@ -388,6 +406,7 @@ export const ltTranslations: DefaultTranslationsObject = {
     of: 'apie',
     only: 'Tik',
     open: 'Atidaryti',
+    openInNewWindow: 'Atidaryti naujame lange',
     or: 'Arba',
     order: 'Užsakyti',
     overwriteExistingData: 'Perrašyti esamus lauko duomenis',
@@ -402,6 +421,7 @@ export const ltTranslations: DefaultTranslationsObject = {
     previous: 'Ankstesnis',
     reindex: 'Perindeksuoti',
     reindexingAll: 'Perindeksuojamos visos {{collections}}.',
+    reloadDocument: 'Perkrauti dokumentą',
     remove: 'Pašalinti',
     rename: 'Pervadinti',
     reset: 'Atstatyti',
@@ -416,6 +436,7 @@ export const ltTranslations: DefaultTranslationsObject = {
     rows: 'Eilutės',
     save: 'Išsaugoti',
     saveAndAdd: 'Išsaugoti ir pridėti',
+    saveChanges: 'Išsaugoti pakeitimus',
     saving: 'Išsaugoti...',
     schedulePublishFor: 'Suplanuokite publikaciją „{{title}}“',
     searchBy: 'Ieškokite pagal {{label}}',

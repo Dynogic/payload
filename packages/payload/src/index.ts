@@ -145,6 +145,7 @@ import {
   type CountVersionsOptions,
 } from './collections/operations/local/countVersions.js'
 import { consoleEmailAdapter } from './email/consoleEmailAdapter.js'
+import { normalizeSendEmailOptions } from './email/normalizeSendEmailOptions.js'
 import { fieldAffectsData, type FlattenedBlock } from './fields/config/types.js'
 import { getJobsLocalAPI } from './queues/localAPI.js'
 import { _internal_jobSystemGlobals } from './queues/utilities/getCurrentDate.js'
@@ -194,6 +195,7 @@ export interface PayloadTypesShape {
   jobs: unknown
   locale: unknown
   user: unknown
+  widgets?: Record<string, unknown>
 }
 
 /**
@@ -258,6 +260,9 @@ export interface UntypedPayloadTypes {
   }
   locale: null | string
   user: UntypedUser
+  widgets: {
+    [slug: string]: JsonObject
+  }
 }
 
 /**
@@ -265,6 +270,23 @@ export interface UntypedPayloadTypes {
  * When augmented, its properties take precedence over UntypedPayloadTypes.
  */
 export interface GeneratedTypes {}
+
+/**
+ * Interface to be module-augmented by plugin packages.
+ * Maps plugin slug to plugin options type, enabling typed cross-plugin
+ * discovery via the `plugins` map passed to `definePlugin` functions.
+ *
+ * @experimental
+ *
+ * @example
+ * // In a plugin package's index.ts:
+ * declare module 'payload' {
+ *   interface RegisteredPlugins {
+ *     'plugin-seo': SEOPluginOptions
+ *   }
+ * }
+ */
+export interface RegisteredPlugins {}
 
 /**
  * Check if GeneratedTypes has been augmented (has any keys).
@@ -283,6 +305,14 @@ export type PayloadTypes = IsAugmented extends true
 export type TypedCollection<T extends PayloadTypesShape = PayloadTypes> = T['collections']
 
 export type TypedBlock = PayloadTypes['blocks']
+
+export type TypedWidget<T extends PayloadTypesShape = PayloadTypes> = T extends {
+  widgets: infer TWidgets
+}
+  ? TWidgets extends Record<string, unknown>
+    ? TWidgets
+    : Record<string, unknown>
+  : Record<string, unknown>
 
 export type TypedUploadCollection<T extends PayloadTypesShape = PayloadTypes> = NonNever<{
   [TSlug in keyof T['collections']]:
@@ -312,6 +342,14 @@ export type CollectionSlug<T extends PayloadTypesShape = PayloadTypes> = StringK
 >
 
 export type BlockSlug = StringKeyOf<TypedBlock>
+
+export type WidgetSlug<T extends PayloadTypesShape = PayloadTypes> = StringKeyOf<TypedWidget<T>>
+
+export type DataFromWidgetSlug<TSlug extends WidgetSlug> = TypedWidget[TSlug] extends {
+  data?: infer TData
+}
+  ? TData
+  : TypedWidget[TSlug]
 
 export type UploadCollectionSlug<T extends PayloadTypesShape = PayloadTypes> = StringKeyOf<
   TypedUploadCollection<T>
@@ -723,8 +761,13 @@ export class BasePayload {
               })
             },
             {
+              catch: (err) => {
+                this.logger.error({ err, msg: 'Error in job queue cron job handler' })
+              },
               // Do not run consecutive crons if previous crons still ongoing
               protect: true,
+              // TODO: Remove this compatibility option in 4.0. This only exists to ensure backwards-compatibility between Croner v9 and Croner v10 cron syntax
+              sloppyRanges: true,
             },
           )
 
@@ -915,7 +958,12 @@ export class BasePayload {
       }
     }
 
-    this.sendEmail = this.email['sendEmail']
+    /**
+     * @todo: Remove in v4.
+     * See `normalizeSendEmailOptions` for details.
+     */
+    const adapterSendEmail = this.email['sendEmail']
+    this.sendEmail = (message) => adapterSendEmail(normalizeSendEmailOptions(message))
 
     serverInitTelemetry(this)
 
@@ -1383,6 +1431,7 @@ export {
 } from './config/client.js'
 export { createDynamicRoutes } from './config/createDynamicRoutes.js'
 export { defaults } from './config/defaults.js'
+export { definePlugin } from './config/definePlugin.js'
 
 export { type OrderableEndpointBody } from './config/orderable/index.js'
 export { sanitizeConfig } from './config/sanitize.js'
@@ -1515,6 +1564,7 @@ export { slugField, type SlugFieldClientProps } from './fields/baseFields/slug/i
 export { type SlugField } from './fields/baseFields/slug/index.js'
 
 export {
+  createClientBlocks,
   createClientField,
   createClientFields,
   type ServerOnlyFieldAdminProperties,
@@ -1531,7 +1581,8 @@ export interface GlobalCustom extends Record<string, any> {}
 
 export interface GlobalAdminCustom extends Record<string, any> {}
 
-export { sanitizeFields } from './fields/config/sanitize.js'
+export { sanitizeField, sanitizeFields } from './fields/config/sanitize.js'
+export type { SanitizeFieldArgs } from './fields/config/sanitize.js'
 
 export type {
   AdminClient,
@@ -1558,12 +1609,14 @@ export type {
   EmailFieldClient,
   Field,
   FieldAccess,
+  FieldAccessArgs,
   FieldAffectingData,
   FieldAffectingDataClient,
   FieldBase,
   FieldBaseClient,
   FieldHook,
   FieldHookArgs,
+  FieldPosition,
   FieldPresentationalOnly,
   FieldPresentationalOnlyClient,
   FieldTypes,
@@ -1803,6 +1856,7 @@ export {
 } from './utilities/dependencies/dependencyChecker.js'
 export { getDependencies } from './utilities/dependencies/getDependencies.js'
 export { dynamicImport } from './utilities/dynamicImport.js'
+export { escapeRegExp } from './utilities/escapeRegExp.js'
 export {
   findUp,
   findUpSync,
@@ -1828,6 +1882,7 @@ export { isValidID } from './utilities/isValidID.js'
 export { killTransaction } from './utilities/killTransaction.js'
 export { logError } from './utilities/logError.js'
 export { defaultLoggerOptions } from './utilities/logger.js'
+export type { PayloadLogger } from './utilities/logger.js'
 export { mapAsync } from './utilities/mapAsync.js'
 export { mergeHeaders } from './utilities/mergeHeaders.js'
 export { parseDocumentID } from './utilities/parseDocumentID.js'
