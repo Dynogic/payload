@@ -12,8 +12,8 @@
     .dropzone {
       flex-direction: column;
       justify-content: center;
+      align-items: center;
       display: flex;
-      gap: var(--base);
       background-color: var(--theme-elevation-50);
 
       p {
@@ -21,10 +21,29 @@
       }
     }
 
-    &__dragAndDropText {
+    &__content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: calc(var(--base) / 2);
+      text-align: center;
+    }
+
+    &__icon {
+      color: var(--theme-elevation-400);
+      margin-bottom: calc(var(--base) / 4);
+      line-height: 0;
+
+      svg {
+        width: calc(var(--base) * 2);
+        height: calc(var(--base) * 2);
+      }
+    }
+
+    &__headline {
       margin: 0;
-      text-transform: lowercase;
-      align-self: center;
+      color: var(--theme-elevation-800);
+      font-weight: 600;
     }
   }
 }

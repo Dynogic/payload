@@ -441,6 +441,25 @@ Useful for displaying data from related collections in list views (e.g., showing
 
 ---
 
+### 54. Bulk-Upload "Add Files" Empty State — Iconographic Dropzone
+
+**Files:** `packages/ui/src/elements/BulkUpload/AddFilesView/index.tsx`, `packages/ui/src/elements/BulkUpload/AddFilesView/index.scss`
+
+The bulk-upload drawer's empty state rendered a `subtle` "Select media" button plus a lowercase "or drag and drop media" line, flex-centered inside a full-height dotted dropzone. With nothing to anchor the eye, the content read as a tiny cluster floating in a large void — visually barren and easy to miss that the whole rectangle is a drop target.
+
+Restyled to a proper centered empty-state, matching the single-upload field's tone:
+
+- Added the lucide-react `cloud-upload` glyph (inlined as raw SVG — the fork can't import lucide) as a ~2× muted visual anchor (`--theme-elevation-400`, sized via `calc(var(--base) * 2)`, stroked with `currentColor`). Inlined rather than reusing the shared `UploadIcon` (change #33) — that icon is the bare up-arrow used on the list-header "Bulk Upload" button, where it should stay; the empty-state hero wants the softer cloud glyph to match the project's lucide iconography.
+- Promoted the drop gesture to a headline: `upload:dragAndDrop` ("Drag and drop media") now renders as a weighted `--theme-elevation-800` line instead of being buried in the lowercase helper text.
+- Kept the `subtle` "Select media" button (`upload:selectFile`) as the secondary affordance below the headline.
+- Removed the redundant `general:or` + `upload:dragAndDrop` helper paragraph (the gesture is now the headline) and its `__dragAndDropText` style.
+
+Layout is icon → headline → button, stacked and centered via a new `__content` wrapper; `.dropzone` gains `align-items: center`.
+
+**No new i18n keys** — reuses the existing `upload:dragAndDrop` and `upload:selectFile` strings (both already "media"-worded from change #31), so all 44 locales are covered with zero translation work. No new props, no API surface change — pure presentation.
+
+---
+
 ## Configuration/Documentation
 
 ### 21. Fork Development Workflow
@@ -789,5 +808,5 @@ Required for the same use case as #52: projects with Proxy-backed translations n
 | Category      | Count |
 | ------------- | ----- |
 | Bug Fixes     | 14    |
-| Features      | 33    |
+| Features      | 34    |
 | Documentation | 1     |
