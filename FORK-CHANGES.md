@@ -803,10 +803,22 @@ Required for the same use case as #52: projects with Proxy-backed translations n
 
 ---
 
+### 54. Externalize `focus-trap` in the `@payloadcms/ui` Client Bundle
+
+**Files:** `packages/ui/bundle.js`, `packages/ui/package.json`
+
+The esbuild client bundle (`dist/exports/client`) inlined `@faceless-ui/modal`'s `focus-trap` dependency, giving the admin a **private copy of focus-trap with its own module-level trap stack**. focus-trap's stacking contract — activating a new trap pauses the currently active one — only works within one module instance, so any project-side overlay using its own `focus-trap` import (e.g. a Radix dialog with a companion trap, stacked over a Payload drawer) could never pause the drawer's trap. The drawer's capture-phase `focusin` handler then revokes every focus attempt inside the overlay: clicks work (`allowOutsideClick: true`) but text inputs can't hold focus, making typing impossible.
+
+Fix: add `'focus-trap'` to the client bundle's `external` list so the compiled output emits `import ... from 'focus-trap'` and shares the consuming app's single module instance (one trap stack); add `focus-trap@7.5.4` (the exact version `@faceless-ui/modal@3.0.0` pins) to `dependencies` so resolution doesn't rely on hoisting.
+
+Consumer contract: a project component stacking a focusable overlay over a Payload drawer should activate a passive `focus-trap` (`initialFocus: false`, `returnFocusOnDeactivate: false`) on the overlay's content node for the time it is mounted — the drawer's trap pauses while the overlay is open and resumes on close. See varig `src/components/ui/dialog.tsx`.
+
+---
+
 ## Summary
 
 | Category      | Count |
 | ------------- | ----- |
-| Bug Fixes     | 14    |
+| Bug Fixes     | 15    |
 | Features      | 34    |
 | Documentation | 1     |
