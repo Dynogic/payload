@@ -16,7 +16,34 @@ export const sanitizeCompoundIndexes = ({
   for (const index of indexes) {
     const sanitized: SanitizedCompoundIndex = { fields: [], unique: index.unique ?? false }
     for (const path of index.fields) {
-      const result = getFieldByPath({ fields, path })
+      let result = getFieldByPath({ fields, path })
+
+      // Fork change #55: allow paths into the `{ relationTo, value }` shape of a
+      // polymorphic relationship/upload field, e.g. `item.relationTo`. These are
+      // stored sub-paths in MongoDB but not fields, so getFieldByPath cannot
+      // resolve them. Without this, a compound index scoping uniqueness by the
+      // related collection (`['store', 'item.relationTo', 'slug']`) is
+      // impossible to express. MongoDB adapter only — SQL adapters store
+      // polymorphic relationships in a separate rels table and cannot index
+      // these paths.
+      if (!result) {
+        const segments = path.split('.')
+        const subPath = segments.pop()
+        if (segments.length > 0 && (subPath === 'relationTo' || subPath === 'value')) {
+          const parent = getFieldByPath({ fields, path: segments.join('.') })
+          if (
+            parent &&
+            (parent.field.type === 'relationship' || parent.field.type === 'upload') &&
+            Array.isArray(parent.field.relationTo)
+          ) {
+            result = {
+              field: parent.field,
+              localizedPath: `${parent.localizedPath}.${subPath}`,
+              pathHasLocalized: parent.pathHasLocalized,
+            }
+          }
+        }
+      }
 
       if (!result) {
         throw new InvalidConfiguration(`Field ${path} was not found`)
