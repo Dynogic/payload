@@ -823,6 +823,22 @@ Consumer contract: a project component stacking a focusable overlay over a Paylo
 
 ---
 
+### 56. Compound Indexes on Polymorphic Relationship Sub-Paths (`item.relationTo`)
+
+> Cherry-picked from `app-v3.76.1` (where it is #55, commit f109b9a166); renumbered to #56 here to avoid colliding with this branch's #55 (focus-trap externalization).
+
+**File:** `packages/payload/src/collections/config/sanitizeCompoundIndexes.ts`
+
+A collection-config compound index cannot reference the stored sub-paths of a polymorphic relationship — `indexes: [{ fields: ['store', 'item.relationTo', 'slug'], unique: true }]` throws `InvalidConfiguration: Field item.relationTo was not found` at boot, because `sanitizeCompoundIndexes` resolves every path through `getFieldByPath`, and `relationTo` / `value` are properties of the polymorphic value shape, not fields. This makes it impossible to express "unique per related collection" — e.g. a slug registry where products and offers each get their own namespace per store.
+
+Fix: when `getFieldByPath` returns null and the path's final segment is `relationTo` or `value`, resolve the parent path instead; if the parent is a polymorphic relationship/upload field (`relationTo` is an array), accept the path, carrying the parent's localization info (`localizedPath` becomes e.g. `item.<locale>.relationTo`). The sanitized entry keeps the original dotted `path`, which `db-mongodb`'s `buildSchema` already uses verbatim for `schema.index(...)`, and `buildVersionCompoundIndexes` prefixes with `version.` as usual. All other paths still throw exactly as before.
+
+**MongoDB adapter only.** SQL adapters (drizzle) store polymorphic relationships in a separate rels table; such an index config was a boot error before this change and remains unsupported on SQL — it will now reach the drizzle schema builder unvalidated, so don't use it there.
+
+First consumer: varig's `slugs` collection (`{ fields: ['store', 'item.relationTo', 'slug'], unique: true }`), replacing a wrong per-store-global `['store', 'slug']` unique index that rejected a product and an offer sharing a name.
+
+---
+
 ## Summary
 
 | Category      | Count |
