@@ -149,6 +149,7 @@
     "bson-objectid": "2.0.4",
     "date-fns": "4.1.0",
     "dequal": "2.0.3",
+    "focus-trap": "7.5.4",
     "md5": "2.3.0",
     "object-to-formdata": "4.5.1",
     "qs-esm": "8.0.1",

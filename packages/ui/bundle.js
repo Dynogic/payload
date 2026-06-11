@@ -132,6 +132,14 @@ function require(m) {
       'react-dom',
       'next',
       'crypto',
+      // Must stay external: focus-trap keeps a module-level trap stack where
+      // activating a trap pauses the previous one. Bundling it gives the
+      // admin (via @faceless-ui/modal drawers) a private copy with its own
+      // stack, so project-side overlays (e.g. a Radix dialog stacked over a
+      // Payload drawer) can never pause the drawer's trap and their text
+      // inputs lose every focus attempt. External = one shared instance with
+      // whatever the consuming app imports. See FORK-CHANGES.md #55.
+      'focus-trap',
     ],
     //packages: 'external',
     minify: true,
