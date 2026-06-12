@@ -127,6 +127,11 @@ const TabsFieldComponent: TabsFieldClientComponent = (props) => {
           // Clear hash if tab has no hash value
           window.history.replaceState(null, '', window.location.pathname + window.location.search)
         }
+
+        // replaceState fires no native event; announce the hash write so consuming-app
+        // subscribers (e.g. varig's sidebar nav) can observe it. The event name is a
+        // cross-repo contract — consumers listen for this exact string.
+        window.dispatchEvent(new Event('admin:hashchange'))
       }
     },
     [tabs, parentPath],
