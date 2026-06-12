@@ -839,6 +839,18 @@ First consumer: varig's `slugs` collection (`{ fields: ['store', 'item.relationT
 
 ---
 
+### 57. Dispatch `admin:hashchange` After Hash-Tab `replaceState`
+
+**File:** `packages/ui/src/fields/Tabs/index.tsx`
+
+Hash-based tab navigation (change #8) writes the active tab's hash via `window.history.replaceState`, which fires **no native event** — `hashchange` only fires on real navigations. Consuming-app components that derive UI from `window.location.hash` (e.g. varig's sidebar nav highlighting the active settings tab) had no way to observe a tab click; they only stayed in sync by accident, via Next.js's patched `replaceState` changing `useSearchParams()` identity.
+
+Fix: after the `replaceState` in `handleTabChange` (both the set-hash and clear-hash branches), dispatch `window.dispatchEvent(new Event('admin:hashchange'))`. The event name is hardcoded — the fork can't import the consuming app — and is a cross-repo contract: varig's `src/lib/admin/replace-hash.js` exports the same string (`AdminHashChangeEvent`) and its own `replaceHash()` writer dispatches it too, so any subscriber listening for `hashchange` + `popstate` + `admin:hashchange` sees every hash write regardless of who wrote it.
+
+No behavior change for apps that don't listen; one extra no-listener event dispatch per tab click.
+
+---
+
 ## Summary
 
 | Category      | Count |
