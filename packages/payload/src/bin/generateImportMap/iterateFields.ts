@@ -92,6 +92,8 @@ export function genImportMapIterateFields({
 
     hasKey(field?.admin?.components, 'Block') && addToImportMap(field.admin.components.Block)
 
+    hasKey(field?.admin?.components, 'Pill') && addToImportMap(field.admin.components.Pill)
+
     hasKey(field?.admin?.components, 'Cell') && addToImportMap(field?.admin?.components?.Cell)
 
     hasKey(field?.admin?.components, 'Description') &&
@@ -107,6 +109,9 @@ export function genImportMapIterateFields({
 
     hasKey(field?.admin?.components, 'beforeInput') &&
       addToImportMap(field?.admin?.components?.beforeInput)
+
+    hasKey(field?.admin?.components, 'headerActions') &&
+      addToImportMap(field?.admin?.components?.headerActions)
 
     hasKey(field?.admin?.components, 'RowLabel') &&
       addToImportMap(field?.admin?.components?.RowLabel)

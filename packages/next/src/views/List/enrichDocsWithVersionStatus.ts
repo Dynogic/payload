@@ -37,43 +37,51 @@ export async function enrichDocsWithVersionStatus({
     return data
   }
 
-  // OPTIMIZATION: Single query to find all document IDs that have BOTH:
-  // 1. A draft version (latest=true, _status='draft')
-  // 2. A published version (_status='published')
-  // These are the documents with "changed" status
+  // Determine which of the draft-resolved docs are in a "Changed" state vs
+  // a true "Draft" state.
+  //
+  // Why we query the main collection (committed state) instead of the versions
+  // table:
+  //
+  //   The list view fetches with `draft: true`, which returns the latest
+  //   version per doc — so a doc that was published and then edited as a draft
+  //   (autosave) comes back with `_status: 'draft'` from the version record.
+  //   The original implementation checked the versions table for any record
+  //   with `version._status: 'published'`, but that flag lingers on old
+  //   version records even after an explicit unpublish: unpublish writes a new
+  //   draft version without removing or flagging the old published ones, so
+  //   autosave-after-publish and unpublish become indistinguishable from the
+  //   version records alone.
+  //
+  //   The main collection table's `_status` field, however, IS a reliable
+  //   signal. In `update.ts`, the main table is only written when
+  //   `isSavingDraft === false`: publish sets main._status to 'published',
+  //   unpublish sets it to 'draft', and draft saves (autosave) leave it alone.
+  //   So:
+  //     - Published doc + pending autosave → main.'published', version.'draft' → "Changed"
+  //     - Published doc → unpublished       → main.'draft', version.'draft'     → "Draft"
+  //
+  //   Querying the main collection (without `draft: true`) for docs still in
+  //   `_status: 'published'` correctly identifies only the "Changed" case.
   try {
-    // TODO: This could be more efficient with a findDistinctVersions() API:
-    // const { values } = await req.payload.findDistinctVersions({
-    //   collection: collectionConfig.slug,
-    //   field: 'parent',
-    //   where: {
-    //     and: [
-    //       { parent: { in: draftDocIds } },
-    //       { 'version._status': { equals: 'published' } },
-    //     ],
-    //   },
-    // })
-    // const hasPublishedVersionSet = new Set(values)
-    //
-    // For now, we query all published versions but only select the 'parent' field
-    // to minimize data transfer, then deduplicate with a Set
-    const publishedVersions = await req.payload.findVersions({
+    const committedPublishedDocs = await req.payload.find({
       collection: collectionConfig.slug,
       depth: 0,
-      limit: 0,
+      limit: draftDocIds.length,
+      overrideAccess: true,
       pagination: false,
       select: {
-        parent: true,
+        _status: true,
       },
       where: {
         and: [
           {
-            parent: {
+            id: {
               in: draftDocIds,
             },
           },
           {
-            'version._status': {
+            _status: {
               equals: 'published',
             },
           },
@@ -81,15 +89,18 @@ export async function enrichDocsWithVersionStatus({
       },
     })
 
-    // Create a Set of document IDs that have published versions
-    const hasPublishedVersionSet = new Set(
-      publishedVersions.docs.map((version) => version.parent).filter(Boolean),
+    // Create a Set of doc IDs whose committed (main-table) state is still
+    // 'published' — these are the ones with pending draft edits ("Changed").
+    const currentlyPublishedSet = new Set(
+      committedPublishedDocs.docs.map((doc) => doc.id).filter(Boolean),
     )
 
     // Enrich documents with display status
     const enrichedDocs = data.docs.map((doc) => {
-      // If it's a draft and has a published version, show "changed"
-      if (doc._status === 'draft' && hasPublishedVersionSet.has(doc.id)) {
+      // Draft version + committed state still published → "Changed".
+      // Draft version + committed state draft → true "Draft" (never published,
+      // or explicitly unpublished).
+      if (doc._status === 'draft' && currentlyPublishedSet.has(doc.id)) {
         return {
           ...doc,
           _displayStatus: 'changed' as const,

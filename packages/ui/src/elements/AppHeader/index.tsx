@@ -19,10 +19,11 @@ import './index.scss'
 const baseClass = 'app-header'
 
 type Props = {
+  CustomAccountMenu?: React.ReactNode
   CustomAvatar?: React.ReactNode
   CustomIcon?: React.ReactNode
 }
-export function AppHeader({ CustomAvatar, CustomIcon }: Props) {
+export function AppHeader({ CustomAccountMenu, CustomAvatar, CustomIcon }: Props) {
   const { t } = useTranslation()
 
   const { Actions } = useActions()
@@ -94,15 +95,19 @@ export function AppHeader({ CustomAvatar, CustomIcon }: Props) {
             {localization && (
               <LocalizerLabel ariaLabel="invisible" className={`${baseClass}__localizer-spacing`} />
             )}
-            <Link
-              aria-label={t('authentication:account')}
-              className={`${baseClass}__account`}
-              href={formatAdminURL({ adminRoute, path: accountRoute })}
-              prefetch={false}
-              tabIndex={0}
-            >
-              <RenderCustomComponent CustomComponent={CustomAvatar} Fallback={<Account />} />
-            </Link>
+            {CustomAccountMenu ? (
+              <div className={`${baseClass}__account`}>{CustomAccountMenu}</div>
+            ) : (
+              <Link
+                aria-label={t('authentication:account')}
+                className={`${baseClass}__account`}
+                href={formatAdminURL({ adminRoute, path: accountRoute })}
+                prefetch={false}
+                tabIndex={0}
+              >
+                <RenderCustomComponent CustomComponent={CustomAvatar} Fallback={<Account />} />
+              </Link>
+            )}
           </div>
         </div>
       </div>

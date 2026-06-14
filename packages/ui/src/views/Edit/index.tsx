@@ -55,6 +55,7 @@ export type OnSaveContext = {
 // This is solely to support custom edit views which get server-rendered
 export function DefaultEditView({
   BeforeDocumentControls,
+  DeleteButton,
   Description,
   EditMenuItems,
   LivePreview: CustomLivePreview,
@@ -623,6 +624,7 @@ export function DefaultEditView({
             <SetDocumentStepNav
               collectionSlug={collectionConfig?.slug}
               globalSlug={globalConfig?.slug}
+              hideCollectionInBreadcrumb={collectionConfig?.admin?.hideCollectionInBreadcrumb}
               id={id}
               isTrashed={isTrashed}
               pluralLabel={collectionConfig?.labels?.plural}
@@ -639,6 +641,7 @@ export function DefaultEditView({
             apiURL={apiURL}
             BeforeDocumentControls={BeforeDocumentControls}
             customComponents={{
+              DeleteButton,
               PreviewButton,
               PublishButton,
               SaveButton,
@@ -681,6 +684,7 @@ export function DefaultEditView({
             redirectAfterDelete={redirectAfterDelete}
             redirectAfterDuplicate={redirectAfterDuplicate}
             redirectAfterRestore={redirectAfterRestore}
+            showTitle={collectionConfig?.admin?.showTitleInControls}
             slug={collectionConfig?.slug || globalConfig?.slug}
             user={currentEditor}
           />

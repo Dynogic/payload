@@ -17,6 +17,7 @@ import { useTranslation } from '../../providers/Translation/index.js'
 import { UploadControlsProvider, useUploadControls } from '../../providers/UploadControls/index.js'
 import { useUploadEdits } from '../../providers/UploadEdits/index.js'
 import { Button } from '../Button/index.js'
+import { useOptionalDocumentDrawerContext } from '../DocumentDrawer/Provider.js'
 import { Drawer } from '../Drawer/index.js'
 import { Dropzone } from '../Dropzone/index.js'
 import { EditUpload } from '../EditUpload/index.js'
@@ -30,10 +31,6 @@ export const editDrawerSlug = 'edit-upload'
 export const sizePreviewSlug = 'preview-sizes'
 
 const validate = (value) => {
-  if (!value && value !== undefined) {
-    return 'A file is required.'
-  }
-
   if (value && (!value.name || value.name === '')) {
     return 'A file name is required.'
   }
@@ -106,10 +103,13 @@ export const UploadActions = ({
 }
 
 export type UploadProps = {
+  readonly allowedMimeTypes?: string[]
   readonly collectionSlug: string
   readonly customActions?: React.ReactNode[]
+  readonly FileIcon?: React.ComponentType<{ mimeType: string }>
   readonly initialState?: FormState
   readonly onChange?: (file?: File) => void
+  readonly onInvalidFile?: (file: File, allowedTypes: string[]) => void
   readonly uploadConfig: SanitizedCollectionConfig['upload']
   readonly UploadControls?: React.ReactNode
 }
@@ -136,16 +136,23 @@ export type UploadProps_v4 = {
 
 export const Upload_v4: React.FC<UploadProps_v4> = (props) => {
   const {
+    allowedMimeTypes: allowedMimeTypesFromProps,
     collectionSlug,
     customActions,
+    FileIcon,
     initialState,
     onChange,
+    onInvalidFile,
     resetUploadEdits,
     updateUploadEdits,
     uploadConfig,
     UploadControls,
     uploadEdits,
   } = props
+
+  // Fall back to drawer context for allowedMimeTypes
+  const drawerCtx = useOptionalDocumentDrawerContext()
+  const allowedMimeTypes = allowedMimeTypesFromProps || drawerCtx?.allowedMimeTypes
 
   const {
     setUploadControlFile,
@@ -163,7 +170,7 @@ export const Upload_v4: React.FC<UploadProps_v4> = (props) => {
   } = useConfig()
 
   const { t } = useTranslation()
-  const { setModified } = useForm()
+  const { dispatchFields, setModified } = useForm()
   const { id, data, docPermissions, setUploadStatus } = useDocumentInfo()
   const isFormSubmitting = useFormProcessing()
   const { errorMessage, setValue, showError, value } = useField<File>({
@@ -190,6 +197,20 @@ export const Upload_v4: React.FC<UploadProps_v4> = (props) => {
       }
 
       setValue(file)
+
+      // Dispatch mimeType as a serializable string so field conditions can access it
+      // during creation. The File object itself is stripped during serialization
+      // (excludeFiles: true), but the mimeType string survives and reaches the server
+      // where conditions are evaluated.
+      if (file instanceof File) {
+        dispatchFields({
+          type: 'UPDATE',
+          path: 'mimeType',
+          valid: true,
+          value: file.type,
+        })
+      }
+
       setShowUrlInput(false)
       setUploadControlFileUrl('')
       setUploadControlFileName(null)
@@ -199,7 +220,14 @@ export const Upload_v4: React.FC<UploadProps_v4> = (props) => {
         onChange(file)
       }
     },
-    [onChange, setValue, setUploadControlFile, setUploadControlFileName, setUploadControlFileUrl],
+    [
+      dispatchFields,
+      onChange,
+      setValue,
+      setUploadControlFile,
+      setUploadControlFileName,
+      setUploadControlFileUrl,
+    ],
   )
 
   const renameFile = (fileToChange: File, newName: string): File => {
@@ -226,9 +254,30 @@ export const Upload_v4: React.FC<UploadProps_v4> = (props) => {
   const handleFileSelection = useCallback(
     (files: FileList) => {
       const fileToUpload = files?.[0]
+
+      // Validate mime type if restrictions are set
+      const mimeTypes = allowedMimeTypes || uploadConfig?.mimeTypes
+      if (fileToUpload && mimeTypes?.length > 0) {
+        const isValidType = mimeTypes.some((mimeType) => {
+          // Handle wildcard patterns like "audio/*"
+          if (mimeType.endsWith('/*')) {
+            const category = mimeType.slice(0, -2)
+            return fileToUpload.type.startsWith(category + '/')
+          }
+          return fileToUpload.type === mimeType
+        })
+
+        if (!isValidType) {
+          if (onInvalidFile) {
+            onInvalidFile(fileToUpload, mimeTypes)
+          }
+          return
+        }
+      }
+
       handleFileChange({ file: fileToUpload })
     },
-    [handleFileChange],
+    [allowedMimeTypes, handleFileChange, onInvalidFile, uploadConfig],
   )
 
   const handleFileRemoval = useCallback(() => {
@@ -353,7 +402,7 @@ export const Upload_v4: React.FC<UploadProps_v4> = (props) => {
 
   const showFocalPoint = focalPoint && (hasImageSizes || hasResizeOptions || focalPointEnabled)
 
-  const acceptMimeTypes = uploadConfig.mimeTypes?.join(', ')
+  const acceptMimeTypes = (allowedMimeTypes || uploadConfig.mimeTypes)?.join(', ')
 
   const imageCacheTag = uploadConfig?.cacheTags && data?.updatedAt
 
@@ -494,21 +543,27 @@ export const Upload_v4: React.FC<UploadProps_v4> = (props) => {
           )}
           {value && fileSrc && (
             <React.Fragment>
-              <div className={`${baseClass}__thumbnail-wrap`}>
-                <Thumbnail
-                  collectionSlug={collectionSlug}
-                  fileSrc={isImage(value.type) ? fileSrc : null}
-                />
-              </div>
+              {isImage(value.type) && (
+                <div className={`${baseClass}__thumbnail-wrap`}>
+                  <Thumbnail collectionSlug={collectionSlug} fileSrc={fileSrc} />
+                </div>
+              )}
               <div className={`${baseClass}__file-adjustments`}>
-                {/* eslint-disable-next-line jsx-a11y/control-has-associated-label */}
-                <input
-                  className={`${baseClass}__filename`}
-                  onChange={handleFileNameChange}
-                  title={filename || value.name}
-                  type="text"
-                  value={filename || value.name}
-                />
+                <div className={`${baseClass}__filename-row`}>
+                  {!isImage(value.type) && FileIcon && (
+                    <div className={`${baseClass}__file-icon`}>
+                      <FileIcon mimeType={value.type} />
+                    </div>
+                  )}
+                  {/* eslint-disable-next-line jsx-a11y/control-has-associated-label */}
+                  <input
+                    className={`${baseClass}__filename`}
+                    onChange={handleFileNameChange}
+                    title={filename || value.name}
+                    type="text"
+                    value={filename || value.name}
+                  />
+                </div>
                 <UploadActions
                   customActions={customActions}
                   enableAdjustments={showCrop || showFocalPoint}

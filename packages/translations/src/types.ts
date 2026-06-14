@@ -154,6 +154,12 @@ export type I18n<
 
 export type I18nOptions<TTranslations = DefaultTranslationsObject> = {
   fallbackLanguage?: AcceptedLanguages
+  resolveLanguage?: (args: {
+    acceptLanguageHeader: string | undefined
+    cookieValue: string | undefined
+    fallbackLanguage: string
+    supportedLanguages: string[]
+  }) => string
   supportedLanguages?: SupportedLanguages
   translations?: Partial<{
     [key in AcceptedLanguages]?: Language<TTranslations>['translations']

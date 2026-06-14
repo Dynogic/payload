@@ -24,6 +24,7 @@ const drawerBaseClass = 'list-drawer'
 
 export type ListHeaderProps = {
   Actions?: React.ReactNode[]
+  BulkDelete?: React.ReactNode
   className?: string
   collectionConfig: ClientCollectionConfig
   Description?: React.ReactNode
@@ -51,6 +52,7 @@ export type ListHeaderProps = {
 }
 
 export const CollectionListHeader: React.FC<ListHeaderProps> = ({
+  BulkDelete,
   className,
   collectionConfig,
   Description,
@@ -65,6 +67,7 @@ export const CollectionListHeader: React.FC<ListHeaderProps> = ({
   onBulkUploadSuccess,
   openBulkUpload,
   smallBreak,
+  TitleActions: customTitleActions,
   viewType,
 }) => {
   const { config, getEntityConfig } = useConfig()
@@ -109,6 +112,7 @@ export const CollectionListHeader: React.FC<ListHeaderProps> = ({
         !smallBreak && !isGroupingBy && (
           <ListSelection
             collectionConfig={collectionConfig}
+            CustomBulkDelete={BulkDelete}
             disableBulkDelete={disableBulkDelete}
             disableBulkEdit={disableBulkEdit}
             key="list-selection"
@@ -153,6 +157,7 @@ export const CollectionListHeader: React.FC<ListHeaderProps> = ({
             key="list-header-empty-trash"
           />
         ),
+        ...(customTitleActions ?? []),
       ].filter(Boolean)}
     />
   )

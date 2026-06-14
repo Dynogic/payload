@@ -385,9 +385,23 @@ export type FieldAdmin = {
    */
   disableListFilter?: boolean
   hidden?: boolean
+  /**
+   * Override the column header label shown in the list view.
+   * By default, nested fields display "Parent > Child". Use this
+   * to replace that with a custom label.
+   */
+  listLabel?: StaticLabel
   position?: 'sidebar'
   readOnly?: boolean
   style?: CSSProperties
+  /**
+   * Allow this field to be set via URL query parameters on document creation.
+   * If true, uses the field name as the query param name.
+   * If string, uses the string as the query param name.
+   * @example urlParam: true // ?fieldName=value
+   * @example urlParam: 'customParam' // ?customParam=value
+   */
+  urlParam?: boolean | string
   width?: CSSProperties['width']
 }
 
@@ -414,9 +428,23 @@ export type AdminClient = {
    */
   disableListFilter?: boolean
   hidden?: boolean
+  /**
+   * Override the column header label shown in the list view.
+   * By default, nested fields display "Parent > Child". Use this
+   * to replace that with a custom label.
+   */
+  listLabel?: StaticLabel
   position?: 'sidebar'
   readOnly?: boolean
   style?: { '--field-width'?: CSSProperties['width'] } & CSSProperties
+  /**
+   * Allow this field to be set via URL query parameters on document creation.
+   * If true, uses the field name as the query param name.
+   * If string, uses the string as the query param name.
+   * @example urlParam: true // ?fieldName=value
+   * @example urlParam: 'customParam' // ?customParam=value
+   */
+  urlParam?: boolean | string
   width?: CSSProperties['width']
 }
 
@@ -1376,6 +1404,18 @@ export type ArrayField = {
       Label?: CustomComponent<ArrayFieldLabelClientComponent | ArrayFieldLabelServerComponent>
       RowLabel?: RowLabelComponent
     } & FieldAdmin['components']
+    /**
+     * Hide the "Add Below" action from each row's action menu.
+     */
+    hideAddBelow?: boolean
+    /**
+     * Hide the default "Add Row" button. Use afterInput for custom add buttons.
+     */
+    hideAddButton?: boolean
+    /**
+     * Hide the clipboard copy/paste actions from the header and row menus.
+     */
+    hideClipboard?: boolean
     initCollapsed?: boolean
     /**
      * Disable drag and drop sorting
@@ -1402,8 +1442,13 @@ export type ArrayField = {
 } & Omit<FieldBase, 'validate'>
 
 export type ArrayFieldClient = {
-  // @ts-expect-error - vestiges of when tsconfig was not strict. Feel free to improve
-  admin?: AdminClient & Pick<ArrayField['admin'], 'initCollapsed' | 'isSortable'>
+  admin?: {
+    hideAddBelow?: boolean
+    hideAddButton?: boolean
+    hideClipboard?: boolean
+    initCollapsed?: boolean
+    isSortable?: boolean
+  } & AdminClient
   fields: ClientField[]
   labels?: LabelsClient
 } & FieldBaseClient &
@@ -1522,6 +1567,11 @@ export type Block = {
        */
       Block?: PayloadComponent<any, any>
       Label?: PayloadComponent<any, any>
+      /**
+       * Custom component rendered inside the block type pill in the row header.
+       * Replaces the default block label text. Receives standard client props.
+       */
+      Pill?: PayloadComponent<any, any>
     }
     /** Extension point to add your custom data. Available in server and client. */
     custom?: Record<string, any>
@@ -1577,6 +1627,18 @@ export type BlocksField = {
       Error?: CustomComponent<BlocksFieldErrorClientComponent | BlocksFieldErrorServerComponent>
       Label?: CustomComponent<BlocksFieldLabelClientComponent | BlocksFieldLabelServerComponent>
     } & FieldAdmin['components']
+    /**
+     * Hide the "Add Below" action from each row's action menu.
+     */
+    hideAddBelow?: boolean
+    /**
+     * Hide the default "Add Block" button. Use afterInput for custom add buttons.
+     */
+    hideAddButton?: boolean
+    /**
+     * Hide the clipboard copy/paste actions from the header and row menus.
+     */
+    hideClipboard?: boolean
     initCollapsed?: boolean
     /**
      * Disable drag and drop sorting
@@ -1629,8 +1691,13 @@ export type BlocksField = {
 } & Omit<FieldBase, 'validate'>
 
 export type BlocksFieldClient = {
-  // @ts-expect-error - vestiges of when tsconfig was not strict. Feel free to improve
-  admin?: AdminClient & Pick<BlocksField['admin'], 'initCollapsed' | 'isSortable'>
+  admin?: {
+    hideAddBelow?: boolean
+    hideAddButton?: boolean
+    hideClipboard?: boolean
+    initCollapsed?: boolean
+    isSortable?: boolean
+  } & AdminClient
   /**
    * Like `blocks`, but allows you to also pass strings that are slugs of blocks defined in `config.blocks`.
    *

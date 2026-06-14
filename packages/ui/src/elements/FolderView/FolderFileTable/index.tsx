@@ -85,7 +85,10 @@ export function FolderFileTable({ showRelationCell = true }: Props) {
               columns={columns.map(({ name }, index) => {
                 let cellValue: React.ReactNode = '—'
                 if (name === 'name' && value._folderOrDocumentTitle !== undefined) {
-                  cellValue = value._folderOrDocumentTitle
+                  cellValue =
+                    value._folderOrDocumentTitle === String(value.id)
+                      ? t('general:noLabel', { label: t('general:name') })
+                      : value._folderOrDocumentTitle
                 }
 
                 if ((name === 'createdAt' || name === 'updatedAt') && value[name]) {
@@ -166,7 +169,10 @@ export function FolderFileTable({ showRelationCell = true }: Props) {
               columns={columns.map(({ name }, index) => {
                 let cellValue: React.ReactNode = '—'
                 if (name === 'name' && value._folderOrDocumentTitle !== undefined) {
-                  cellValue = value._folderOrDocumentTitle
+                  cellValue =
+                    value._folderOrDocumentTitle === String(value.id)
+                      ? t('general:noLabel', { label: t('general:name') })
+                      : value._folderOrDocumentTitle
                 }
 
                 if ((name === 'createdAt' || name === 'updatedAt') && value[name]) {

@@ -91,6 +91,7 @@ export const DocumentDrawer: React.FC<DocumentDrawerProps> = (props) => {
 export const useDocumentDrawer: UseDocumentDrawer = ({
   id,
   collectionSlug,
+  filterOptions,
   overrideEntityVisibility,
 }) => {
   const editDepth = useEditDepth()
@@ -127,12 +128,13 @@ export const useDocumentDrawer: UseDocumentDrawer = ({
         {...props}
         collectionSlug={collectionSlug}
         drawerSlug={drawerSlug}
+        filterOptions={filterOptions}
         id={id}
         key={drawerSlug}
         overrideEntityVisibility={overrideEntityVisibility}
       />
     )
-  }, [id, drawerSlug, collectionSlug, overrideEntityVisibility])
+  }, [id, drawerSlug, collectionSlug, filterOptions, overrideEntityVisibility])
 
   const MemoizedDrawerToggler = useMemo<React.FC<DocumentTogglerProps>>(() => {
     return (props) => (

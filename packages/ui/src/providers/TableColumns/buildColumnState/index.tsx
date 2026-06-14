@@ -79,7 +79,7 @@ export const buildColumnState = (args: BuildColumnStateArgs): Column[] => {
     customCellProps,
     dataType,
     docs,
-    enableLinkedCell = true,
+    enableLinkedCell = false,
     enableRowSelections,
     fieldPermissions,
     i18n,

@@ -117,6 +117,7 @@ export const Form: React.FC<FormProps> = (props) => {
   const [initializing, setInitializing] = useState(initializingFromProps)
 
   const [processing, setProcessing] = useState(false)
+  const [uploadProgress, setUploadProgress] = useState<null | number>(null)
 
   /**
    * Determines whether the form is processing asynchronously in the background, e.g. autosave is running.
@@ -163,6 +164,7 @@ export const Form: React.FC<FormProps> = (props) => {
 
   const formRef = useRef<HTMLFormElement>(null)
   const contextRef = useRef({} as FormContextType)
+  const uploadToastIdRef = useRef<number | string>(null)
   const abortResetFormRef = useRef<AbortController>(null)
   const isFirstRenderRef = useRef(true)
 
@@ -269,6 +271,7 @@ export const Form: React.FC<FormProps> = (props) => {
 
       // create new toast promise which will resolve manually later
       let errorToast, successToast
+      let toastId: number | string = null
 
       const promise = new Promise((resolve, reject) => {
         successToast = resolve
@@ -278,7 +281,16 @@ export const Form: React.FC<FormProps> = (props) => {
       const hasFormSubmitAction =
         actionArg || typeof action === 'string' || typeof action === 'function'
 
-      if (redirect || disableToast || !hasFormSubmitAction) {
+      const isUploadForm = docConfig && 'upload' in docConfig && docConfig.upload
+
+      if (isUploadForm) {
+        // Upload forms always show a progress toast (even on create where disableToast is true),
+        // because the client-side upload can take a while and the user needs feedback.
+        successToast = (data) => toast.success(data)
+        errorToast = (data) => toast.error(data)
+        toastId = toast.loading(t('general:submitting'))
+        uploadToastIdRef.current = toastId
+      } else if (redirect || disableToast || !hasFormSubmitAction) {
         // Do not show submitting toast, as the promise toast may never disappear under these conditions.
         // Instead, make successToast() or errorToast() throw toast.success / toast.error
         successToast = (data) => toast.success(data)
@@ -342,6 +354,11 @@ export const Form: React.FC<FormProps> = (props) => {
           setProcessing(false)
           setSubmitted(true)
           setDisabled(false)
+          setUploadProgress(null)
+          if (toastId) {
+            toast.dismiss(toastId)
+            uploadToastIdRef.current = null
+          }
           return dispatchFields({ type: 'REPLACE_STATE', state: revalidatedFormState })
         }
       }
@@ -353,10 +370,15 @@ export const Form: React.FC<FormProps> = (props) => {
 
       // If not valid, prevent submission
       if (!isValid) {
+        if (toastId) {
+          toast.dismiss(toastId)
+          uploadToastIdRef.current = null
+        }
         errorToast(t('error:correctInvalidFields'))
         setProcessing(false)
         setSubmitted(true)
         setDisabled(false)
+        setUploadProgress(null)
         return
       }
 
@@ -383,6 +405,11 @@ export const Form: React.FC<FormProps> = (props) => {
         setProcessing(false)
         setSubmitted(true)
         setDisabled(false)
+        setUploadProgress(null)
+        if (toastId) {
+          toast.dismiss(toastId)
+          uploadToastIdRef.current = null
+        }
         return
       }
 
@@ -447,6 +474,11 @@ export const Form: React.FC<FormProps> = (props) => {
 
           setSubmitted(false)
           setProcessing(false)
+          setUploadProgress(null)
+          if (toastId) {
+            toast.dismiss(toastId)
+            uploadToastIdRef.current = null
+          }
 
           if (redirect) {
             startRouteTransition(() => router.push(redirect))
@@ -456,6 +488,11 @@ export const Form: React.FC<FormProps> = (props) => {
         } else {
           setProcessing(false)
           setSubmitted(true)
+          setUploadProgress(null)
+          if (toastId) {
+            toast.dismiss(toastId)
+            uploadToastIdRef.current = null
+          }
 
           // When there was an error submitting a draft,
           // set the form state to unsubmitted, to not trigger visible form validation on changes after the failed submit.
@@ -528,6 +565,11 @@ export const Form: React.FC<FormProps> = (props) => {
         setProcessing(false)
         setSubmitted(true)
         setDisabled(false)
+        setUploadProgress(null)
+        if (toastId) {
+          toast.dismiss(toastId)
+          uploadToastIdRef.current = null
+        }
         errorToast(err.message)
       }
     },
@@ -583,8 +625,19 @@ export const Form: React.FC<FormProps> = (props) => {
 
         if (typeof handler === 'function') {
           let filename = file.name
+          setUploadProgress(0)
           const clientUploadContext = await handler({
             file,
+            formData: data,
+            onProgress: (progress) => {
+              setUploadProgress(progress)
+              // Update toast if we have one
+              if (uploadToastIdRef.current) {
+                toast.loading(t('general:uploading', { progress: Math.round(progress * 100) }), {
+                  id: uploadToastIdRef.current,
+                })
+              }
+            },
             updateFilename: (value) => {
               filename = value
             },

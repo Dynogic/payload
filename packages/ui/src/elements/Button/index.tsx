@@ -4,10 +4,12 @@ import React, { Fragment, isValidElement } from 'react'
 import type { Props } from './types.js'
 
 import { ChevronIcon } from '../../icons/Chevron/index.js'
+import { DownloadIcon } from '../../icons/Download/index.js'
 import { EditIcon } from '../../icons/Edit/index.js'
 import { LinkIcon } from '../../icons/Link/index.js'
 import { PlusIcon } from '../../icons/Plus/index.js'
 import { SwapIcon } from '../../icons/Swap/index.js'
+import { UploadIcon } from '../../icons/Upload/index.js'
 import { XIcon } from '../../icons/X/index.js'
 import { Link } from '../Link/index.js'
 import { Popup } from '../Popup/index.js'
@@ -16,10 +18,12 @@ import { Tooltip } from '../Tooltip/index.js'
 
 const icons = {
   chevron: ChevronIcon,
+  download: DownloadIcon,
   edit: EditIcon,
   link: LinkIcon,
   plus: PlusIcon,
   swap: SwapIcon,
+  upload: UploadIcon,
   x: XIcon,
 }
 

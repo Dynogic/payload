@@ -65,9 +65,11 @@ export function ListBulkUploadButton({
     <Button
       aria-label={t('upload:bulkUpload')}
       buttonStyle="pill"
+      icon="upload"
+      iconPosition="left"
       key="bulk-upload-button"
       onClick={openBulkUpload}
-      size="small"
+      size="medium"
     >
       {t('upload:bulkUpload')}
     </Button>

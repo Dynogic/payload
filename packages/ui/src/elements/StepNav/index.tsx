@@ -27,17 +27,13 @@ const StepNav: React.FC<{
    */
   readonly Link?: React.ComponentType
 }> = ({ className, CustomIcon }) => {
-  const { i18n } = useTranslation()
-
+  const { i18n, t } = useTranslation()
   const { stepNav } = useStepNav()
-
   const {
     config: {
       routes: { admin },
     },
   } = useConfig()
-
-  const { t } = useTranslation()
 
   return (
     <Fragment>
@@ -54,9 +50,15 @@ const StepNav: React.FC<{
             const isLast = stepNav.length === i + 1
 
             const Step = isLast ? (
-              <span className={`${baseClass}__last`} key={i}>
-                {StepLabel}
-              </span>
+              item.url ? (
+                <Link className={`${baseClass}__last`} href={item.url} key={i} prefetch={false}>
+                  <span>{StepLabel}</span>
+                </Link>
+              ) : (
+                <span className={`${baseClass}__last`} key={i}>
+                  {StepLabel}
+                </span>
+              )
             ) : (
               <Fragment key={i}>
                 {item.url ? (

@@ -96,6 +96,10 @@ import {
   type Options as UpdateOptions,
 } from './collections/operations/local/update.js'
 import {
+  validateLocal,
+  type Options as ValidateOptions,
+} from './collections/operations/local/validate.js'
+import {
   countGlobalVersionsLocal,
   type CountGlobalVersionsOptions,
 } from './globals/operations/local/countVersions.js'
@@ -987,6 +991,18 @@ export class BasePayload {
   ): Promise<BulkOperationResult<TSlug, TSelect> | TransformCollectionWithSelect<TSlug, TSelect>> {
     return updateLocal<TSlug, TSelect>(this, options)
   }
+
+  /**
+   * @description Dry-run field validation for a hypothetical create/update on
+   * a document. No write, no transaction, no hooks with side effects. Throws
+   * `ValidationError` on field validation failure; resolves to void on success.
+   *
+   * Useful for pre-flight checks — e.g., "would publishing this draft pass
+   * required-field validation?" without actually attempting the write.
+   */
+  validate<TSlug extends CollectionSlug>(options: ValidateOptions<TSlug>): Promise<void> {
+    return validateLocal<TSlug>(this, options)
+  }
 }
 
 const initialized = new BasePayload()
@@ -1365,6 +1381,7 @@ export {
   serverOnlyConfigProperties,
   type UnauthenticatedClientConfig,
 } from './config/client.js'
+export { createDynamicRoutes } from './config/createDynamicRoutes.js'
 export { defaults } from './config/defaults.js'
 
 export { type OrderableEndpointBody } from './config/orderable/index.js'
@@ -1841,4 +1858,4 @@ export { saveVersion } from './versions/saveVersion.js'
 export type { SchedulePublishTaskInput } from './versions/schedule/types.js'
 
 export type { SchedulePublish, TypeWithVersion } from './versions/types.js'
-export { deepMergeSimple } from '@payloadcms/translations/utilities'
+export { deepMergeSimple, mergeForDevHotReload } from '@payloadcms/translations/utilities'

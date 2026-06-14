@@ -15,9 +15,12 @@ import { DocumentDrawerContextProvider } from './Provider.js'
 
 export const DocumentDrawerContent: React.FC<DocumentDrawerProps> = ({
   id: docID,
+  allowedMimeTypes,
   collectionSlug,
   disableActions,
+  drawerContext,
   drawerSlug,
+  filterOptions,
   initialData,
   onDelete: onDeleteFromProps,
   onDuplicate: onDuplicateFromProps,
@@ -59,6 +62,7 @@ export const DocumentDrawerContent: React.FC<DocumentDrawerProps> = ({
             disableActions,
             docID,
             drawerSlug,
+            filterOptions,
             initialData,
             overrideEntityVisibility,
             redirectAfterCreate,
@@ -87,6 +91,7 @@ export const DocumentDrawerContent: React.FC<DocumentDrawerProps> = ({
       collectionSlug,
       disableActions,
       drawerSlug,
+      filterOptions,
       initialData,
       redirectAfterDelete,
       redirectAfterDuplicate,
@@ -99,20 +104,22 @@ export const DocumentDrawerContent: React.FC<DocumentDrawerProps> = ({
     ],
   )
 
+  const isCreateDrawer = !docID
+
   const onSave = useCallback<DocumentDrawerProps['onSave']>(
     (args) => {
-      if (args.operation === 'create') {
-        getDocumentView(args.doc.id)
-      }
-
       if (typeof onSaveFromProps === 'function') {
         void onSaveFromProps({
           ...args,
           collectionConfig,
         })
       }
+
+      if (isCreateDrawer) {
+        closeModal(drawerSlug)
+      }
     },
-    [onSaveFromProps, collectionConfig, getDocumentView],
+    [onSaveFromProps, collectionConfig, isCreateDrawer, closeModal, drawerSlug],
   )
 
   const onDuplicate = useCallback<DocumentDrawerProps['onDuplicate']>(
@@ -169,8 +176,12 @@ export const DocumentDrawerContent: React.FC<DocumentDrawerProps> = ({
 
   return (
     <DocumentDrawerContextProvider
+      allowedMimeTypes={allowedMimeTypes}
       clearDoc={clearDoc}
+      drawerContext={drawerContext}
       drawerSlug={drawerSlug}
+      filterOptions={filterOptions}
+      isCreateDrawer={isCreateDrawer}
       onDelete={onDelete}
       onDuplicate={onDuplicate}
       onSave={onSave}

@@ -4,6 +4,7 @@ import type { FolderOrDocument } from 'payload/shared'
 import { DragOverlay } from '@dnd-kit/core'
 import { getEventCoordinates } from '@dnd-kit/utilities'
 
+import { useTranslation } from '../../../providers/Translation/index.js'
 import { FolderFileCard } from '../FolderFileCard/index.js'
 import './index.scss'
 
@@ -14,6 +15,13 @@ type DragCardsProps = {
   readonly selectedCount: number
 }
 export function DragOverlaySelection({ item, selectedCount }: DragCardsProps) {
+  const { t } = useTranslation()
+
+  const title =
+    item.value._folderOrDocumentTitle === String(item.value.id)
+      ? t('general:noLabel', { label: t('general:name') })
+      : item.value._folderOrDocumentTitle
+
   return (
     <DragOverlay
       dropAnimation={null}
@@ -37,7 +45,7 @@ export function DragOverlaySelection({ item, selectedCount }: DragCardsProps) {
               id={null}
               isSelected
               itemKey="overlay-card"
-              title={item.value._folderOrDocumentTitle}
+              title={title}
               type="folder"
             />
           </div>

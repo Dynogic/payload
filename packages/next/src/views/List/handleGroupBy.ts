@@ -116,7 +116,7 @@ export const handleGroupBy = async ({
 
       const groupData = await req.payload.find({
         collection: collectionSlug,
-        depth: 0,
+        depth: collectionConfig.admin.listDepth ?? 0,
         draft: true,
         fallbackLocale: false,
         includeLockStatus: true,
@@ -128,6 +128,7 @@ export const handleGroupBy = async ({
         page: query?.queryByGroup?.[valueOrRelationshipID]?.page
           ? Number(query.queryByGroup[valueOrRelationshipID].page)
           : undefined,
+        populate: collectionConfig.admin.listPopulate,
         req,
         // Note: if we wanted to enable table-by-table sorting, we could use this:
         // sort: query?.queryByGroup?.[valueOrRelationshipID]?.sort,

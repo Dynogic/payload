@@ -49,10 +49,12 @@ export const renderField: RenderFieldMethod = ({
   schemaPath,
   siblingData,
 }) => {
-  // Fields with beforeInput/afterInput need custom components created, so they require render
+  // Fields with beforeInput/afterInput/headerActions need custom components created, so they require render
   const hasBeforeOrAfterInput =
     fieldConfig.admin?.components &&
-    ('beforeInput' in fieldConfig.admin.components || 'afterInput' in fieldConfig.admin.components)
+    ('beforeInput' in fieldConfig.admin.components ||
+      'afterInput' in fieldConfig.admin.components ||
+      'headerActions' in fieldConfig.admin.components)
 
   const requiresRender =
     renderAllFields || !lastRenderedPath || lastRenderedPath !== path || hasBeforeOrAfterInput
@@ -204,6 +206,22 @@ export const renderField: RenderFieldMethod = ({
               })
             : 'Mock'
         }
+
+        if (blockConfig.admin?.components && 'Pill' in blockConfig.admin.components) {
+          if (!fieldState.rows[rowIndex]?.customComponents) {
+            fieldState.rows[rowIndex].customComponents = {}
+          }
+
+          fieldState.rows[rowIndex].customComponents.Pill = !mockRSCs
+            ? RenderServerComponent({
+                clientProps: { ...clientProps, blockType: row.blockType },
+                Component: blockConfig.admin.components.Pill,
+                importMap: req.payload.importMap,
+                key: `pill-${rowIndex}`,
+                serverProps,
+              })
+            : 'Mock'
+        }
       })
 
       break
@@ -346,6 +364,18 @@ export const renderField: RenderFieldMethod = ({
               Component: fieldConfig.admin.components.beforeInput,
               importMap: req.payload.importMap,
               key: `field.admin.components.beforeInput.${path}`,
+              serverProps,
+            })
+          : 'Mock'
+      }
+
+      if ('headerActions' in fieldConfig.admin.components) {
+        fieldState.customComponents.HeaderActions = !mockRSCs
+          ? RenderServerComponent({
+              clientProps,
+              Component: fieldConfig.admin.components.headerActions,
+              importMap: req.payload.importMap,
+              key: `field.admin.components.headerActions.${path}`,
               serverProps,
             })
           : 'Mock'

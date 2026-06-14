@@ -169,6 +169,13 @@ function memoize<T extends Parameters<InitI18n>[0], K extends keyof T>(
   fn: (args: T) => Promise<I18n>,
   keys: K[],
 ): (args: T) => Promise<I18n> {
+  // In development, skip caching so edits to `config.translations` (e.g.
+  // project-side locale JSON updated during HMR) flow through on the next
+  // request without a server restart. In production, memoize as before.
+  if (process.env.NODE_ENV === 'development') {
+    return fn
+  }
+
   const cacheMap = new Map<string, I18n>()
 
   const memoized = async (args: T) => {

@@ -1,4 +1,4 @@
-import { deepMergeSimple } from '@payloadcms/translations/utilities'
+import { mergeForDevHotReload } from '@payloadcms/translations/utilities'
 
 import type {
   CollectionConfig,
@@ -316,7 +316,11 @@ export const sanitizeFields = async ({
         }
 
         if (field.editor.i18n && Object.keys(field.editor.i18n).length >= 0) {
-          config.i18n!.translations = deepMergeSimple(config.i18n!.translations!, field.editor.i18n)
+          // See FORK-CHANGES.md #54 — use Proxy-preserving merge in dev.
+          config.i18n!.translations = mergeForDevHotReload(
+            config.i18n!.translations as Record<string, any>,
+            field.editor.i18n as Record<string, any>,
+          )
         }
       }
       if (richTextSanitizationPromises) {

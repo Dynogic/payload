@@ -1,5 +1,6 @@
 import type {
   BeforeDocumentControlsServerPropsOnly,
+  DeleteButtonServerPropsOnly,
   DocumentSlots,
   EditMenuItemsServerPropsOnly,
   Locale,
@@ -61,6 +62,17 @@ export const renderDocumentSlots: (args: {
       Component: BeforeDocumentControls,
       importMap: req.payload.importMap,
       serverProps: serverProps satisfies BeforeDocumentControlsServerPropsOnly,
+    })
+  }
+
+  // DeleteButton is a collection-only slot — globals are singletons and can't be deleted.
+  const CustomDeleteButton = collectionConfig?.admin?.components?.edit?.DeleteButton
+
+  if (CustomDeleteButton) {
+    components.DeleteButton = RenderServerComponent({
+      Component: CustomDeleteButton,
+      importMap: req.payload.importMap,
+      serverProps: serverProps satisfies DeleteButtonServerPropsOnly,
     })
   }
 

@@ -9,7 +9,7 @@ import type {
 
 import { getTranslation } from '@payloadcms/translations'
 import { formatAdminURL, hasAutosaveEnabled, hasDraftsEnabled } from 'payload/shared'
-import React, { Fragment, useEffect } from 'react'
+import React, { Fragment } from 'react'
 
 import type { DocumentDrawerContextType } from '../DocumentDrawer/Provider.js'
 
@@ -18,11 +18,11 @@ import { useConfig } from '../../providers/Config/index.js'
 import { useEditDepth } from '../../providers/EditDepth/index.js'
 import { useLivePreviewContext } from '../../providers/LivePreview/context.js'
 import { useTranslation } from '../../providers/Translation/index.js'
-import { formatDate } from '../../utilities/formatDocTitle/formatDateTitle.js'
 import { Autosave } from '../Autosave/index.js'
 import { Button } from '../Button/index.js'
 import { CopyLocaleData } from '../CopyLocaleData/index.js'
 import { DeleteDocument } from '../DeleteDocument/index.js'
+import { useOptionalDocumentDrawerContext } from '../DocumentDrawer/Provider.js'
 import { DuplicateDocument } from '../DuplicateDocument/index.js'
 import { MoveDocToFolder } from '../FolderView/MoveDocToFolder/index.js'
 import { Gutter } from '../Gutter/index.js'
@@ -33,6 +33,7 @@ import { Popup, PopupList } from '../Popup/index.js'
 import { PreviewButton } from '../PreviewButton/index.js'
 import { PublishButton } from '../PublishButton/index.js'
 import { RenderCustomComponent } from '../RenderCustomComponent/index.js'
+import { RenderTitle } from '../RenderTitle/index.js'
 import { RestoreButton } from '../RestoreButton/index.js'
 import { SaveButton } from '../SaveButton/index.js'
 import './index.scss'
@@ -46,6 +47,7 @@ export const DocumentControls: React.FC<{
   readonly apiURL: string
   readonly BeforeDocumentControls?: React.ReactNode
   readonly customComponents?: {
+    readonly DeleteButton?: React.ReactNode
     readonly PreviewButton?: React.ReactNode
     readonly PublishButton?: React.ReactNode
     readonly SaveButton?: React.ReactNode
@@ -76,6 +78,7 @@ export const DocumentControls: React.FC<{
   readonly redirectAfterDelete?: boolean
   readonly redirectAfterDuplicate?: boolean
   readonly redirectAfterRestore?: boolean
+  readonly showTitle?: boolean
   readonly slug: SanitizedCollectionConfig['slug']
   readonly user?: ClientUser
 }> = (props) => {
@@ -84,6 +87,7 @@ export const DocumentControls: React.FC<{
     slug,
     BeforeDocumentControls,
     customComponents: {
+      DeleteButton: CustomDeleteButton,
       PreviewButton: CustomPreviewButton,
       PublishButton: CustomPublishButton,
       SaveButton: CustomSaveButton,
@@ -110,12 +114,16 @@ export const DocumentControls: React.FC<{
     redirectAfterDelete,
     redirectAfterDuplicate,
     redirectAfterRestore,
+    showTitle,
     user,
   } = props
 
   const { i18n, t } = useTranslation()
 
   const editDepth = useEditDepth()
+
+  const drawerCtx = useOptionalDocumentDrawerContext()
+  const isCreateDrawer = drawerCtx?.isCreateDrawer ?? false
 
   const { config, getEntityConfig } = useConfig()
 
@@ -126,34 +134,23 @@ export const DocumentControls: React.FC<{
   const { isLivePreviewEnabled } = useLivePreviewContext()
 
   const {
-    admin: { dateFormat },
     localization,
     routes: { admin: adminRoute },
-    serverURL,
   } = config
-
-  // Settings these in state to avoid hydration issues if there is a mismatch between the server and client
-  const [updatedAt, setUpdatedAt] = React.useState<string>('')
-  const [createdAt, setCreatedAt] = React.useState<string>('')
 
   const processing = useFormProcessing()
   const initializing = useFormInitializing()
-
-  useEffect(() => {
-    if (data?.updatedAt) {
-      setUpdatedAt(formatDate({ date: data.updatedAt, i18n, pattern: dateFormat }))
-    }
-    if (data?.createdAt) {
-      setCreatedAt(formatDate({ date: data.createdAt, i18n, pattern: dateFormat }))
-    }
-  }, [data, i18n, dateFormat])
 
   const hasCreatePermission = permissions && 'create' in permissions && permissions.create
 
   const hasDeletePermission = permissions && 'delete' in permissions && permissions.delete
 
   const showDotMenu = Boolean(
-    collectionConfig && id && !disableActions && (hasCreatePermission || hasDeletePermission),
+    collectionConfig &&
+      id &&
+      !disableActions &&
+      !isCreateDrawer &&
+      (hasCreatePermission || hasDeletePermission),
   )
 
   const unsavedDraftWithValidations =
@@ -181,6 +178,9 @@ export const DocumentControls: React.FC<{
     <Gutter className={baseClass}>
       <div className={`${baseClass}__wrapper`}>
         <div className={`${baseClass}__content`}>
+          {showTitle && !isInDrawer && (
+            <RenderTitle className={`${baseClass}__title`} element="h1" />
+          )}
           {showLockedMetaIcon || showFolderMetaIcon ? (
             <div className={`${baseClass}__meta-icons`}>
               {showLockedMetaIcon && (
@@ -195,7 +195,7 @@ export const DocumentControls: React.FC<{
             </div>
           ) : null}
           <ul className={`${baseClass}__meta`}>
-            {collectionConfig && !isEditing && !isAccountView && (
+            {collectionConfig && !isEditing && !isAccountView && !showTitle && (
               <li className={`${baseClass}__list-item`}>
                 <p className={`${baseClass}__value`}>
                   {i18n.t('general:creatingNewLabel', {
@@ -221,6 +221,7 @@ export const DocumentControls: React.FC<{
                 {hasSavePermission &&
                   autosaveEnabled &&
                   !unsavedDraftWithValidations &&
+                  !isInDrawer &&
                   !isTrashed && (
                     <li className={`${baseClass}__list-item`}>
                       <Autosave
@@ -231,31 +232,6 @@ export const DocumentControls: React.FC<{
                       />
                     </li>
                   )}
-              </Fragment>
-            )}
-            {collectionConfig?.timestamps && (isEditing || isAccountView) && (
-              <Fragment>
-                <li
-                  className={[`${baseClass}__list-item`, `${baseClass}__value-wrap`]
-                    .filter(Boolean)
-                    .join(' ')}
-                  title={data?.updatedAt ? updatedAt : ''}
-                >
-                  <p className={`${baseClass}__label`}>
-                    {i18n.t(isTrashed ? 'general:deleted' : 'general:lastModified')}:&nbsp;
-                  </p>
-
-                  {data?.updatedAt && <p className={`${baseClass}__value`}>{updatedAt}</p>}
-                </li>
-                <li
-                  className={[`${baseClass}__list-item`, `${baseClass}__value-wrap`]
-                    .filter(Boolean)
-                    .join(' ')}
-                  title={data?.createdAt ? createdAt : ''}
-                >
-                  <p className={`${baseClass}__label`}>{i18n.t('general:created')}:&nbsp;</p>
-                  {data?.createdAt && <p className={`${baseClass}__value`}>{createdAt}</p>}
-                </li>
               </Fragment>
             )}
           </ul>
@@ -272,16 +248,18 @@ export const DocumentControls: React.FC<{
             )}
             {hasSavePermission && !isTrashed && (
               <Fragment>
-                {collectionHasDraftsEnabled || globalHasDraftsEnabled ? (
+                {isInDrawer ? (
+                  <SaveButton label={isCreateDrawer ? t('general:saveAndAdd') : undefined} />
+                ) : collectionHasDraftsEnabled || globalHasDraftsEnabled ? (
                   <Fragment>
                     {(unsavedDraftWithValidations ||
                       !autosaveEnabled ||
                       (autosaveEnabled && showSaveDraftButton)) && (
-                        <RenderCustomComponent
-                          CustomComponent={CustomSaveDraftButton}
-                          Fallback={<SaveDraftButton />}
-                        />
-                      )}
+                      <RenderCustomComponent
+                        CustomComponent={CustomSaveDraftButton}
+                        Fallback={<SaveDraftButton />}
+                      />
+                    )}
                     <RenderCustomComponent
                       CustomComponent={CustomPublishButton}
                       Fallback={<PublishButton />}
@@ -346,25 +324,6 @@ export const DocumentControls: React.FC<{
                 {showCopyToLocale && <CopyLocaleData />}
                 {hasCreatePermission && (
                   <React.Fragment>
-                    {!disableCreate && (
-                      <Fragment>
-                        {editDepth > 1 ? (
-                          <PopupList.Button id="action-create" onClick={onDrawerCreateNew}>
-                            {i18n.t('general:createNew')}
-                          </PopupList.Button>
-                        ) : (
-                          <PopupList.Button
-                            href={formatAdminURL({
-                              adminRoute,
-                              path: `/collections/${collectionConfig?.slug}/create`,
-                            })}
-                            id="action-create"
-                          >
-                            {i18n.t('general:createNew')}
-                          </PopupList.Button>
-                        )}
-                      </Fragment>
-                    )}
                     {collectionConfig.disableDuplicate !== true && isEditing && (
                       <>
                         <DuplicateDocument
@@ -389,14 +348,19 @@ export const DocumentControls: React.FC<{
                   </React.Fragment>
                 )}
                 {hasDeletePermission && (
-                  <DeleteDocument
-                    buttonId="action-delete"
-                    collectionSlug={collectionConfig?.slug}
-                    id={id.toString()}
-                    onDelete={onDelete}
-                    redirectAfterDelete={redirectAfterDelete}
-                    singularLabel={collectionConfig?.labels?.singular}
-                    useAsTitle={collectionConfig?.admin?.useAsTitle}
+                  <RenderCustomComponent
+                    CustomComponent={CustomDeleteButton}
+                    Fallback={
+                      <DeleteDocument
+                        buttonId="action-delete"
+                        collectionSlug={collectionConfig?.slug}
+                        id={id.toString()}
+                        onDelete={onDelete}
+                        redirectAfterDelete={redirectAfterDelete}
+                        singularLabel={collectionConfig?.labels?.singular}
+                        useAsTitle={collectionConfig?.admin?.useAsTitle}
+                      />
+                    }
                   />
                 )}
                 <RenderCustomComponent

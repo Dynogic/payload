@@ -7,6 +7,7 @@ import type {
   Payload,
   TypeWithID,
   UploadCollectionSlug,
+  Where,
 } from 'payload'
 
 import { sanitizeFields } from 'payload'
@@ -50,6 +51,16 @@ export type UploadFeatureProps = {
     }
   }
   /**
+   * Reduce the available options based on the current user, value of another field, etc.
+   * Returns a Where query to filter the collection.
+   */
+  filterOptions?: (args: {
+    relationTo: string
+    data?: any
+    siblingData?: any
+    id?: string | number
+  }) => boolean | Where | Promise<boolean | Where>
+  /**
    * Sets a maximum population depth for this upload (not the fields for this upload), regardless of the remaining depth when the respective field is reached.
    * This behaves exactly like the maxDepth properties of relationship and upload fields.
    *
@@ -90,6 +101,28 @@ export const UploadFeature = createServerFeature<
         clientProps.collections[collection] = {
           hasExtraFields: props.collections[collection]!.fields.length >= 1,
         }
+      }
+    }
+    
+    // Process filterOptions to create a serializable format for the client
+    if (props.filterOptions) {
+      const filterOptionsResult: Record<string, any> = {}
+      
+      // Get all upload collections
+      const uploadCollections = _config.collections
+        .filter(col => col.upload)
+        .map(col => col.slug)
+      
+      // Pre-compute filter options for each collection
+      for (const collectionSlug of uploadCollections) {
+        const result = props.filterOptions({ relationTo: collectionSlug })
+        if (result !== true) {
+          filterOptionsResult[collectionSlug] = result
+        }
+      }
+      
+      if (Object.keys(filterOptionsResult).length > 0) {
+        clientProps.filterOptions = filterOptionsResult
       }
     }
 

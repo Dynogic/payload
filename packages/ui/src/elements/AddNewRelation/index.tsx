@@ -23,6 +23,7 @@ const baseClass = 'relationship-add-new'
 
 export const AddNewRelation: React.FC<Props> = ({
   Button: ButtonFromProps,
+  filterOptions,
   hasMany,
   onChange,
   path,
@@ -48,6 +49,7 @@ export const AddNewRelation: React.FC<Props> = ({
   const [DocumentDrawer, DocumentDrawerToggler, { isDrawerOpen, toggleDrawer }] = useDocumentDrawer(
     {
       collectionSlug: collectionConfig?.slug,
+      filterOptions,
     },
   )
 

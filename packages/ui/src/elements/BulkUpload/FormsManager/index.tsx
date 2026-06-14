@@ -342,7 +342,16 @@ export function FormsManagerProvider({ children }: FormsManagerProps) {
           const form = currentForms[i]
           const fileValue = form.formState?.file?.value
 
-          setLoadingText(t('general:uploadingBulk', { current: i + 1, total: currentForms.length }))
+          let currentFileProgress = 0
+          const updateLoadingText = () => {
+            setLoadingText(t('general:uploadingBulk', { 
+              current: i + 1, 
+              total: currentForms.length,
+              progress: Math.round(currentFileProgress * 100)
+            }))
+          }
+          
+          updateLoadingText()
 
           const actionURLWithParams = `${actionURL}${qs.stringify(
             {
@@ -360,6 +369,10 @@ export function FormsManagerProvider({ children }: FormsManagerProps) {
               overrides,
               collectionSlug,
               getUploadHandler({ collectionSlug }),
+              (progress) => {
+                currentFileProgress = progress
+                updateLoadingText()
+              },
             ),
             credentials: 'include',
             method: 'POST',

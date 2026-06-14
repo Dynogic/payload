@@ -268,7 +268,12 @@ export const renderTable = ({
               groupByValue={groupByValue}
               heading={heading}
             />
-            <Table appearance={tableAppearance} columns={columnsToUse} data={data?.docs || []} />
+            <Table
+              appearance={tableAppearance}
+              collectionSlug={clientCollectionConfig?.slug}
+              columns={columnsToUse}
+              data={data?.docs || []}
+            />
             <GroupByPageControls
               collectionConfig={clientCollectionConfig}
               data={data}
@@ -286,7 +291,12 @@ export const renderTable = ({
       // key is required since Next.js 15.2.0 to prevent React key error
       Table: (
         <div className="table-wrap" key={key}>
-          <Table appearance={tableAppearance} columns={columnsToUse} data={data?.docs || []} />
+          <Table
+            appearance={tableAppearance}
+            collectionSlug={clientCollectionConfig?.slug}
+            columns={columnsToUse}
+            data={data?.docs || []}
+          />
         </div>
       ),
     }

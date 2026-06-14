@@ -123,6 +123,7 @@ export const APIViewClient: React.FC = () => {
         collectionSlug={collectionSlug}
         globalLabel={globalConfig?.label}
         globalSlug={globalSlug}
+        hideCollectionInBreadcrumb={collectionConfig?.admin?.hideCollectionInBreadcrumb}
         id={id}
         isTrashed={isTrashed}
         pluralLabel={collectionConfig ? collectionConfig?.labels?.plural : undefined}

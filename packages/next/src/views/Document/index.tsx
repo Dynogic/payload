@@ -204,6 +204,12 @@ export const renderDocument = async ({
 
   const operation = (collectionSlug && idFromArgs) || globalSlug ? 'update' : 'create'
 
+  // Pass all query params for create operation - field config will determine which are used
+  let defaultValues: Record<string, any> | undefined
+  if (operation === 'create' && !drawerSlug && searchParams) {
+    defaultValues = searchParams as Record<string, any>
+  }
+
   const [
     { hasPublishedDoc, mostRecentVersionIsAutosaved, unpublishedVersionCount, versionCount },
     { state: formState },
@@ -222,6 +228,7 @@ export const renderDocument = async ({
       id: idFromArgs,
       collectionSlug,
       data: doc,
+      defaultValues,
       docPermissions,
       docPreferences,
       fallbackLocale: false,
@@ -322,10 +329,14 @@ export const renderDocument = async ({
 
   let id = idFromArgs
 
-  if (shouldAutosave && !validateDraftData && !idFromArgs && collectionSlug) {
+  if (shouldAutosave && !validateDraftData && !idFromArgs && !drawerSlug && collectionSlug) {
+    // Merge URL param defaults into create data so fields with urlParam config
+    // are populated in the auto-created draft (otherwise query params are lost on redirect)
+    const createData = { ...(initialData || {}), ...(defaultValues || {}) }
+
     doc = await payload.create({
       collection: collectionSlug,
-      data: initialData || {},
+      data: createData,
       depth: 0,
       draft: true,
       fallbackLocale: false,
@@ -429,7 +440,7 @@ export const renderDocument = async ({
           typeofLivePreviewURL={typeof livePreviewConfig?.url as 'function' | 'string' | undefined}
           url={livePreviewURL}
         >
-          {showHeader && !drawerSlug && (
+          {showHeader && !drawerSlug && !collectionConfig?.admin?.hideDocumentHeader && (
             <DocumentHeader
               AfterHeader={Description}
               collectionConfig={collectionConfig}

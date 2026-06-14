@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useCallback, useEffect, useMemo } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef } from 'react'
 
 import type { EditFormProps } from './types.js'
 
@@ -167,13 +167,44 @@ export function EditForm({
 }
 
 function GetFieldProxy() {
-  const { getField, getFields } = useForm()
+  const { dispatchFields, getField, getFields, setModified } = useForm()
   const { getFormDataRef } = useFormsManager()
+  const { initialState, isInitializing } = useDocumentInfo()
 
   useEffect(() => {
     // eslint-disable-next-line react-compiler/react-compiler -- TODO: fix
     getFormDataRef.current = getFields
   }, [getFields, getField, getFormDataRef])
+
+  // Use a ref to track if we've already triggered to avoid double-triggering in StrictMode
+  const hasTriggeredRef = React.useRef(false)
+
+  // Dispatch mimeType as a serializable string when the form mounts with a file.
+  // The File object itself is stripped during serialization (excludeFiles: true),
+  // so conditions must check data.mimeType instead of data.file.type.
+  useEffect(() => {
+    if (initialState?.file && !isInitializing) {
+      const frameId = requestAnimationFrame(() => {
+        if (!hasTriggeredRef.current) {
+          hasTriggeredRef.current = true
+
+          const file = initialState.file.value
+          if (file instanceof File && file.type) {
+            dispatchFields({
+              type: 'UPDATE',
+              path: 'mimeType',
+              valid: true,
+              value: file.type,
+            })
+          }
+
+          setModified(true)
+        }
+      })
+
+      return () => cancelAnimationFrame(frameId)
+    }
+  }, []) // Only run once on mount
 
   return null
 }

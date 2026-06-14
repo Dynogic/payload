@@ -12,7 +12,9 @@ import { getDisplayedFieldValue } from '../../../utilities/getDisplayedFieldValu
 import { isValidReactElement } from '../../../utilities/isValidReactElement.js'
 import { Link } from '../../Link/index.js'
 import { CodeCell } from './fields/Code/index.js'
+import { FileSizeCell } from './fields/FileSize/index.js'
 import { cellComponents } from './fields/index.js'
+import { StatusCell } from './fields/Status/index.js'
 
 export const DefaultCell: React.FC<DefaultCellComponentProps> = (props) => {
   const {
@@ -107,6 +109,20 @@ export const DefaultCell: React.FC<DefaultCellComponentProps> = (props) => {
     )
   }
 
+  if (
+    collectionConfig?.upload &&
+    field.type === 'number' &&
+    'name' in field &&
+    field.name === 'filesize' &&
+    typeof cellData === 'number'
+  ) {
+    return (
+      <WrapElement {...wrapElementProps}>
+        <FileSizeCell cellData={cellData} />
+      </WrapElement>
+    )
+  }
+
   const displayedValue = getDisplayedFieldValue(cellData, field, i18n)
 
   const DefaultCellComponent: React.FC<DefaultCellComponentProps> =
@@ -120,41 +136,27 @@ export const DefaultCell: React.FC<DefaultCellComponentProps> = (props) => {
   } else if (DefaultCellComponent) {
     CellComponent = <DefaultCellComponent cellData={cellData} rowData={rowData} {...props} />
   } else if (!DefaultCellComponent) {
-    // DefaultCellComponent does not exist for certain field types like `text`
-    if (
-      collectionConfig?.upload &&
-      fieldAffectsData(field) &&
-      field.name === 'filename' &&
-      field.type === 'text'
-    ) {
-      const FileCellComponent = cellComponents.File
+    return (
+      <WrapElement {...wrapElementProps}>
+        {(displayedValue === '' ||
+          typeof displayedValue === 'undefined' ||
+          displayedValue === null) &&
+          '—'}
+        {typeof displayedValue === 'string' && displayedValue}
+        {typeof displayedValue === 'number' && displayedValue}
+        {typeof displayedValue === 'object' &&
+          displayedValue !== null &&
+          JSON.stringify(displayedValue)}
+      </WrapElement>
+    )
+  }
 
-      CellComponent = (
-        <FileCellComponent
-          cellData={cellData}
-          rowData={rowData}
-          {...(props as DefaultCellComponentProps<UploadFieldClient>)}
-          collectionConfig={collectionConfig}
-          field={field}
-        />
-      )
-    } else {
-      return (
-        <WrapElement {...wrapElementProps}>
-          {(displayedValue === '' ||
-            typeof displayedValue === 'undefined' ||
-            displayedValue === null) &&
-            i18n.t('general:noLabel', {
-              label: getTranslation(('label' in field ? field.label : null) || 'data', i18n),
-            })}
-          {typeof displayedValue === 'string' && displayedValue}
-          {typeof displayedValue === 'number' && displayedValue}
-          {typeof displayedValue === 'object' &&
-            displayedValue !== null &&
-            JSON.stringify(displayedValue)}
-        </WrapElement>
-      )
-    }
+  if (field.type === 'select' && 'name' in field && field.name === '_status' && cellData) {
+    return (
+      <WrapElement {...wrapElementProps}>
+        <StatusCell cellData={cellData} field={field} />
+      </WrapElement>
+    )
   }
 
   if ((field.type === 'select' || field.type === 'radio') && field.options.length && cellData) {

@@ -40,6 +40,7 @@ export function DefaultListView(props: ListViewClientProps) {
     beforeActions,
     BeforeList,
     BeforeListTable,
+    BulkDelete,
     collectionSlug,
     columnState,
     Description,
@@ -56,6 +57,7 @@ export function DefaultListView(props: ListViewClientProps) {
     renderedFilters,
     resolvedFilterOptions,
     Table: InitialTable,
+    TitleActions,
     viewType,
   } = props
 
@@ -77,7 +79,7 @@ export function DefaultListView(props: ListViewClientProps) {
   } = useConfig()
   const router = useRouter()
 
-  const { data, isGroupingBy } = useListQuery()
+  const { data, isGroupingBy, modified } = useListQuery()
 
   const { openModal } = useModal()
   const { drawerSlug: bulkUploadDrawerSlug, setCollectionSlug, setOnSuccess } = useBulkUpload()
@@ -161,6 +163,7 @@ export function DefaultListView(props: ListViewClientProps) {
             {BeforeList}
             <Gutter className={`${baseClass}__wrap`}>
               <CollectionListHeader
+                BulkDelete={BulkDelete}
                 collectionConfig={collectionConfig}
                 Description={
                   Description || collectionConfig?.admin?.description ? (
@@ -187,6 +190,7 @@ export function DefaultListView(props: ListViewClientProps) {
                 newDocumentURL={newDocumentURL}
                 openBulkUpload={openBulkUpload}
                 smallBreak={smallBreak}
+                TitleActions={TitleActions}
                 viewType={viewType}
               />
               <ListControls
@@ -214,7 +218,7 @@ export function DefaultListView(props: ListViewClientProps) {
                   <RelationshipProvider>{Table}</RelationshipProvider>
                 </div>
               )}
-              {docs?.length === 0 && (
+              {docs?.length === 0 && (modified || !BeforeListTable) && (
                 <div className={`${baseClass}__no-results`}>
                   <p>
                     {i18n.t(viewType === 'trash' ? 'general:noTrashResults' : 'general:noResults', {
@@ -248,6 +252,7 @@ export function DefaultListView(props: ListViewClientProps) {
                       <div className={`${baseClass}__list-selection`}>
                         <ListSelection
                           collectionConfig={collectionConfig}
+                          CustomBulkDelete={BulkDelete}
                           disableBulkDelete={disableBulkDelete}
                           disableBulkEdit={disableBulkEdit}
                           label={getTranslation(collectionConfig.labels.plural, i18n)}

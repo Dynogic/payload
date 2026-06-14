@@ -165,6 +165,7 @@ export async function VersionsView(props: DocumentViewServerProps) {
       <SetDocumentStepNav
         collectionSlug={collectionSlug}
         globalSlug={globalSlug}
+        hideCollectionInBreadcrumb={collectionConfig?.admin?.hideCollectionInBreadcrumb}
         id={id}
         isTrashed={isTrashed}
         pluralLabel={pluralLabel}

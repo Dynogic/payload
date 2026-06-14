@@ -27,6 +27,7 @@ type Args = {
   clientFieldSchemaMap?: ClientFieldSchemaMap
   collectionSlug?: string
   data?: Data
+  defaultValues?: Record<string, any>
   /**
    * If this is undefined, the `data` passed to this function will serve as `fullData` and `data` when iterating over
    * the top-level-fields to generate form state.
@@ -85,6 +86,7 @@ export const fieldSchemasToFormState = async ({
   clientFieldSchemaMap,
   collectionSlug,
   data = {},
+  defaultValues,
   documentData,
   fields,
   fieldSchemaMap,
@@ -126,6 +128,72 @@ export const fieldSchemasToFormState = async ({
       siblingData: dataWithDefaultValues,
       user: req.user,
     })
+
+    // Apply query param defaults for create operation
+    if (operation === 'create' && defaultValues && fields) {
+      // Build a map of allowed query params to field paths (supports nested fields)
+      const urlParamToFieldPath: Record<string, string> = {}
+
+      const collectUrlParams = (fieldsToProcess: Field[], parentPath: string = ''): void => {
+        for (const field of fieldsToProcess) {
+          // Handle fields with urlParam config
+          if ('name' in field && 'admin' in field && field.admin) {
+            const adminConfig = field.admin as { urlParam?: boolean | string }
+            if (adminConfig.urlParam) {
+              const paramName =
+                typeof adminConfig.urlParam === 'string' ? adminConfig.urlParam : field.name
+              const fieldPath = parentPath ? `${parentPath}.${field.name}` : field.name
+              urlParamToFieldPath[paramName] = fieldPath
+            }
+          }
+
+          // Recursively process nested fields
+          if (field.type === 'group' || field.type === 'array') {
+            const newPath =
+              'name' in field
+                ? parentPath
+                  ? `${parentPath}.${field.name}`
+                  : field.name
+                : parentPath
+            collectUrlParams(field.fields, newPath)
+          } else if (field.type === 'tabs') {
+            for (const tab of field.tabs) {
+              // Named tabs add to the path, unnamed tabs don't
+              const tabPath =
+                'name' in tab ? (parentPath ? `${parentPath}.${tab.name}` : tab.name) : parentPath
+              collectUrlParams(tab.fields, tabPath)
+            }
+          } else if (field.type === 'row' || field.type === 'collapsible') {
+            collectUrlParams(field.fields, parentPath)
+          }
+        }
+      }
+
+      collectUrlParams(fields)
+
+      // Apply defaults only for fields that have urlParam enabled
+      Object.entries(defaultValues).forEach(([paramName, value]) => {
+        const fieldPath = urlParamToFieldPath[paramName]
+        if (fieldPath) {
+          // Handle nested paths by setting values at the correct depth
+          const pathSegments = fieldPath.split('.')
+          let current = dataWithDefaultValues
+
+          for (let i = 0; i < pathSegments.length - 1; i++) {
+            const segment = pathSegments[i]
+            if (current[segment] === undefined || current[segment] === null) {
+              current[segment] = {}
+            }
+            current = current[segment]
+          }
+
+          const lastSegment = pathSegments[pathSegments.length - 1]
+          if (current[lastSegment] === undefined || current[lastSegment] === null) {
+            current[lastSegment] = value
+          }
+        }
+      })
+    }
 
     let fullData = dataWithDefaultValues
 

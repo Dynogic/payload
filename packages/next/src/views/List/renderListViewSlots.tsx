@@ -6,6 +6,8 @@ import type {
   BeforeListServerPropsOnly,
   BeforeListTableClientProps,
   BeforeListTableServerPropsOnly,
+  BulkDeleteClientProps,
+  BulkDeleteServerPropsOnly,
   ListViewServerPropsOnly,
   ListViewSlots,
   ListViewSlotSharedClientProps,
@@ -104,6 +106,28 @@ export const renderListViewSlots = ({
         {existingBeforeListTable}
       </React.Fragment>
     )
+  }
+
+  if (collectionConfig.admin.components?.views?.list?.BulkDelete) {
+    result.BulkDelete = RenderServerComponent({
+      clientProps: clientProps satisfies BulkDeleteClientProps,
+      Component: collectionConfig.admin.components.views.list.BulkDelete,
+      importMap: payload.importMap,
+      serverProps: serverProps satisfies BulkDeleteServerPropsOnly,
+    })
+  }
+
+  const listActions = collectionConfig.admin.components?.views?.list?.titleActions
+
+  if (Array.isArray(listActions) && listActions.length > 0) {
+    result.TitleActions = [
+      RenderServerComponent({
+        clientProps,
+        Component: listActions,
+        importMap: payload.importMap,
+        serverProps,
+      }),
+    ]
   }
 
   if (collectionConfig.admin.components?.Description) {

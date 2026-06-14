@@ -15,6 +15,7 @@ export type Row = {
   blockType?: string
   collapsed?: boolean
   customComponents?: {
+    Pill?: React.ReactNode
     RowLabel?: React.ReactNode
   }
   id: string
@@ -102,6 +103,7 @@ export type FormStateWithoutComponents = {
 
 export type BuildFormStateArgs = {
   data?: Data
+  defaultValues?: Record<string, any>
   docPermissions: SanitizedDocumentPermissions | undefined
   docPreferences: DocumentPreferences
   /**

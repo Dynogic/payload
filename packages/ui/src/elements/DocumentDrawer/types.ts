@@ -1,4 +1,10 @@
-import type { Data, DefaultDocumentIDType, FormState, Operation } from 'payload'
+import type {
+  Data,
+  DefaultDocumentIDType,
+  FilterOptionsResult,
+  FormState,
+  Operation,
+} from 'payload'
 import type React from 'react'
 import type { HTMLAttributes } from 'react'
 
@@ -8,11 +14,22 @@ import type { DocumentDrawerContextProps } from './Provider.js'
 export type DocumentDrawerProps = {
   readonly AfterFields?: React.ReactNode
   /**
+   * Restrict file uploads to specific MIME types (e.g., ['video/*', 'image/*']).
+   * Passed to the Upload component inside the drawer.
+   */
+  readonly allowedMimeTypes?: string[]
+  /**
    * The slug of the collection to which the document belongs.
    */
   readonly collectionSlug: string
   readonly disableActions?: boolean
+  /**
+   * Arbitrary context data accessible to custom field components via useDocumentDrawerContext().
+   * Useful for passing filters or configuration from the parent that opened the drawer.
+   */
+  readonly drawerContext?: Record<string, unknown>
   readonly drawerSlug?: string
+  readonly filterOptions?: FilterOptionsResult
   /**
    * The ID of the document to be edited.
    * When provided, will be fetched and displayed in the drawer.
@@ -52,7 +69,10 @@ export type UseDocumentDrawerContext = {
 }
 
 export type UseDocumentDrawer = (
-  args: Pick<DocumentDrawerProps, 'collectionSlug' | 'id' | 'overrideEntityVisibility'>,
+  args: Pick<
+    DocumentDrawerProps,
+    'collectionSlug' | 'filterOptions' | 'id' | 'overrideEntityVisibility'
+  >,
 ) => [
   // drawer
   React.FC<

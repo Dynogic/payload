@@ -33,6 +33,7 @@ type ArrayRowProps = {
   readonly errorCount: number
   readonly fields: ClientField[]
   readonly hasMaxRows?: boolean
+  readonly hideAddBelow?: boolean
   readonly isLoading?: boolean
   readonly isSortable?: boolean
   readonly labels: Partial<ArrayField['labels']>
@@ -62,6 +63,7 @@ export const ArrayRow: React.FC<ArrayRowProps> = ({
   fields,
   forceRender = false,
   hasMaxRows,
+  hideAddBelow,
   isDragging,
   isLoading: isLoadingFromProps,
   isSortable,
@@ -122,6 +124,7 @@ export const ArrayRow: React.FC<ArrayRowProps> = ({
               copyRow={copyRow}
               duplicateRow={duplicateRow}
               hasMaxRows={hasMaxRows}
+              hideAddBelow={hideAddBelow}
               index={rowIndex}
               isSortable={isSortable}
               moveRow={moveRow}
@@ -143,10 +146,7 @@ export const ArrayRow: React.FC<ArrayRowProps> = ({
             : undefined
         }
         header={
-          <div
-            className={`${baseClass}__row-header`}
-            id={`${scrollIdPrefix}-row-${rowIndex}`}
-          >
+          <div className={`${baseClass}__row-header`} id={`${scrollIdPrefix}-row-${rowIndex}`}>
             {isLoading ? (
               <ShimmerEffect height="1rem" width="8rem" />
             ) : (

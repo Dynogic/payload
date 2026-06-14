@@ -138,6 +138,15 @@ export const DefaultTemplate: React.FC<DefaultTemplateProps> = ({
               {NavComponent}
               <div className={`${baseClass}__wrap`}>
                 <AppHeader
+                  CustomAccountMenu={
+                    components?.accountMenu
+                      ? RenderServerComponent({
+                          Component: components.accountMenu,
+                          importMap: payload.importMap,
+                          serverProps,
+                        })
+                      : undefined
+                  }
                   CustomAvatar={
                     avatar !== 'gravatar' && avatar !== 'default'
                       ? RenderServerComponent({

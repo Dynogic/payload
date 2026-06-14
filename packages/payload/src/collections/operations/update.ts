@@ -72,7 +72,22 @@ export const updateOperation = async <
   let args = incomingArgs
 
   if (args.collection.config.disableBulkEdit && !args.overrideAccess) {
-    throw new APIError(`Collection ${args.collection.config.slug} has disabled bulk edit`, 403)
+    // Allow folder-only updates even when bulk edit is disabled
+    const foldersConfig = args.req.payload.config.folders
+    const collectionHasFolders = args.collection.config.folders
+    const folderFieldName = foldersConfig ? foldersConfig.fieldName : null
+
+    const dataKeys = Object.keys(args.data || {})
+    const isFolderOnlyUpdate =
+      foldersConfig &&
+      collectionHasFolders &&
+      folderFieldName &&
+      dataKeys.length === 1 &&
+      dataKeys[0] === folderFieldName
+
+    if (!isFolderOnlyUpdate) {
+      throw new APIError(`Collection ${args.collection.config.slug} has disabled bulk edit`, 403)
+    }
   }
 
   try {

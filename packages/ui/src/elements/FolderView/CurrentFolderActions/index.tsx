@@ -49,6 +49,11 @@ export function CurrentFolderActions({ className }: Props) {
   const { closeModal, openModal } = useModal()
   const { i18n, t } = useTranslation()
 
+  const currentFolderTitle =
+    currentFolder?.value._folderOrDocumentTitle === String(currentFolder?.value.id)
+      ? t('general:noLabel', { label: t('general:name') })
+      : currentFolder?.value._folderOrDocumentTitle
+
   const deleteCurrentFolder = React.useCallback(async () => {
     await fetch(
       formatAdminURL({
@@ -129,20 +134,20 @@ export function CurrentFolderActions({ className }: Props) {
             toast.success(
               t('folder:itemHasBeenMoved', {
                 folderName: `"${name}"`,
-                title: currentFolder.value._folderOrDocumentTitle,
+                title: currentFolderTitle,
               }),
             )
           } else {
             // moved to root
             toast.success(
               t('folder:itemHasBeenMovedToRoot', {
-                title: currentFolder.value._folderOrDocumentTitle,
+                title: currentFolderTitle,
               }),
             )
           }
           closeModal(moveToFolderDrawerSlug)
         }}
-        title={currentFolder.value._folderOrDocumentTitle}
+        title={currentFolderTitle}
       />
 
       <ConfirmationModal
@@ -155,7 +160,7 @@ export function CurrentFolderActions({ className }: Props) {
             t={t}
             variables={{
               label: getTranslation(folderCollectionConfig.labels.singular, i18n),
-              title: currentFolder.value._folderOrDocumentTitle,
+              title: currentFolderTitle,
             }}
           />
         }
