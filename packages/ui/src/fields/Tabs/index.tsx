@@ -12,6 +12,7 @@ import { getFieldPaths, toKebabCase } from 'payload/shared'
 import React, { useCallback, useEffect, useState } from 'react'
 
 import { useCollapsible } from '../../elements/Collapsible/provider.js'
+import { useOptionalDocumentDrawerContext } from '../../elements/DocumentDrawer/Provider.js'
 import { RenderCustomComponent } from '../../elements/RenderCustomComponent/index.js'
 import { useFormFields } from '../../forms/Form/index.js'
 import { RenderFields } from '../../forms/RenderFields/index.js'
@@ -44,13 +45,22 @@ const TabsFieldComponent: TabsFieldClientComponent = (props) => {
   const { i18n } = useTranslation()
   const { isWithinCollapsible } = useCollapsible()
 
+  // When this field renders inside a DocumentDrawer opened with `hideTabs`, trim
+  // tabs whose `hash` is listed — folded into `passesCondition` so the initial
+  // tab, hash matching, render, and auto-switch all treat them as not present.
+  // The full tab set still renders in the full-screen edit view (no drawer context).
+  const hideTabs = useOptionalDocumentDrawerContext()?.hideTabs
+
   const tabStates = useFormFields(([fields]) => {
     return tabs.map((tab, index) => {
       const id = tab?.id
       const fieldKey = parentPath ? `${parentPath}.${id}` : id
+      const hiddenInDrawer = Boolean(
+        hideTabs?.length && (tab as any).hash && hideTabs.includes((tab as any).hash),
+      )
       return {
         index,
-        passesCondition: fields?.[fieldKey]?.passesCondition ?? true,
+        passesCondition: (fields?.[fieldKey]?.passesCondition ?? true) && !hiddenInDrawer,
         tab,
       }
     })

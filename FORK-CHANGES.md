@@ -851,10 +851,29 @@ No behavior change for apps that don't listen; one extra no-listener event dispa
 
 ---
 
+### 58. `hideTabs` on DocumentDrawer — trim field-level tabs in the in-drawer edit view
+
+**Files:** `packages/ui/src/elements/DocumentDrawer/types.ts`, `packages/ui/src/elements/DocumentDrawer/Provider.tsx`, `packages/ui/src/elements/DocumentDrawer/DrawerContent.tsx`, `packages/ui/src/fields/Tabs/index.tsx`
+
+New `hideTabs?: string[]` prop on `DocumentDrawer` — hides field-level tabs by their `hash` while a document is open in that drawer, without touching the collection schema or the full-screen edit view.
+
+- Flows through the same path as `allowedMimeTypes` / `drawerContext` (change #44): `DocumentDrawerProps` (types.ts) → `DocumentDrawerContent` destructure (DrawerContent.tsx) → `DocumentDrawerContextProvider` → `DocumentDrawerContextProps` (Provider.tsx, available via `useDocumentDrawerContext()`).
+- The `Tabs` field reads it with `useOptionalDocumentDrawerContext()?.hideTabs` and folds `hash ∈ hideTabs` into each tab's `passesCondition`. Because every downstream behavior already keys off `passesCondition`, a hidden tab is uniformly excluded: it is not the initial tab, is unreachable by URL hash (falls back to the first visible tab), is not rendered, and the auto-switch effect moves off it if it becomes hidden.
+- Outside a drawer there is no context, so `hideTabs` is `undefined` and the full tab set renders unchanged — zero behavior change for the standard edit view.
+
+```tsx
+// Reduced quick-create drawer: hide the Page builder + Access tabs
+<DocumentDrawer collectionSlug="offers" hideTabs={['page', 'access']} onSave={handleSave} />
+```
+
+Enables a reduced create/edit flow in a drawer (e.g. varig's product "Sell" tab opening a sales page with only Details + What's Included + Pricing) while the full builder stays reachable via the full-screen view.
+
+---
+
 ## Summary
 
 | Category      | Count |
 | ------------- | ----- |
 | Bug Fixes     | 15    |
-| Features      | 34    |
+| Features      | 35    |
 | Documentation | 1     |

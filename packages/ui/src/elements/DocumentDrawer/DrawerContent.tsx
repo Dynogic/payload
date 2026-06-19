@@ -21,6 +21,7 @@ export const DocumentDrawerContent: React.FC<DocumentDrawerProps> = ({
   drawerContext,
   drawerSlug,
   filterOptions,
+  hideTabs,
   initialData,
   onDelete: onDeleteFromProps,
   onDuplicate: onDuplicateFromProps,
@@ -181,6 +182,7 @@ export const DocumentDrawerContent: React.FC<DocumentDrawerProps> = ({
       drawerContext={drawerContext}
       drawerSlug={drawerSlug}
       filterOptions={filterOptions}
+      hideTabs={hideTabs}
       isCreateDrawer={isCreateDrawer}
       onDelete={onDelete}
       onDuplicate={onDuplicate}
