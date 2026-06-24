@@ -1,0 +1,11 @@
+Fork #61 generalized to drawerContext.saveMode — three selectable drawer save behaviors.
+
+Replaces the v3.85.0.6 fullSaveControls boolean with an explicit enum:
+
+- 'saveAndAdd' (absent → this): #45 behavior, lone Save & Add (create) / Save (edit), autosave off, closes on save. Every existing relationship drawer is unchanged.
+- 'default': stock upstream controls in the drawer (Save Draft + Publish, or autosave + Publish); reloads on create-save instead of closing. Faithful for non-autosave collections. For an autosave collection, autosave won't persist in the drawer (the server skips the auto-draft via !drawerSlug and never receives saveMode) — use 'createEdit' for those.
+- 'createEdit': create drawer (no id) shows explicit Save Draft + Publish with app-supplied labels (drawerContext.createLabels), autosave off, closes on save; edit drawer (id exists) runs autosave + a lone Publish button, stays open.
+
+Wiring: autosave gate (!isInDrawer || drawerDefault || createEditEdit); DrawerContent.onSave reloads for 'default' and closes otherwise; SaveDraftButton gains an optional label prop. Consumers migrate fullSaveControls:true to saveMode:'createEdit'.
+
+Supersedes v3.85.0.6. Current release.

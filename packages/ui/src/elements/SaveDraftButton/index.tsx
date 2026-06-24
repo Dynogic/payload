@@ -17,7 +17,9 @@ import { useTranslation } from '../../providers/Translation/index.js'
 
 const baseClass = 'save-draft'
 
-export function SaveDraftButton(props: SaveDraftButtonClientProps) {
+export function SaveDraftButton({
+  label: labelProp,
+}: { label?: string } & SaveDraftButtonClientProps = {}) {
   const {
     config: {
       routes: { api },
@@ -100,7 +102,7 @@ export function SaveDraftButton(props: SaveDraftButtonClientProps) {
       size="medium"
       type="button"
     >
-      {t('version:saveDraft')}
+      {labelProp || t('version:saveDraft')}
     </FormSubmit>
   )
 }

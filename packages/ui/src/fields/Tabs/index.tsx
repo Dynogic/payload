@@ -45,16 +45,28 @@ const TabsFieldComponent: TabsFieldClientComponent = (props) => {
   const { i18n } = useTranslation()
   const { isWithinCollapsible } = useCollapsible()
 
-  // When this field renders inside a DocumentDrawer opened with `hideTabs`, trim
-  // tabs whose `hash` is listed — folded into `passesCondition` so the initial
-  // tab, hash matching, render, and auto-switch all treat them as not present.
-  // The full tab set still renders in the full-screen edit view (no drawer context).
-  const hideTabs = useOptionalDocumentDrawerContext()?.hideTabs
+  // A DocumentDrawer layers its doc OVER another document whose Tabs field reads
+  // the SAME window.location.hash. So a Tabs field inside a drawer must NOT drive
+  // the URL hash — otherwise clicking a drawer tab whose `hash` collides with the
+  // underlying doc's (e.g. 'content'/'appearance') makes that underlying doc jump
+  // tabs, desyncing/closing the drawer and wedging focus. Inside a drawer we keep
+  // tab state purely local; only the top-level document owns the URL hash.
+  // `hideTabs` (drawer-only) trims tabs by `hash`, folded into `passesCondition`.
+  const drawerContext = useOptionalDocumentDrawerContext()
+  const inDrawer = !!drawerContext
+  const hideTabs = drawerContext?.hideTabs
 
   const tabStates = useFormFields(([fields]) => {
     return tabs.map((tab, index) => {
       const id = tab?.id
-      const fieldKey = parentPath ? `${parentPath}.${id}` : id
+      // FORK (offer-layouts): key the tab's passesCondition by the tabs field's
+      // OWN `path`, not its `parentPath`. The form-state builder writes the tab
+      // state under `${tabsFieldPath}.${tab.id}` (addFieldStatePromise passes the
+      // tabs field's `path` as the tab's parentPath), but the renderer used this
+      // component's `parentPath` (the tabs field's PARENT), which for a top-level
+      // tabs field is '' — so the lookup key never matched and a tab-level
+      // admin.condition could never hide the header. `path` matches the writer.
+      const fieldKey = path ? `${path}.${id}` : id
       const hiddenInDrawer = Boolean(
         hideTabs?.length && (tab as any).hash && hideTabs.includes((tab as any).hash),
       )
@@ -69,7 +81,8 @@ const TabsFieldComponent: TabsFieldClientComponent = (props) => {
   // Helper function to get tab index from URL hash (single-level matching)
   const getTabIndexFromHash = useCallback(
     (currentTabStates?: Array<{ index: number; passesCondition: boolean; tab: ClientTab }>) => {
-      if (typeof window === 'undefined' || !window.location.hash) {
+      // In a drawer the hash belongs to the underlying doc — never read it here.
+      if (inDrawer || typeof window === 'undefined' || !window.location.hash) {
         return null
       }
 
@@ -89,7 +102,7 @@ const TabsFieldComponent: TabsFieldClientComponent = (props) => {
 
       return null
     },
-    [tabs],
+    [tabs, inDrawer],
   )
 
   // Initialize with first visible tab (same on server and client to avoid hydration mismatch)
@@ -113,7 +126,9 @@ const TabsFieldComponent: TabsFieldClientComponent = (props) => {
     (incomingTabIndex: number): void => {
       setActiveTabIndex(incomingTabIndex)
 
-      if (typeof window !== 'undefined') {
+      // In a drawer, switching a tab stays local — never touch the URL hash or
+      // broadcast, so the underlying document's tabs don't react.
+      if (typeof window !== 'undefined' && !inDrawer) {
         const selectedTab = tabs[incomingTabIndex]
 
         // Dispatch tab change event for external listeners
@@ -144,7 +159,7 @@ const TabsFieldComponent: TabsFieldClientComponent = (props) => {
         window.dispatchEvent(new Event('admin:hashchange'))
       }
     },
-    [tabs, parentPath],
+    [tabs, parentPath, inDrawer],
   )
 
   // Track if we've done initial setup to avoid overriding manual tab changes

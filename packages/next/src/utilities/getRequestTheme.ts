@@ -11,7 +11,11 @@ type GetRequestLanguageArgs = {
 
 const acceptedThemes: Theme[] = ['dark', 'light']
 
-export const getRequestTheme = ({ config, cookies, headers }: GetRequestLanguageArgs): Theme => {
+// Varig fork: dark by default, no system/OS theme. We resolve the theme from a
+// pinned `admin.theme` or the user's explicit theme cookie only — the
+// `Sec-CH-Prefers-Color-Scheme` client hint is deliberately ignored so the
+// server-rendered theme is deterministic (no light-then-dark flash on load).
+export const getRequestTheme = ({ config, cookies }: GetRequestLanguageArgs): Theme => {
   if (config.admin.theme !== 'all' && acceptedThemes.includes(config.admin.theme)) {
     return config.admin.theme
   }
@@ -24,12 +28,6 @@ export const getRequestTheme = ({ config, cookies, headers }: GetRequestLanguage
 
   if (themeFromCookie && acceptedThemes.includes(themeFromCookie)) {
     return themeFromCookie
-  }
-
-  const themeFromHeader = headers.get('Sec-CH-Prefers-Color-Scheme') as Theme
-
-  if (themeFromHeader && acceptedThemes.includes(themeFromHeader)) {
-    return themeFromHeader
   }
 
   return defaultTheme

@@ -19,6 +19,10 @@ const initialContext: ThemeContext = {
 
 const Context = createContext(initialContext)
 
+// Varig fork: dark is the platform default. There is no system/OS theme — an
+// absent or invalid theme cookie resolves to this, never to prefers-color-scheme.
+export const defaultTheme: Theme = 'dark'
+
 function setCookie(cname, cvalue, exdays) {
   const d = new Date()
   d.setTime(d.getTime() + exdays * 24 * 60 * 60 * 1000)
@@ -42,18 +46,14 @@ const getTheme = (
   if (themeFromCookies === 'light' || themeFromCookies === 'dark') {
     theme = themeFromCookies
   } else {
-    theme =
-      window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
-        ? 'dark'
-        : 'light'
+    // No OS detection: fall back to the platform default (dark).
+    theme = defaultTheme
   }
 
   document.documentElement.setAttribute('data-theme', theme)
 
   return { theme, themeFromCookies }
 }
-
-export const defaultTheme = 'light'
 
 export const ThemeProvider: React.FC<{
   children?: React.ReactNode
@@ -86,15 +86,12 @@ export const ThemeProvider: React.FC<{
         setCookie(cookieKey, themeToSet, 365)
         document.documentElement.setAttribute('data-theme', themeToSet)
       } else if (themeToSet === 'auto') {
-        // to delete the cookie, we set an expired date
+        // No OS theme: "auto" clears the cookie and reverts to the platform
+        // default (dark) rather than reading prefers-color-scheme.
         setCookie(cookieKey, themeToSet, -1)
-        const themeFromOS =
-          window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
-            ? 'dark'
-            : 'light'
-        document.documentElement.setAttribute('data-theme', themeFromOS)
+        document.documentElement.setAttribute('data-theme', defaultTheme)
         setAutoMode(true)
-        setThemeState(themeFromOS)
+        setThemeState(defaultTheme)
       }
     },
     [cookieKey],

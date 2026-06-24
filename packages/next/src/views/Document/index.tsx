@@ -6,6 +6,7 @@ import type {
   DocumentViewServerProps,
   DocumentViewServerPropsOnly,
   EditViewComponent,
+  Field,
   PayloadComponent,
   RenderDocumentVersionsProperties,
 } from 'payload'
@@ -339,6 +340,41 @@ export const renderDocument = async ({
     // Merge URL param defaults into create data so fields with urlParam config
     // are populated in the auto-created draft (otherwise query params are lost on redirect)
     const createData = { ...(initialData || {}), ...(defaultValues || {}) }
+
+    // A URL query value is always a scalar (string), but a hasMany field needs an
+    // array. Coerce a single urlParam value into a one-element array for hasMany
+    // fields so a relationship/array list can be seeded from one query param
+    // (e.g. `?products=<id>` → `products: ['<id>']`). Scalar fields are untouched.
+    // See FORK-CHANGES.md #63.
+    if (defaultValues && collectionConfig?.fields) {
+      const coerceHasManyUrlParams = (fieldsToProcess: Field[]): void => {
+        for (const field of fieldsToProcess) {
+          if ('name' in field && field.admin) {
+            const urlParam = (field.admin as { urlParam?: boolean | string }).urlParam
+            if (urlParam && 'hasMany' in field && field.hasMany === true) {
+              const paramName = typeof urlParam === 'string' ? urlParam : field.name
+              const value = (createData as Record<string, any>)[paramName]
+              if (value !== null && value !== undefined && !Array.isArray(value)) {
+                ;(createData as Record<string, any>)[field.name] = [value]
+                if (paramName !== field.name) {
+                  delete (createData as Record<string, any>)[paramName]
+                }
+              }
+            }
+          }
+          if (field.type === 'group' || field.type === 'array') {
+            coerceHasManyUrlParams(field.fields)
+          } else if (field.type === 'tabs') {
+            for (const tab of field.tabs) {
+              coerceHasManyUrlParams(tab.fields)
+            }
+          } else if (field.type === 'row' || field.type === 'collapsible') {
+            coerceHasManyUrlParams(field.fields)
+          }
+        }
+      }
+      coerceHasManyUrlParams(collectionConfig.fields)
+    }
 
     doc = await payload.create({
       collection: collectionSlug,

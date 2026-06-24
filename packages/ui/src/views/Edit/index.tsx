@@ -349,10 +349,16 @@ export function DefaultEditView({
           window.sessionStorage.setItem(PENDING_SUCCESS_TOAST_KEY, json.message)
         }
 
+        // Preserve any URL fragment (e.g. a tab hash like `#products`) across the
+        // post-create redirect. A create URL can carry a fragment to land the new
+        // doc on a specific tab; `router.push` to a fragmentless path drops it.
+        // (Fork change #64.)
+        const hash = typeof window !== 'undefined' ? window.location.hash : ''
+
         // Redirect to the same locale if it's been set
         const redirectRoute = formatAdminURL({
           adminRoute,
-          path: `/collections/${collectionSlug}/${document?.id}${locale ? `?locale=${locale}` : ''}`,
+          path: `/collections/${collectionSlug}/${document?.id}${locale ? `?locale=${locale}` : ''}${hash}`,
         })
 
         startRouteTransition(() => router.push(redirectRoute))

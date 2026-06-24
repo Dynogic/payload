@@ -1,0 +1,11 @@
+v3.85.0.8 — Dark default theme, no system/OS theme (FORK-CHANGES #62)
+
+- defaultTheme is now 'dark' (was 'light').
+- Removed all OS detection: the client ThemeProvider no longer reads
+  prefers-color-scheme, and getRequestTheme (SSR) no longer reads the
+  Sec-CH-Prefers-Color-Scheme client hint.
+- Theme now resolves from a pinned admin.theme or the explicit theme
+  cookie only, else the dark default — deterministic SSR, no light->dark
+  flash on load. The light/dark menu toggle is unchanged.
+
+Changed packages: @payloadcms/ui, @payloadcms/next.

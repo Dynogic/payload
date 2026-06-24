@@ -131,8 +131,11 @@ export const fieldSchemasToFormState = async ({
 
     // Apply query param defaults for create operation
     if (operation === 'create' && defaultValues && fields) {
-      // Build a map of allowed query params to field paths (supports nested fields)
-      const urlParamToFieldPath: Record<string, string> = {}
+      // Build a map of allowed query params to field paths (supports nested fields).
+      // `hasMany` is tracked so a single query value (a string) can be coerced into
+      // a one-element array for hasMany fields — e.g. seeding a relationship list
+      // from `?products=<id>` (a URL value is always a scalar; hasMany needs [id]).
+      const urlParamToFieldPath: Record<string, { hasMany: boolean; path: string }> = {}
 
       const collectUrlParams = (fieldsToProcess: Field[], parentPath: string = ''): void => {
         for (const field of fieldsToProcess) {
@@ -143,7 +146,10 @@ export const fieldSchemasToFormState = async ({
               const paramName =
                 typeof adminConfig.urlParam === 'string' ? adminConfig.urlParam : field.name
               const fieldPath = parentPath ? `${parentPath}.${field.name}` : field.name
-              urlParamToFieldPath[paramName] = fieldPath
+              urlParamToFieldPath[paramName] = {
+                hasMany: 'hasMany' in field && field.hasMany === true,
+                path: fieldPath,
+              }
             }
           }
 
@@ -173,10 +179,16 @@ export const fieldSchemasToFormState = async ({
 
       // Apply defaults only for fields that have urlParam enabled
       Object.entries(defaultValues).forEach(([paramName, value]) => {
-        const fieldPath = urlParamToFieldPath[paramName]
-        if (fieldPath) {
+        const target = urlParamToFieldPath[paramName]
+        if (target) {
+          // hasMany fields take an array — wrap a single scalar query value.
+          const resolvedValue =
+            target.hasMany && value !== null && value !== undefined && !Array.isArray(value)
+              ? [value]
+              : value
+
           // Handle nested paths by setting values at the correct depth
-          const pathSegments = fieldPath.split('.')
+          const pathSegments = target.path.split('.')
           let current = dataWithDefaultValues
 
           for (let i = 0; i < pathSegments.length - 1; i++) {
@@ -189,7 +201,7 @@ export const fieldSchemasToFormState = async ({
 
           const lastSegment = pathSegments[pathSegments.length - 1]
           if (current[lastSegment] === undefined || current[lastSegment] === null) {
-            current[lastSegment] = value
+            current[lastSegment] = resolvedValue
           }
         }
       })

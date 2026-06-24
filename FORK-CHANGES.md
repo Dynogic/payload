@@ -870,10 +870,126 @@ Enables a reduced create/edit flow in a drawer (e.g. varig's product "Sell" tab 
 
 ---
 
+### 59. Scope hash-tab navigation to the top-level document (no drawer hash collision)
+
+**File:** `packages/ui/src/fields/Tabs/index.tsx`
+
+Bug fix for a drawer-vs-document collision in the hash-tab feature (changes #8 + #57). A `Tabs` field drives `window.location.hash` globally: `getTabIndexFromHash` reads it, `handleTabChange` writes it via `replaceState` + dispatches `admin:hashchange`. But a `DocumentDrawer` layers its document **over** another document whose `Tabs` field reads the **same** hash. So clicking a tab in a drawer whose `hash` collides with the underlying doc's (e.g. both an offer and a product have `content` / `appearance` tabs) wrote that hash → the underlying doc's `Tabs` field reacted and jumped tabs, desyncing/closing the drawer and wedging focus.
+
+Fix: when the field is inside a drawer (`useOptionalDocumentDrawerContext()` is non-null — already wired for #58's `hideTabs`), it no longer participates in URL-hash navigation. `getTabIndexFromHash` returns `null` (never reads the hash), and `handleTabChange` skips the `replaceState` + `payload-tab-change` + `admin:hashchange` broadcast — tab state stays purely local (`setActiveTabIndex`). Only the top-level document owns the URL hash; deep-linking and the consuming app's hash sync are unchanged outside drawers.
+
+Repro that's now fixed: open a product → Sell tab → New Sales Page (offer drawer) → click a tab that shares a hash with the product (e.g. Appearance) → previously the product jumped tabs behind the drawer and the UI froze; now the drawer tab switches in place.
+
+---
+
+### 60. Tab-level `admin.condition` actually hides the tab header (key by the tabs field's own `path`)
+
+**File:** `packages/ui/src/fields/Tabs/index.tsx`
+
+Bug fix: a tab-level `admin.condition` evaluated correctly server-side but **never hid the tab header** for a top-level `tabs` field, so a falsy condition left an empty, clickable tab in the bar. (The tab's *contents* were hidden because `passesCondition` propagates to children, but the header stayed.)
+
+Root cause is a key mismatch between the form-state writer and the renderer. The form-state builder (`addFieldStatePromise`) keys each tab's `passesCondition` under **`${tabsFieldPath}.${tab.id}`** — it passes the *tabs field's own* `path` as the tab's `parentPath` (the tab `id` is auto-assigned during sanitize when a condition is present). But the `Tabs` renderer built its lookup key from **this component's `parentPath`** (the tabs field's *parent*), which for a top-level tabs field is `''` — so it looked up `tab.id` while the state lived under `_index-N.tab.id`. The keys never matched and `passesCondition` fell back to `?? true`, leaving the tab visible.
+
+Fix: in the `tabStates` selector, build `fieldKey` from this component's own `path` (which equals the writer's `${tabsFieldPath}`), not `parentPath`:
+
+```ts
+// before:  const fieldKey = parentPath ? `${parentPath}.${id}` : id
+const fieldKey = path ? `${path}.${id}` : id
+```
+
+The React-Compiler memo dependency for that selector follows the same swap (`parentPath` → `path`). Tabs **without** a condition are unaffected (no state entry exists at either key, so they default visible); only conditional tabs change — they now hide their header when the condition is falsy, in both top-level and nested (group/array) tabs fields. This is what makes `kind`-conditional offer tabs (varig: solo offers omit *What's Included* + *Page*) work without a custom Tabs component.
+
+---
+
+### 61. `drawerContext.saveMode` — three selectable drawer save behaviors
+
+**Files:** `packages/ui/src/elements/DocumentControls/index.tsx`, `packages/ui/src/elements/DocumentDrawer/DrawerContent.tsx`, `packages/ui/src/elements/SaveDraftButton/index.tsx`
+
+Fork change #45 collapses **every** document drawer to a single "Save & Add" button. That's right for relationship "save and add another" flows, but wrong for a standalone create/edit drawer whose document is publishable in its own right (varig's Sell-tab "Create Offer" / "Edit offer" drawers — an offer must be published to be buyable). This makes the drawer's save behavior selectable via `drawerContext.saveMode` (`drawerContext` plumbing is from #44):
+
+```tsx
+const saveMode = drawerContextOpts?.saveMode ?? 'saveAndAdd'   // absent → #45 default
+const drawerDefault    = isInDrawer && saveMode === 'default'
+const drawerSaveAndAdd = isInDrawer && saveMode === 'saveAndAdd'
+const createEditCreate = isInDrawer && saveMode === 'createEdit' && isCreateDrawer
+const createEditEdit   = isInDrawer && saveMode === 'createEdit' && !isCreateDrawer
+```
+
+| `saveMode` | Buttons | Autosave | On create-save |
+| --- | --- | --- | --- |
+| `'saveAndAdd'` *(absent → this)* | lone "Save & Add" (create) / "Save" (edit) — **#45** | off | close drawer |
+| `'default'` | stock full-page controls (Save Draft + Publish, or autosave + Publish) | on (`drawerDefault`) | **reload** (stay open, like upstream) |
+| `'createEdit'` | create: **Save Draft + Publish** (labels via `createLabels`); edit: lone **Publish** | create: off · edit: on (`createEditEdit`) | close drawer |
+
+Because the absent default is `'saveAndAdd'`, every existing relationship drawer is unchanged. The mode is **per-drawer, not per-collection**: `products` autosaves but its series "New Product" relationship drawer stays `'saveAndAdd'`; only varig's offer drawers opt into `'createEdit'`.
+
+**Why `'createEdit'` splits create vs edit.** Autosave needs a document id. A create drawer has none — #45 skips the server-side auto-draft (`!drawerSlug` in `Document/index.tsx`), so autosave would spin forever on "Saving…". So create uses explicit Save Draft + Publish buttons (write on click, no auto-draft); edit has an id, so autosave runs and the controls collapse to a lone Publish, like the full page (stays open after publish).
+
+**`'default'` caveat.** `'default'` reproduces upstream button-for-button and is fully faithful for **non-autosave** drafts collections. For an **autosave** collection, upstream's autosave only works because the server auto-creates the draft — which #45 removed in drawers and the server view never receives `saveMode` to conditionally restore. So in a `'default'` autosave drawer the autosave indicator shows but won't persist; use `'createEdit'` for autosave collections. (Restoring the auto-draft would mean threading `saveMode` into `renderDocument` → `Document/index.tsx` and reintroduces the empty-draft-on-cancel litter #45 removed — deliberately deferred.)
+
+Wiring details:
+- Autosave gate: `(!isInDrawer || drawerDefault || createEditEdit) && …` on the `<Autosave>` render.
+- Close-on-create-save (`DrawerContent.onSave`): `'default'` reloads via `getDocumentView(doc.id)`; the others `closeModal`.
+- `SaveDraftButton` gained an optional `label?: string` prop (mirrors `PublishButton`); `DocumentControls` passes `createLabels.saveDraft`/`.publish` to the Fallback buttons. When the collection registers a **custom** PublishButton (varig's cascade-publish), `RenderCustomComponent` renders the server-resolved element and can't receive a label prop, so that custom client component reads `useOptionalDocumentDrawerContext()?.drawerContext.createLabels.publish` itself (gated on `isCreateDrawer`).
+
+History: v3.85.0.3 publish gate; v3.85.0.4 (autosave-in-*create*-drawer) **broken — do not use**; v3.85.0.5 `showSaveDraftButton` flag; v3.85.0.6 `fullSaveControls` boolean create/edit model; **v3.85.0.7** generalizes it to the `saveMode` enum above (current release). `fullSaveControls: true` is replaced by `saveMode: 'createEdit'`.
+
+---
+
+### 62. Dark is the default theme — no system/OS theme
+
+**Files:** `packages/ui/src/providers/Theme/index.tsx`, `packages/next/src/utilities/getRequestTheme.ts`
+
+Upstream's theme model is "light default + auto/system (prefers-color-scheme)". The product decision is **dark by default, with light as an explicit opt-in via the account menu, and no system theme at all**. Upstream's auto behavior also caused a **light-then-dark flash on every full page load** in our setup: the server can only honor the OS preference via the `Sec-CH-Prefers-Color-Scheme` client hint, which browsers withhold in non-secure contexts (dev over plain HTTP / a LAN hostname) and don't send on the first paint. So SSR fell back to light, then the client's `matchMedia` flipped it to dark after hydration.
+
+Changes:
+
+- **`defaultTheme` is now `'dark'`** (was `'light'`) and is hoisted above `getTheme` so the client resolver can reference it.
+- **`getTheme` (client):** an absent/invalid theme cookie resolves to `defaultTheme` instead of `window.matchMedia('(prefers-color-scheme: dark)')`.
+- **`setTheme('auto')` (client):** still clears the cookie, but reverts to `defaultTheme` rather than reading the OS. (Varig's account menu only offers light/dark, so this path is effectively dead, but kept consistent.)
+- **`getRequestTheme` (SSR):** drops the `Sec-CH-Prefers-Color-Scheme` header branch entirely. Theme is resolved from a pinned `admin.theme` or the explicit theme cookie only, else `defaultTheme`. This makes the server-rendered `data-theme` deterministic — no flash.
+
+Net effect: with no cookie, both SSR and client render dark immediately and agree, so there's no flash; the menu's light choice writes the cookie and is honored on the next SSR. The now-unused `Accept-CH` / `Critical-CH` client-hint response headers in `withPayload.js` are harmless and left in place (removing them is optional cleanup).
+
+---
+
+### 63. `urlParam` supports `hasMany` fields — coerce a single query value into an array
+
+**Files:** `packages/ui/src/forms/fieldSchemasToFormState/index.tsx`, `packages/next/src/views/Document/index.tsx`
+
+Extends the field-level URL parameter defaults (#10) so a `hasMany` field can be seeded from a single query param. A URL query value is always a scalar string, but a `hasMany` field (a relationship/array list) needs an array — so before #63, `?products=<id>` was silently dropped on create (a string isn't a valid hasMany value). Now a single urlParam value targeting a `hasMany` field is coerced into a one-element array (`['<id>']`); values that are already arrays and all scalar (non-hasMany) fields are untouched.
+
+Both seed paths are covered, mirroring #10:
+
+- **Form-state stamp** (`fieldSchemasToFormState`) — the `urlParamToFieldPath` map now records each field's `hasMany` flag alongside its path, and the apply step wraps a scalar value when `hasMany` is true. (Covers non-autosave create renders.)
+- **Autosave create-data merge** (`Document/index.tsx`) — after the `{ ...initialData, ...defaultValues }` merge, a walk over the collection's fields coerces any `hasMany` urlParam value into an array (and remaps the query-param key to the field name when they differ). This is the live path for autosave collections, which create the draft server-side and redirect before the form renders.
+
+Motivating use: the varig "Create New Bundle" CTAs on a product's Sell tab pass `?kind=bundle&products=<id>` so the new bundle is born with that product already in its "What's Included" relationship list.
+
+---
+
+### 64. Preserve the URL fragment across the post-create redirect
+
+**Files:** `packages/ui/src/views/Edit/index.tsx`
+
+When an autosave collection is created, the Edit view redirects from the create URL to the new doc's edit URL (`router.push`) once the first save returns an id. The redirect target was built fragmentless — `/collections/<slug>/<id>[?locale=]` — so any URL hash on the create URL was silently dropped on the hop.
+
+That hash is meaningful: Payload's `Tabs` field reads `window.location.hash` on mount (and via a `hashchange` listener) to auto-select the tab whose `hash` matches. A create URL like `…/create?kind=bundle&products=<id>#products` should land the new bundle on its "What's Included" tab — but the fragment never survived the redirect, so the doc always opened on the first tab.
+
+Fix: capture `window.location.hash` just before building `redirectRoute` and append it to the path. Empty string when there's no fragment (unchanged behavior for every normal create). Sibling to #63: #63 seeds the doc from the query, #64 lets the same create URL land it on the relevant tab.
+
+Motivating use: the varig "Create New Bundle" flow drops its transient "product added" banner + its `localStorage` handoff in favor of `…?kind=bundle&products=<id>#products` — the product visibly sitting in the pre-selected "What's Included" list is the confirmation, no client glue.
+
+---
+
 ## Summary
 
-| Category      | Count |
-| ------------- | ----- |
-| Bug Fixes     | 15    |
-| Features      | 35    |
-| Documentation | 1     |
+Recounted 2026-06-22: 62 entry headers across the catalog. Note `#46` is used **twice** (two unrelated changes — "List Status Cell Shows Changed" and "`payload.validate()` Dry-Run"), and `#2` is **DROPPED** (absorbed upstream in v3.85.0). That leaves **61 active changes**. Category counts below are a best-effort classification — several entries straddle fix/feature (a behavior correction that also adds a prop), so treat the split as indicative, not exact.
+
+| Category               | Count |
+| ---------------------- | ----- |
+| Bug Fixes              | 19    |
+| Features               | 41    |
+| Documentation          | 1     |
+| Dropped (absorbed)     | 1     |
+| **Total active**       | **61** |

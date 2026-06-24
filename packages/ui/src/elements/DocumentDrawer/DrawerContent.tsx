@@ -107,6 +107,11 @@ export const DocumentDrawerContent: React.FC<DocumentDrawerProps> = ({
 
   const isCreateDrawer = !docID
 
+  // Fork #61: close-on-create-save depends on drawerContext.saveMode.
+  //  - 'default'  → mirror upstream: reload the view with the new doc (stay open).
+  //  - otherwise  → 'saveAndAdd' / 'createEdit' close the create drawer on save.
+  const saveMode = drawerContext?.saveMode ?? 'saveAndAdd'
+
   const onSave = useCallback<DocumentDrawerProps['onSave']>(
     (args) => {
       if (typeof onSaveFromProps === 'function') {
@@ -117,10 +122,14 @@ export const DocumentDrawerContent: React.FC<DocumentDrawerProps> = ({
       }
 
       if (isCreateDrawer) {
-        closeModal(drawerSlug)
+        if (saveMode === 'default') {
+          getDocumentView(args.doc.id)
+        } else {
+          closeModal(drawerSlug)
+        }
       }
     },
-    [onSaveFromProps, collectionConfig, isCreateDrawer, closeModal, drawerSlug],
+    [onSaveFromProps, collectionConfig, isCreateDrawer, closeModal, drawerSlug, saveMode, getDocumentView],
   )
 
   const onDuplicate = useCallback<DocumentDrawerProps['onDuplicate']>(
