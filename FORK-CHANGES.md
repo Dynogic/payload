@@ -886,9 +886,9 @@ Repro that's now fixed: open a product → Sell tab → New Sales Page (offer dr
 
 **File:** `packages/ui/src/fields/Tabs/index.tsx`
 
-Bug fix: a tab-level `admin.condition` evaluated correctly server-side but **never hid the tab header** for a top-level `tabs` field, so a falsy condition left an empty, clickable tab in the bar. (The tab's *contents* were hidden because `passesCondition` propagates to children, but the header stayed.)
+Bug fix: a tab-level `admin.condition` evaluated correctly server-side but **never hid the tab header** for a top-level `tabs` field, so a falsy condition left an empty, clickable tab in the bar. (The tab's _contents_ were hidden because `passesCondition` propagates to children, but the header stayed.)
 
-Root cause is a key mismatch between the form-state writer and the renderer. The form-state builder (`addFieldStatePromise`) keys each tab's `passesCondition` under **`${tabsFieldPath}.${tab.id}`** — it passes the *tabs field's own* `path` as the tab's `parentPath` (the tab `id` is auto-assigned during sanitize when a condition is present). But the `Tabs` renderer built its lookup key from **this component's `parentPath`** (the tabs field's *parent*), which for a top-level tabs field is `''` — so it looked up `tab.id` while the state lived under `_index-N.tab.id`. The keys never matched and `passesCondition` fell back to `?? true`, leaving the tab visible.
+Root cause is a key mismatch between the form-state writer and the renderer. The form-state builder (`addFieldStatePromise`) keys each tab's `passesCondition` under **`${tabsFieldPath}.${tab.id}`** — it passes the _tabs field's own_ `path` as the tab's `parentPath` (the tab `id` is auto-assigned during sanitize when a condition is present). But the `Tabs` renderer built its lookup key from **this component's `parentPath`** (the tabs field's _parent_), which for a top-level tabs field is `''` — so it looked up `tab.id` while the state lived under `_index-N.tab.id`. The keys never matched and `passesCondition` fell back to `?? true`, leaving the tab visible.
 
 Fix: in the `tabStates` selector, build `fieldKey` from this component's own `path` (which equals the writer's `${tabsFieldPath}`), not `parentPath`:
 
@@ -897,7 +897,7 @@ Fix: in the `tabStates` selector, build `fieldKey` from this component's own `pa
 const fieldKey = path ? `${path}.${id}` : id
 ```
 
-The React-Compiler memo dependency for that selector follows the same swap (`parentPath` → `path`). Tabs **without** a condition are unaffected (no state entry exists at either key, so they default visible); only conditional tabs change — they now hide their header when the condition is falsy, in both top-level and nested (group/array) tabs fields. This is what makes `kind`-conditional offer tabs (varig: solo offers omit *What's Included* + *Page*) work without a custom Tabs component.
+The React-Compiler memo dependency for that selector follows the same swap (`parentPath` → `path`). Tabs **without** a condition are unaffected (no state entry exists at either key, so they default visible); only conditional tabs change — they now hide their header when the condition is falsy, in both top-level and nested (group/array) tabs fields. This is what makes `kind`-conditional offer tabs (varig: solo offers omit _What's Included_ + _Page_) work without a custom Tabs component.
 
 ---
 
@@ -908,18 +908,18 @@ The React-Compiler memo dependency for that selector follows the same swap (`par
 Fork change #45 collapses **every** document drawer to a single "Save & Add" button. That's right for relationship "save and add another" flows, but wrong for a standalone create/edit drawer whose document is publishable in its own right (varig's Sell-tab "Create Offer" / "Edit offer" drawers — an offer must be published to be buyable). This makes the drawer's save behavior selectable via `drawerContext.saveMode` (`drawerContext` plumbing is from #44):
 
 ```tsx
-const saveMode = drawerContextOpts?.saveMode ?? 'saveAndAdd'   // absent → #45 default
-const drawerDefault    = isInDrawer && saveMode === 'default'
+const saveMode = drawerContextOpts?.saveMode ?? 'saveAndAdd' // absent → #45 default
+const drawerDefault = isInDrawer && saveMode === 'default'
 const drawerSaveAndAdd = isInDrawer && saveMode === 'saveAndAdd'
 const createEditCreate = isInDrawer && saveMode === 'createEdit' && isCreateDrawer
-const createEditEdit   = isInDrawer && saveMode === 'createEdit' && !isCreateDrawer
+const createEditEdit = isInDrawer && saveMode === 'createEdit' && !isCreateDrawer
 ```
 
-| `saveMode` | Buttons | Autosave | On create-save |
-| --- | --- | --- | --- |
-| `'saveAndAdd'` *(absent → this)* | lone "Save & Add" (create) / "Save" (edit) — **#45** | off | close drawer |
-| `'default'` | stock full-page controls (Save Draft + Publish, or autosave + Publish) | on (`drawerDefault`) | **reload** (stay open, like upstream) |
-| `'createEdit'` | create: **Save Draft + Publish** (labels via `createLabels`); edit: lone **Publish** | create: off · edit: on (`createEditEdit`) | close drawer |
+| `saveMode`                       | Buttons                                                                              | Autosave                                  | On create-save                        |
+| -------------------------------- | ------------------------------------------------------------------------------------ | ----------------------------------------- | ------------------------------------- |
+| `'saveAndAdd'` _(absent → this)_ | lone "Save & Add" (create) / "Save" (edit) — **#45**                                 | off                                       | close drawer                          |
+| `'default'`                      | stock full-page controls (Save Draft + Publish, or autosave + Publish)               | on (`drawerDefault`)                      | **reload** (stay open, like upstream) |
+| `'createEdit'`                   | create: **Save Draft + Publish** (labels via `createLabels`); edit: lone **Publish** | create: off · edit: on (`createEditEdit`) | close drawer                          |
 
 Because the absent default is `'saveAndAdd'`, every existing relationship drawer is unchanged. The mode is **per-drawer, not per-collection**: `products` autosaves but its series "New Product" relationship drawer stays `'saveAndAdd'`; only varig's offer drawers opt into `'createEdit'`.
 
@@ -928,11 +928,12 @@ Because the absent default is `'saveAndAdd'`, every existing relationship drawer
 **`'default'` caveat.** `'default'` reproduces upstream button-for-button and is fully faithful for **non-autosave** drafts collections. For an **autosave** collection, upstream's autosave only works because the server auto-creates the draft — which #45 removed in drawers and the server view never receives `saveMode` to conditionally restore. So in a `'default'` autosave drawer the autosave indicator shows but won't persist; use `'createEdit'` for autosave collections. (Restoring the auto-draft would mean threading `saveMode` into `renderDocument` → `Document/index.tsx` and reintroduces the empty-draft-on-cancel litter #45 removed — deliberately deferred.)
 
 Wiring details:
+
 - Autosave gate: `(!isInDrawer || drawerDefault || createEditEdit) && …` on the `<Autosave>` render.
 - Close-on-create-save (`DrawerContent.onSave`): `'default'` reloads via `getDocumentView(doc.id)`; the others `closeModal`.
 - `SaveDraftButton` gained an optional `label?: string` prop (mirrors `PublishButton`); `DocumentControls` passes `createLabels.saveDraft`/`.publish` to the Fallback buttons. When the collection registers a **custom** PublishButton (varig's cascade-publish), `RenderCustomComponent` renders the server-resolved element and can't receive a label prop, so that custom client component reads `useOptionalDocumentDrawerContext()?.drawerContext.createLabels.publish` itself (gated on `isCreateDrawer`).
 
-History: v3.85.0.3 publish gate; v3.85.0.4 (autosave-in-*create*-drawer) **broken — do not use**; v3.85.0.5 `showSaveDraftButton` flag; v3.85.0.6 `fullSaveControls` boolean create/edit model; **v3.85.0.7** generalizes it to the `saveMode` enum above (current release). `fullSaveControls: true` is replaced by `saveMode: 'createEdit'`.
+History: v3.85.0.3 publish gate; v3.85.0.4 (autosave-in-_create_-drawer) **broken — do not use**; v3.85.0.5 `showSaveDraftButton` flag; v3.85.0.6 `fullSaveControls` boolean create/edit model; **v3.85.0.7** generalizes it to the `saveMode` enum above (current release). `fullSaveControls: true` is replaced by `saveMode: 'createEdit'`.
 
 ---
 
@@ -982,14 +983,28 @@ Motivating use: the varig "Create New Bundle" flow drops its transient "product 
 
 ---
 
+### 65. Preserve sticky query params (prefixed `_`) across the server-side post-create redirect
+
+**Files:** `packages/next/src/views/Document/index.tsx`
+
+For **autosave** collections, the create page creates the draft server-side and redirects to the new doc's edit URL via `next/navigation.redirect()`. That redirect URL was built bare (path only), so any query param on the create URL was lost. This change appends query params prefixed with `_` to the redirect URL. Create-page-only params (`kind=`, `products=`, etc.) are NOT prefixed and are dropped as before. The URL fragment (`#...`) is preserved automatically by the browser across HTTP redirects — no handling needed.
+
+Any feature can add a `_`-prefixed param to the create URL and read it on the edit page after the redirect — no per-param fork changes needed.
+
+Scope: server-side (autosave) path only. The client-side `onSuccess` redirect (`packages/ui/src/views/Edit/index.tsx`) is NOT touched — autosave collections never reach it (the server `redirect()` fires first), and no non-autosave create flow currently uses sticky params. Sibling to #64, which preserves the fragment on the client redirect.
+
+Motivating use: the varig "Create New Bundle" flow adds `_fromProduct=true` to the create link (offers is an autosave collection, so the server redirect carries it). The bundle edit page reads it to fire a one-shot "product added" toast, then strips it via `history.replaceState` so it can't re-fire on refresh. The `#products` fragment (tab auto-selection) and `_fromProduct` (toast) are independent signals carried by the same redirect.
+
+---
+
 ## Summary
 
 Recounted 2026-06-22: 62 entry headers across the catalog. Note `#46` is used **twice** (two unrelated changes — "List Status Cell Shows Changed" and "`payload.validate()` Dry-Run"), and `#2` is **DROPPED** (absorbed upstream in v3.85.0). That leaves **61 active changes**. Category counts below are a best-effort classification — several entries straddle fix/feature (a behavior correction that also adds a prop), so treat the split as indicative, not exact.
 
-| Category               | Count |
-| ---------------------- | ----- |
-| Bug Fixes              | 19    |
-| Features               | 41    |
-| Documentation          | 1     |
-| Dropped (absorbed)     | 1     |
-| **Total active**       | **61** |
+| Category           | Count  |
+| ------------------ | ------ |
+| Bug Fixes          | 19     |
+| Features           | 41     |
+| Documentation      | 1      |
+| Dropped (absorbed) | 1      |
+| **Total active**   | **61** |

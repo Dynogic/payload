@@ -392,9 +392,25 @@ export const renderDocument = async ({
       isEditing = getIsEditing({ id: doc.id, collectionSlug, globalSlug })
 
       if (!drawerSlug && redirectAfterCreate !== false) {
+        // Preserve sticky query params (prefixed with `_`) across the
+        // server-side create→edit redirect. Without this, the redirect URL
+        // is bare (no query string), and any `_*`-prefixed param (e.g.
+        // `_fromProduct=true`) is lost. The URL fragment (e.g. `#products`)
+        // is preserved automatically by the browser across HTTP redirects.
+        // (Fork change #65.)
+        const stickyParams: string[] = []
+        if (searchParams) {
+          for (const [key, value] of Object.entries(searchParams)) {
+            if (key.startsWith('_')) {
+              stickyParams.push(`${key}=${value}`)
+            }
+          }
+        }
+        const queryString = stickyParams.length > 0 ? `?${stickyParams.join('&')}` : ''
+
         const redirectURL = formatAdminURL({
           adminRoute,
-          path: `/collections/${collectionSlug}/${doc.id}`,
+          path: `/collections/${collectionSlug}/${doc.id}${queryString}`,
         })
 
         redirect(redirectURL)
