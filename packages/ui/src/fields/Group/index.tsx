@@ -28,7 +28,7 @@ const baseClass = 'group-field'
 export const GroupFieldComponent: GroupFieldClientComponent = (props) => {
   const {
     field,
-    field: { admin: { className, description, hideGutter } = {}, fields, label },
+    field: { admin: { bare, className, description, hideGutter } = {}, fields, label },
     indexPath,
     parentPath,
     parentSchemaPath,
@@ -63,6 +63,7 @@ export const GroupFieldComponent: GroupFieldClientComponent = (props) => {
       className={[
         fieldBaseClass,
         baseClass,
+        bare && `${baseClass}--bare`,
         isTopLevel && `${baseClass}--top-level`,
         isWithinCollapsible && `${baseClass}--within-collapsible`,
         isWithinGroup && `${baseClass}--within-group`,

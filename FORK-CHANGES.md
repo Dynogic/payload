@@ -993,18 +993,30 @@ Any feature can add a `_`-prefixed param to the create URL and read it on the ed
 
 Scope: server-side (autosave) path only. The client-side `onSuccess` redirect (`packages/ui/src/views/Edit/index.tsx`) is NOT touched — autosave collections never reach it (the server `redirect()` fires first), and no non-autosave create flow currently uses sticky params. Sibling to #64, which preserves the fragment on the client redirect.
 
-Motivating use: the varig "Create New Bundle" flow adds `_fromProduct=true` to the create link (offers is an autosave collection, so the server redirect carries it). The bundle edit page reads it to fire a one-shot "product added" toast, then strips it via `history.replaceState` so it can't re-fire on refresh. The `#products` fragment (tab auto-selection) and `_fromProduct` (toast) are independent signals carried by the same redirect.
+Motivating use: the varig "Create New Bundle" flow adds `_fromProduct=true` to the create link (offers is an autosave collection, so the server redirect carries it). The bundle edit page reads it to fire a one-shot toast with the product's name, then strips it via `history.replaceState` so it can't re-fire on refresh.
+
+---
+
+### 66. `admin.bare` on group fields — suppress chrome (border/padding/margin)
+
+**Files:** `packages/ui/src/fields/Group/index.tsx`, `packages/ui/src/fields/Group/index.scss`
+
+A new `admin.bare: true` option on `type: 'group'` fields that suppresses the group's visual chrome — border, padding, negative margins, gutter indent — via a single `--bare` modifier class. The group renders as a bare container for its child fields, useful when nesting a group inside a `type: 'row'` for side-by-side layouts where the group's border/padding would break the flush row alignment.
+
+Before this, consumers zeroed out chrome via inline `admin.style` overrides (`border: 'none', padding: 0, ...`), which is fragile against Payload DOM/CSS upgrades — the inline style targets specific CSS properties that a new Payload version could rename or restructure. `admin.bare` is a semantic opt-in that survives upgrades because it controls the class, not the CSS properties.
+
+Implementation: one new class `group-field--bare` added to the component's className array (gated on `admin.bare`), and one SCSS rule that zeroes `margin`, `padding`, and `border`. No effect on groups that don't set `bare: true`.
 
 ---
 
 ## Summary
 
-Recounted 2026-06-22: 62 entry headers across the catalog. Note `#46` is used **twice** (two unrelated changes — "List Status Cell Shows Changed" and "`payload.validate()` Dry-Run"), and `#2` is **DROPPED** (absorbed upstream in v3.85.0). That leaves **61 active changes**. Category counts below are a best-effort classification — several entries straddle fix/feature (a behavior correction that also adds a prop), so treat the split as indicative, not exact.
+Recounted 2026-06-22: 62 entry headers across the catalog. Note `#46` is used **twice** (two unrelated changes — "List Status Cell Shows Changed" and "`payload.validate()` Dry-Run"), and `#2` is **DROPPED** (absorbed upstream in v3.85.0). That leaves **62 active changes**. Category counts below are a best-effort classification — several entries straddle fix/feature (a behavior correction that also adds a prop), so treat the split as indicative, not exact.
 
 | Category           | Count  |
 | ------------------ | ------ |
 | Bug Fixes          | 19     |
-| Features           | 41     |
+| Features           | 42     |
 | Documentation      | 1      |
 | Dropped (absorbed) | 1      |
-| **Total active**   | **61** |
+| **Total active**   | **62** |

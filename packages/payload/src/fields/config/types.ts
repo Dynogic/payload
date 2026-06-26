@@ -822,6 +822,7 @@ export type DateFieldClient = {
 
 export type GroupBase = {
   admin?: {
+    bare?: boolean
     components?: {
       afterInput?: CustomComponent[]
       beforeInput?: CustomComponent[]
@@ -853,7 +854,7 @@ export type GroupField = NamedGroupField | UnnamedGroupField
 
 export type UnnamedGroupFieldClient = {
   // @ts-expect-error - vestiges of when tsconfig was not strict. Feel free to improve
-  admin?: AdminClient & Pick<UnnamedGroupField['admin'], 'hideGutter'>
+  admin?: AdminClient & Pick<UnnamedGroupField['admin'], 'bare' | 'hideGutter'>
   fields: ClientField[]
 } & Omit<FieldBaseClient, 'name' | 'required'> &
   Pick<UnnamedGroupField, 'label' | 'type'>
