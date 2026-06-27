@@ -40,6 +40,7 @@ export { QueryPresetsGroupByField } from '../../elements/QueryPresets/fields/Gro
 // elements
 export { ConfirmationModal } from '../../elements/ConfirmationModal/index.js'
 export type { OnCancel } from '../../elements/ConfirmationModal/index.js'
+export { CloseModalButton } from '../../elements/CloseModalButton/index.js'
 export { Link } from '../../elements/Link/index.js'
 export { LeaveWithoutSaving } from '../../elements/LeaveWithoutSaving/index.js'
 export { DocumentTakeOver } from '../../elements/DocumentTakeOver/index.js'

@@ -1007,6 +1007,14 @@ Before this, consumers zeroed out chrome via inline `admin.style` overrides (`bo
 
 Implementation: one new class `group-field--bare` added to the component's className array (gated on `admin.bare`), and one SCSS rule that zeroes `margin`, `padding`, and `border`. No effect on groups that don't set `bare: true`.
 
+### 67. Close X button on ConfirmationModal + export CloseModalButton
+
+**Files:** `packages/ui/src/elements/ConfirmationModal/index.tsx`, `packages/ui/src/elements/ConfirmationModal/index.scss`, `packages/ui/src/exports/client/index.ts`
+
+Adds a close X button (using the existing `CloseModalButton` component) to the top-right corner of every `ConfirmationModal`. The button is positioned absolute inside `confirmation-modal__wrapper` (which is already `position: relative`). Also exports `CloseModalButton` from `@payloadcms/ui` so consuming apps can use it on raw `<Modal>` instances.
+
+Before this, `ConfirmationModal` had no X — only Cancel + Confirm buttons in the footer. Users expecting a top-right close affordance had to find the Cancel button. The existing `CloseModalButton` component was already used by the List drawer header but was not exported or used in modals. The button uses `tabIndex={-1}` so the focus-trap skips it on open (Cancel or first input gets initial focus instead); keyboard users Tab past it, mouse/Esc users still reach it. Both `CloseModalButton` and the Confirm button are `disabled={confirming}` during processing — prevents closing mid-action. `CloseModalButton` now accepts a `disabled` prop. The Drawer's two close buttons (overlay + header X) also received `tabIndex={-1}` for the same focus-stealing fix.
+
 ---
 
 ## Summary

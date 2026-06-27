@@ -18,6 +18,13 @@
       max-width: base(36);
     }
 
+    &__close {
+      position: absolute;
+      right: base(1);
+      top: base(1);
+      z-index: 2;
+    }
+
     &__content {
       display: flex;
       flex-direction: column;

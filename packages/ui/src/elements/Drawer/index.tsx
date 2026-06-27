@@ -92,6 +92,7 @@ export const Drawer: React.FC<Props> = ({
             className={`${baseClass}__close`}
             id={`close-drawer__${slug}`}
             onClick={() => closeModal(slug)}
+            tabIndex={-1}
             type="button"
           />
           <div
@@ -116,6 +117,7 @@ export const Drawer: React.FC<Props> = ({
                     className={`${baseClass}__header__close`}
                     id={`close-drawer__${slug}`}
                     onClick={() => closeModal(slug)}
+                    tabIndex={-1}
                     type="button"
                   >
                     <XIcon />

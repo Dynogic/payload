@@ -4,6 +4,7 @@ import React, { useCallback } from 'react'
 
 import { useTranslation } from '../../providers/Translation/index.js'
 import { Button } from '../Button/index.js'
+import { CloseModalButton } from '../CloseModalButton/index.js'
 import { drawerZBase, useDrawerDepth } from '../Drawer/index.js'
 import './index.scss'
 
@@ -81,6 +82,11 @@ export function ConfirmationModal(props: ConfirmationModalProps) {
       }}
     >
       <div className={`${baseClass}__wrapper`}>
+        <CloseModalButton
+          className={`${baseClass}__close`}
+          disabled={confirming}
+          slug={modalSlug}
+        />
         <div className={`${baseClass}__content`}>
           {typeof heading === 'string' ? <h1>{heading}</h1> : heading}
           {typeof body === 'string' ? <p>{body}</p> : body}
@@ -96,7 +102,7 @@ export function ConfirmationModal(props: ConfirmationModalProps) {
           >
             {cancelLabel || t('general:cancel')}
           </Button>
-          <Button id="confirm-action" onClick={onConfirm} size="large">
+          <Button disabled={confirming} id="confirm-action" onClick={onConfirm} size="large">
             {confirming
               ? confirmingLabel || `${t('general:loading')}...`
               : confirmLabel || t('general:confirm')}
