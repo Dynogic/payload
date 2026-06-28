@@ -18,6 +18,7 @@ export type ConfirmationModalProps = {
   className?: string
   confirmingLabel?: string
   confirmLabel?: string
+  destructive?: boolean
   heading: React.ReactNode
   modalSlug: string
   onCancel?: OnCancel
@@ -31,6 +32,7 @@ export function ConfirmationModal(props: ConfirmationModalProps) {
     className,
     confirmingLabel,
     confirmLabel,
+    destructive,
     heading,
     modalSlug,
     onCancel: onCancelFromProps,
@@ -102,7 +104,13 @@ export function ConfirmationModal(props: ConfirmationModalProps) {
           >
             {cancelLabel || t('general:cancel')}
           </Button>
-          <Button disabled={confirming} id="confirm-action" onClick={onConfirm} size="large">
+          <Button
+            buttonStyle={destructive ? 'error' : undefined}
+            disabled={confirming}
+            id="confirm-action"
+            onClick={onConfirm}
+            size="large"
+          >
             {confirming
               ? confirmingLabel || `${t('general:loading')}...`
               : confirmLabel || t('general:confirm')}

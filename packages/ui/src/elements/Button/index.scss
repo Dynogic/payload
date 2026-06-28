@@ -33,6 +33,20 @@
       }
     }
 
+    &--style-error {
+      --color: var(--theme-elevation-0);
+      --bg-color: var(--theme-error-500);
+      --hover-bg: var(--theme-error-600);
+      --hover-color: var(--color);
+
+      &.btn--disabled {
+        --bg-color: var(--theme-error-250);
+        --color: var(--theme-elevation-0);
+        --hover-bg: var(--bg-color);
+        --hover-color: var(--color);
+      }
+    }
+
     &--style-secondary {
       --color: var(--theme-text);
       --bg-color: transparent;

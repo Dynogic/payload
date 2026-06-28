@@ -1015,6 +1015,14 @@ Adds a close X button (using the existing `CloseModalButton` component) to the t
 
 Before this, `ConfirmationModal` had no X — only Cancel + Confirm buttons in the footer. Users expecting a top-right close affordance had to find the Cancel button. The existing `CloseModalButton` component was already used by the List drawer header but was not exported or used in modals. The button uses `tabIndex={-1}` so the focus-trap skips it on open (Cancel or first input gets initial focus instead); keyboard users Tab past it, mouse/Esc users still reach it. Both `CloseModalButton` and the Confirm button are `disabled={confirming}` during processing — prevents closing mid-action. `CloseModalButton` now accepts a `disabled` prop. The Drawer's two close buttons (overlay + header X) also received `tabIndex={-1}` for the same focus-stealing fix.
 
+### 68. `destructive` prop on ConfirmationModal + `error` button style
+
+**Files:** `packages/ui/src/elements/ConfirmationModal/index.tsx`, `packages/ui/src/elements/Button/index.scss`
+
+Adds an optional `destructive?: boolean` prop to `ConfirmationModal`. When `true`, the confirm button renders with `buttonStyle="error"` — a solid red fill using `--theme-error-500` bg / `--theme-elevation-0` text / `--theme-error-600` hover, matching the `primary` style's pattern but red instead of theme-colored. The cancel button is unaffected (stays `secondary`). Also adds the `.btn--style-error` SCSS class to the Button component — the `error` value existed in the TypeScript types but had no corresponding SCSS, so it was effectively unstyled before this. The disabled state uses `--theme-error-250` (a muted red) so the button still reads as destructive when disabled.
+
+The consuming app (varig) pairs this with a `destructivePrimary` variant on its payload-ui `<Button>` (`bg-[var(--theme-error-500)] text-[var(--theme-elevation-0)] hover:bg-[var(--theme-error-600)]`) so raw `<Modal>` confirms and `ConfirmationModal` confirms render the same red — both use `--theme-error-*` vars, not Tailwind's `--destructive`.
+
 ---
 
 ## Summary
