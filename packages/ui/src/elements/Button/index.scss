@@ -34,16 +34,19 @@
     }
 
     &--style-error {
-      --color: var(--theme-elevation-0);
-      --bg-color: var(--theme-error-500);
-      --hover-bg: var(--theme-error-600);
+      --color: var(--theme-error-500);
+      --bg-color: transparent;
+      --btn-border: 1px solid var(--theme-error-500);
       --hover-color: var(--color);
+      --hover-btn-border: var(--btn-border);
+      --hover-bg: var(--theme-error-50);
 
       &.btn--disabled {
-        --bg-color: var(--theme-error-250);
-        --color: var(--theme-elevation-0);
-        --hover-bg: var(--bg-color);
+        --color: var(--theme-error-250);
+        --btn-border: 1px solid var(--theme-error-250);
         --hover-color: var(--color);
+        --hover-btn-border: var(--btn-border);
+        --hover-bg: transparent;
       }
     }
 

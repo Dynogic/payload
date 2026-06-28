@@ -1019,9 +1019,9 @@ Before this, `ConfirmationModal` had no X — only Cancel + Confirm buttons in t
 
 **Files:** `packages/ui/src/elements/ConfirmationModal/index.tsx`, `packages/ui/src/elements/Button/index.scss`
 
-Adds an optional `destructive?: boolean` prop to `ConfirmationModal`. When `true`, the confirm button renders with `buttonStyle="error"` — a solid red fill using `--theme-error-500` bg / `--theme-elevation-0` text / `--theme-error-600` hover, matching the `primary` style's pattern but red instead of theme-colored. The cancel button is unaffected (stays `secondary`). Also adds the `.btn--style-error` SCSS class to the Button component — the `error` value existed in the TypeScript types but had no corresponding SCSS, so it was effectively unstyled before this. The disabled state uses `--theme-error-250` (a muted red) so the button still reads as destructive when disabled.
+Adds an optional `destructive?: boolean` prop to `ConfirmationModal`. When `true`, the confirm button renders with `buttonStyle="error"` — a tinted red style (transparent bg, `--theme-error-500` border + text, `--theme-error-50` hover bg) matching the consuming app's `variant="destructive"` Button. The cancel button is unaffected (stays `secondary`). Also adds the `.btn--style-error` SCSS class to the Button component — the `error` value existed in the TypeScript types but had no corresponding SCSS, so it was effectively unstyled before this. The disabled state mutes to `--theme-error-250` border + text with no hover bg.
 
-The consuming app (varig) pairs this with a `destructivePrimary` variant on its payload-ui `<Button>` (`bg-[var(--theme-error-500)] text-[var(--theme-elevation-0)] hover:bg-[var(--theme-error-600)]`) so raw `<Modal>` confirms and `ConfirmationModal` confirms render the same red — both use `--theme-error-*` vars, not Tailwind's `--destructive`.
+The consuming app (varig) pairs this with its existing `variant="destructive"` on raw `<Modal>` confirm buttons — both use `--theme-error-*` vars for the same red in light + dark.
 
 ---
 
