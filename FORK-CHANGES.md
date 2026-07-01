@@ -1023,16 +1023,26 @@ Adds an optional `destructive?: boolean` prop to `ConfirmationModal`. When `true
 
 The consuming app (varig) pairs this with its existing `variant="destructive"` on raw `<Modal>` confirm buttons — both use `--theme-error-*` vars for the same red in light + dark.
 
+### 69. PanelRight icon for Live Preview toggler (frees up Eye)
+
+**Files:** `packages/ui/src/icons/PanelRight/index.tsx` (new), `packages/ui/src/icons/PanelRight/index.scss` (new), `packages/ui/src/elements/LivePreview/Toggler/index.tsx`
+
+Replaces the `EyeIcon` in the Live Preview toggler with a new `PanelRightIcon` — a toggleable side-panel glyph (outlined rectangle + divider when inactive; right pane filled when active). The toggler's behavior is unchanged (same `active={isLivePreviewing}` prop, same aria-label/title strings); only the glyph changes.
+
+Motivation: the consuming app (varig) standardizes on `Eye` = "open the storefront in a new browser tab" across its list / row / picker surfaces. Payload's Live Preview toggler was _also_ an `Eye`, producing two Eye glyphs on the document edit page with different meanings (toggle the in-editor iframe pane vs. open the storefront in a new tab). Swapping the pane toggler to `PanelRight` removes the collision — `Eye` is now free for the consuming app's storefront-preview affordance everywhere, and the pane toggler reads honestly as "toggle the side panel." `EyeIcon` itself is unchanged and remains available for any other consumer.
+
+The icon follows the fork's existing hand-drawn SVG icon pattern (viewBox `0 0 16 16`, theme-driven `stroke`/`fill` classes via `currentColor`, `active` prop mirroring `EyeIcon`'s shape) — no new icon-library dependency.
+
 ---
 
 ## Summary
 
-Recounted 2026-06-22: 62 entry headers across the catalog. Note `#46` is used **twice** (two unrelated changes — "List Status Cell Shows Changed" and "`payload.validate()` Dry-Run"), and `#2` is **DROPPED** (absorbed upstream in v3.85.0). That leaves **62 active changes**. Category counts below are a best-effort classification — several entries straddle fix/feature (a behavior correction that also adds a prop), so treat the split as indicative, not exact.
+Recounted 2026-06-22: 62 entry headers across the catalog. Note `#46` is used **twice** (two unrelated changes — "List Status Cell Shows Changed" and "`payload.validate()` Dry-Run"), and `#2` is **DROPPED** (absorbed upstream in v3.85.0). That leaves **62 active changes**. Category counts below are a best-effort classification — several entries straddle fix/feature (a behavior correction that also adds a prop), so treat the split as indicative, not exact. _(Updated 2026-06-29: +#69 → 63 active.)_
 
 | Category           | Count  |
 | ------------------ | ------ |
 | Bug Fixes          | 19     |
-| Features           | 42     |
+| Features           | 43     |
 | Documentation      | 1      |
 | Dropped (absorbed) | 1      |
-| **Total active**   | **62** |
+| **Total active**   | **63** |

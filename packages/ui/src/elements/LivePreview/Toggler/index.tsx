@@ -1,6 +1,6 @@
 import React from 'react'
 
-import { EyeIcon } from '../../../icons/Eye/index.js'
+import { PanelRightIcon } from '../../../icons/PanelRight/index.js'
 import { useLivePreviewContext } from '../../../providers/LivePreview/context.js'
 import { useTranslation } from '../../../providers/Translation/index.js'
 import './index.scss'
@@ -26,7 +26,7 @@ export const LivePreviewToggler: React.FC = () => {
       title={isLivePreviewing ? t('general:exitLivePreview') : t('general:livePreview')}
       type="button"
     >
-      <EyeIcon active={isLivePreviewing} />
+      <PanelRightIcon active={isLivePreviewing} />
     </button>
   )
 }
