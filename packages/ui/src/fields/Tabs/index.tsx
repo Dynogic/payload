@@ -143,20 +143,30 @@ const TabsFieldComponent: TabsFieldClientComponent = (props) => {
           }),
         )
 
-        // Update URL hash if tab has a hash value
+        // Update URL hash if tab has a hash value; no hash → clear it.
         const selectedTabHash = (selectedTab as any).hash
+        const nextHash = selectedTabHash ? `#${selectedTabHash}` : ''
 
-        if (selectedTabHash) {
-          window.history.replaceState(null, '', `#${selectedTabHash}`)
-        } else {
-          // Clear hash if tab has no hash value
-          window.history.replaceState(null, '', window.location.pathname + window.location.search)
+        // No-op guard (#70): an identical-URL replaceState still runs Next's
+        // history-wrapper router sync, and a gratuitous write colliding with
+        // another history write in the same commit can wedge Next's
+        // server-action queue (pending fetches never dispatch — diagnosed in
+        // the consuming app 2026-07-02). Clicking a hash-less default tab on
+        // a hash-less URL, or re-clicking the active tab, changes nothing —
+        // skip the write AND the announce event (subscribers are already in
+        // sync).
+        if (window.location.hash !== nextHash) {
+          window.history.replaceState(
+            null,
+            '',
+            window.location.pathname + window.location.search + nextHash,
+          )
+
+          // replaceState fires no native event; announce the hash write so consuming-app
+          // subscribers (e.g. varig's sidebar nav) can observe it. The event name is a
+          // cross-repo contract — consumers listen for this exact string.
+          window.dispatchEvent(new Event('admin:hashchange'))
         }
-
-        // replaceState fires no native event; announce the hash write so consuming-app
-        // subscribers (e.g. varig's sidebar nav) can observe it. The event name is a
-        // cross-repo contract — consumers listen for this exact string.
-        window.dispatchEvent(new Event('admin:hashchange'))
       }
     },
     [tabs, parentPath, inDrawer],

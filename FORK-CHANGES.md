@@ -1035,14 +1035,26 @@ The icon follows the fork's existing hand-drawn SVG icon pattern (viewBox `0 0 1
 
 ---
 
+### 70. Tabs field: skip no-op hash `replaceState` (Next server-action-queue wedge)
+
+**Files:** `packages/ui/src/fields/Tabs/index.tsx`
+
+The tab-change handler always called `window.history.replaceState` — `#<hash>` for hash tabs, `pathname + search` for hash-less tabs — and always dispatched `admin:hashchange`. When the write changed nothing (clicking the hash-less default tab on a hash-less URL, or re-clicking the already-active tab), that was a gratuitous `replaceState` through Next's history wrapper.
+
+That matters because Next's wrapper schedules router bookkeeping on every call, and a no-op history write colliding with another history write in the same React commit can **wedge Next's server-action queue**: pending server-action fetches never dispatch (no request, no error — a promise that never settles), and subsequent client navigations run against the corrupted router state. Diagnosed in the consuming app (varig) 2026-07-02 via instrumented Playwright: an embed's mount-time URL-mirror write colliding with this handler's hash write froze every click-mounted tab panel's data fetch. The consuming app guarded its own writers; this entry closes the fork's half.
+
+Fix: compute `nextHash` (`#<hash>` or `''`), and only when `window.location.hash !== nextHash` perform ONE `replaceState` of `pathname + search + nextHash` and dispatch `admin:hashchange`. Same-hash clicks now touch nothing — subscribers are already in sync, so skipping the announce event is correct by construction. Real tab transitions (including clearing the hash when moving to the default tab) behave exactly as before.
+
+---
+
 ## Summary
 
-Recounted 2026-06-22: 62 entry headers across the catalog. Note `#46` is used **twice** (two unrelated changes — "List Status Cell Shows Changed" and "`payload.validate()` Dry-Run"), and `#2` is **DROPPED** (absorbed upstream in v3.85.0). That leaves **62 active changes**. Category counts below are a best-effort classification — several entries straddle fix/feature (a behavior correction that also adds a prop), so treat the split as indicative, not exact. _(Updated 2026-06-29: +#69 → 63 active.)_
+Recounted 2026-06-22: 62 entry headers across the catalog. Note `#46` is used **twice** (two unrelated changes — "List Status Cell Shows Changed" and "`payload.validate()` Dry-Run"), and `#2` is **DROPPED** (absorbed upstream in v3.85.0). That leaves **62 active changes**. Category counts below are a best-effort classification — several entries straddle fix/feature (a behavior correction that also adds a prop), so treat the split as indicative, not exact. _(Updated 2026-06-29: +#69 → 63 active. Updated 2026-07-02: +#70 → 64 active.)_
 
 | Category           | Count  |
 | ------------------ | ------ |
-| Bug Fixes          | 19     |
+| Bug Fixes          | 20     |
 | Features           | 43     |
 | Documentation      | 1      |
 | Dropped (absorbed) | 1      |
-| **Total active**   | **63** |
+| **Total active**   | **64** |
