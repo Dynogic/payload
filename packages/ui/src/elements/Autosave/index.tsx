@@ -52,6 +52,9 @@ export const Autosave: React.FC<Props> = ({ id, collection, global: globalDoc })
 
   const {
     docConfig,
+    // FORK (#71): out-of-band writers (canvas editors) raise this while
+    // saving through their own actions — the indicator below covers them.
+    externalSaving,
     lastUpdateTime,
     mostRecentVersionIsAutosaved,
     setMostRecentVersionIsAutosaved,
@@ -238,8 +241,8 @@ export const Autosave: React.FC<Props> = ({ id, collection, global: globalDoc })
   return (
     <div className={baseClass}>
       {validateOnDraft && !isValid && <LeaveWithoutSaving />}
-      {saving && t('general:saving')}
-      {!saving && Boolean(lastUpdateTime) && (
+      {(saving || externalSaving) && t('general:saving')}
+      {!saving && !externalSaving && Boolean(lastUpdateTime) && (
         <React.Fragment>
           {t('version:lastSavedAgo', {
             distance: formatTimeToNow({ date: lastUpdateTime, i18n }),

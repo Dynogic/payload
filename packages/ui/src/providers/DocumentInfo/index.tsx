@@ -118,6 +118,11 @@ const DocumentInfo: React.FC<
   )
   const [lastUpdateTime, setLastUpdateTime] = useControllableState<number>(lastUpdateTimeFromProps)
 
+  // FORK (#71): out-of-band writers (canvas editors saving through their
+  // own actions) report in-flight saves here; Autosave renders "Saving…"
+  // while the flag is up.
+  const [externalSaving, setExternalSaving] = useState(false)
+
   const [data, setData] = useControllableState(initialData)
 
   const [uploadStatus, setUploadStatus] = useControllableState<'failed' | 'idle' | 'uploading'>(
@@ -383,6 +388,7 @@ const DocumentInfo: React.FC<
     docPermissions,
     documentIsLocked,
     documentLockState,
+    externalSaving,
     getDocPermissions,
     getDocPreferences,
     hasPublishedDoc,
@@ -401,6 +407,7 @@ const DocumentInfo: React.FC<
     setDocFieldPreferences,
     setDocumentIsLocked,
     setDocumentTitle,
+    setExternalSaving,
     setHasPublishedDoc,
     setLastUpdateTime,
     setMostRecentVersionIsAutosaved,

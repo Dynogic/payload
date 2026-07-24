@@ -1047,14 +1047,24 @@ Fix: compute `nextHash` (`#<hash>` or `''`), and only when `window.location.hash
 
 ---
 
+### 71. DocumentInfo: `externalSaving` — native save feedback for out-of-band writers
+
+**Files:** `packages/ui/src/providers/DocumentInfo/types.ts`, `packages/ui/src/providers/DocumentInfo/index.tsx`, `packages/ui/src/elements/Autosave/index.tsx`
+
+The `Autosave` element is both worker and display: it POSTs the form when form state changes, and renders "Saving…" / "Last saved X ago" in the document controls. Custom elements that write the document OUTSIDE the form (the consuming app's canvas editors save drafts through their own server actions — the form is deliberately not trusted with those blobs) could already update the timestamp via the public `setLastUpdateTime`, but the transient "Saving…" state was a private `useState` inside `Autosave` — unreachable, so out-of-band saves showed no native feedback and consumers duplicated their own indicators.
+
+Fix: `DocumentInfo` gains `externalSaving: boolean` + `setExternalSaving` (plain state, exposed on the context). `Autosave` renders its saving indicator when `saving || externalSaving` and suppresses the "Last saved" line while either is up. Writers raise the flag when a save starts, clear it when the save settles, and pair it with `setLastUpdateTime` (+ the existing version-count setters) on success. Purely additive — consumers that never set the flag see identical behavior.
+
+---
+
 ## Summary
 
-Recounted 2026-06-22: 62 entry headers across the catalog. Note `#46` is used **twice** (two unrelated changes — "List Status Cell Shows Changed" and "`payload.validate()` Dry-Run"), and `#2` is **DROPPED** (absorbed upstream in v3.85.0). That leaves **62 active changes**. Category counts below are a best-effort classification — several entries straddle fix/feature (a behavior correction that also adds a prop), so treat the split as indicative, not exact. _(Updated 2026-06-29: +#69 → 63 active. Updated 2026-07-02: +#70 → 64 active.)_
+Recounted 2026-06-22: 62 entry headers across the catalog. Note `#46` is used **twice** (two unrelated changes — "List Status Cell Shows Changed" and "`payload.validate()` Dry-Run"), and `#2` is **DROPPED** (absorbed upstream in v3.85.0). That leaves **62 active changes**. Category counts below are a best-effort classification — several entries straddle fix/feature (a behavior correction that also adds a prop), so treat the split as indicative, not exact. _(Updated 2026-06-29: +#69 → 63 active. Updated 2026-07-02: +#70 → 64 active. Updated 2026-07-23: +#71 → 65 active.)_
 
 | Category           | Count  |
 | ------------------ | ------ |
 | Bug Fixes          | 20     |
-| Features           | 43     |
+| Features           | 44     |
 | Documentation      | 1      |
 | Dropped (absorbed) | 1      |
-| **Total active**   | **64** |
+| **Total active**   | **65** |

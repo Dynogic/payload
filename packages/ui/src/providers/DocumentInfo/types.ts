@@ -66,6 +66,16 @@ export type DocumentInfoContext = {
     isLocked: boolean
     user: ClientUser | number | string
   } | null>
+  /**
+   * FORK (#71): true while a custom element is writing this document
+   * OUTSIDE the Payload form (e.g. a canvas editor saving drafts through
+   * its own server actions). The `Autosave` element renders its "Saving…"
+   * indicator while this is up, so out-of-band writers get the same
+   * native save feedback as form autosave. Writers should raise it when
+   * a save starts and clear it when the save settles (success or error),
+   * pairing it with `setLastUpdateTime` on success.
+   */
+  externalSaving: boolean
   getDocPermissions: GetDocPermissions
   getDocPreferences: () => Promise<DocumentPreferences>
   incrementVersionCount: () => void
@@ -94,6 +104,8 @@ export type DocumentInfoContext = {
    * ```
    */
   setDocumentTitle: React.Dispatch<React.SetStateAction<string>>
+  /** FORK (#71): raise/clear the `externalSaving` flag. */
+  setExternalSaving: React.Dispatch<React.SetStateAction<boolean>>
   setHasPublishedDoc: React.Dispatch<React.SetStateAction<boolean>>
   setLastUpdateTime: React.Dispatch<React.SetStateAction<number>>
   setMostRecentVersionIsAutosaved: React.Dispatch<React.SetStateAction<boolean>>
