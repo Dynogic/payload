@@ -1057,14 +1057,26 @@ Fix: `DocumentInfo` gains `externalSaving: boolean` + `setExternalSaving` (plain
 
 ---
 
+### 72. `hideCollectionLabel` on Upload field — suppress the collection pill for polymorphic relationTo
+
+**Files:** `packages/ui/src/fields/Upload/Input.tsx`, `packages/ui/src/fields/Upload/index.tsx`
+
+`UploadInput` hard-wires `showCollectionSlug={Array.isArray(relationTo)}` on both selected-card renderers (`UploadComponentHasOne` / `UploadComponentHasMany`): any polymorphic (array) `relationTo` shows a collection pill on the selected card. For a single-member polymorphic array — a field kept as `['media']`-style array purely to preserve the stored `{ relationTo, value }` shape — the pill is pure noise (every selectable doc is from the same collection).
+
+Fix: new optional `hideCollectionLabel?: boolean` prop (default `false`) on `UploadInputProps` and on `UploadComponent`, threaded through the same direct-prop path as the existing `allowedMimeTypes` / `onInvalidFile` fork additions (change #11): a consumer's custom field component passes it alongside its other props and `UploadComponent` forwards it to `UploadInput`, where both `showCollectionSlug` sites become `!hideCollectionLabel && Array.isArray(relationTo)`. Purely additive — consumers that never pass it see identical behavior.
+
+Motivating use: the consuming app (varig) narrows a polymorphic curriculum source field to `['files']` in its upload wrapper; without the opt-out every selected card carried a "Media" pill.
+
+---
+
 ## Summary
 
-Recounted 2026-06-22: 62 entry headers across the catalog. Note `#46` is used **twice** (two unrelated changes — "List Status Cell Shows Changed" and "`payload.validate()` Dry-Run"), and `#2` is **DROPPED** (absorbed upstream in v3.85.0). That leaves **62 active changes**. Category counts below are a best-effort classification — several entries straddle fix/feature (a behavior correction that also adds a prop), so treat the split as indicative, not exact. _(Updated 2026-06-29: +#69 → 63 active. Updated 2026-07-02: +#70 → 64 active. Updated 2026-07-23: +#71 → 65 active.)_
+Recounted 2026-06-22: 62 entry headers across the catalog. Note `#46` is used **twice** (two unrelated changes — "List Status Cell Shows Changed" and "`payload.validate()` Dry-Run"), and `#2` is **DROPPED** (absorbed upstream in v3.85.0). That leaves **62 active changes**. Category counts below are a best-effort classification — several entries straddle fix/feature (a behavior correction that also adds a prop), so treat the split as indicative, not exact. _(Updated 2026-06-29: +#69 → 63 active. Updated 2026-07-02: +#70 → 64 active. Updated 2026-07-23: +#71 → 65 active. Updated 2026-07-24: +#72 → 66 active.)_
 
 | Category           | Count  |
 | ------------------ | ------ |
 | Bug Fixes          | 20     |
-| Features           | 44     |
+| Features           | 45     |
 | Documentation      | 1      |
 | Dropped (absorbed) | 1      |
-| **Total active**   | **65** |
+| **Total active**   | **66** |

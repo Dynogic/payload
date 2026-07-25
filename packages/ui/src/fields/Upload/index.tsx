@@ -17,11 +17,15 @@ export type { UploadInputProps } from './Input.js'
 
 export const baseClass = 'upload'
 
-export function UploadComponent(props: UploadFieldClientProps & { 
-  allowedMimeTypes?: string[]
-  onInvalidFile?: (file: File, allowedTypes: string[]) => void 
-}) {
+export function UploadComponent(
+  props: {
+    allowedMimeTypes?: string[]
+    hideCollectionLabel?: boolean
+    onInvalidFile?: (file: File, allowedTypes: string[]) => void
+  } & UploadFieldClientProps,
+) {
   const {
+    allowedMimeTypes,
     field,
     field: {
       admin: { allowCreate, className, description, isSortable } = {},
@@ -32,11 +36,11 @@ export function UploadComponent(props: UploadFieldClientProps & {
       relationTo: relationToFromProps,
       required,
     },
+    hideCollectionLabel,
+    onInvalidFile,
     path: pathFromProps,
     readOnly,
     validate,
-    allowedMimeTypes,
-    onInvalidFile,
   } = props
 
   const { config } = useConfig()
@@ -111,6 +115,7 @@ export function UploadComponent(props: UploadFieldClientProps & {
         Error={Error}
         filterOptions={filterOptions}
         hasMany={hasMany}
+        hideCollectionLabel={hideCollectionLabel}
         isSortable={isSortable}
         label={label}
         Label={Label}

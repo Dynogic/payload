@@ -62,6 +62,12 @@ export type UploadInputProps = {
   readonly Error?: React.ReactNode
   readonly filterOptions?: FilterOptionsResult
   readonly hasMany?: boolean
+  /**
+   * When true, suppresses the collection pill on selected cards for
+   * polymorphic (array) relationTo — useful for single-member arrays
+   * where the collection name is noise.
+   */
+  readonly hideCollectionLabel?: boolean
   readonly hideRemoveFile?: boolean
   readonly isSortable?: boolean
   readonly Label?: React.ReactNode
@@ -95,6 +101,7 @@ export function UploadInput(props: UploadInputProps) {
     Error,
     filterOptions: filterOptionsFromProps,
     hasMany,
+    hideCollectionLabel,
     isSortable,
     Label,
     label,
@@ -234,7 +241,6 @@ export function UploadInput(props: UploadInputProps) {
 
     return false
   }, [activeRelationTo, permissions, allowCreate])
-
 
   const onChange = React.useCallback(
     (newValue) => {
@@ -385,11 +391,11 @@ export function UploadInput(props: UploadInputProps) {
         dataTransfer.items.add(fileList[0])
         fileListToUse = dataTransfer.files
       }
-      
+
       // Validate mime types if restrictions are set
       if (fileListToUse && fileListToUse.length > 0 && allowedMimeTypes?.length > 0) {
         for (const file of fileListToUse) {
-          const isValidType = allowedMimeTypes.some(mimeType => {
+          const isValidType = allowedMimeTypes.some((mimeType) => {
             // Handle wildcard patterns like "audio/*"
             if (mimeType.endsWith('/*')) {
               const category = mimeType.slice(0, -2)
@@ -397,7 +403,7 @@ export function UploadInput(props: UploadInputProps) {
             }
             return file.type === mimeType
           })
-          
+
           if (!isValidType) {
             if (onInvalidFile) {
               onInvalidFile(file, allowedMimeTypes)
@@ -406,7 +412,7 @@ export function UploadInput(props: UploadInputProps) {
           }
         }
       }
-      
+
       if (fileListToUse) {
         setInitialFiles(fileListToUse)
       }
@@ -714,7 +720,7 @@ export function UploadInput(props: UploadInputProps) {
                 readonly={readOnly}
                 reloadDoc={reloadDoc}
                 serverURL={serverURL}
-                showCollectionSlug={Array.isArray(relationTo)}
+                showCollectionSlug={!hideCollectionLabel && Array.isArray(relationTo)}
               />
             ) : (
               <div className={`${baseClass}__loadingRows`}>
@@ -735,7 +741,7 @@ export function UploadInput(props: UploadInputProps) {
                 readonly={readOnly}
                 reloadDoc={reloadDoc}
                 serverURL={serverURL}
-                showCollectionSlug={Array.isArray(relationTo)}
+                showCollectionSlug={!hideCollectionLabel && Array.isArray(relationTo)}
               />
             ) : populatedDocs && value && !populatedDocs?.[0]?.value ? (
               <>
