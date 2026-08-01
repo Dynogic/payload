@@ -49,6 +49,12 @@ pnpm script:pack --all --dest ./packed
 
 ### Step 4: Create the GitHub release
 
+**COMMIT THE FORK CHANGE FIRST.** `gh release create` tags whatever the branch
+tip is at that moment — release before commit and the tag points at the
+_previous_ entry's commit, so the tag names the wrong source forever (happened
+to `v3.85.0.26` and `.27`; both had to be moved + force-pushed afterwards).
+Order: commit the `#NN` change → then release.
+
 ```bash
 gh release create "$NEXT" ./packed/*.tgz \
   --title "$NEXT" \
