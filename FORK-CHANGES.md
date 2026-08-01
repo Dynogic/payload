@@ -1069,14 +1069,41 @@ Motivating use: the consuming app (varig) narrows a polymorphic curriculum sourc
 
 ---
 
+### 73. `DocumentTitle.setTitleOverride` — app-supplied rendered document title
+
+**Files:** `packages/ui/src/providers/DocumentTitle/index.tsx`
+
+The displayed document title is derived from a STORED field (`admin.useAsTitle`) by `formatDocTitle`, so it can only ever be one language. A document whose stored title is a fixed internal literal — a scaffolded singleton, a system-minted doc — therefore renders that literal to every admin regardless of their language, and no existing seam can change it: there is no `Title` slot in `admin.components.edit` (the slots are exactly `beforeDocumentControls`, `DeleteButton`, `editMenuItems`, `PreviewButton`, `PublishButton`, `SaveButton`, `SaveDraftButton`, `Upload`, `Status`), and the public `setDocumentTitle` is not a seam either: the provider's own `useEffect` recomputes `formatDocTitle` on every `data` / language change, and `SetDocumentTitle` re-derives from form state on every keystroke, so an app-supplied value is clobbered on the next render.
+
+Fix: `DocumentTitleProvider` gains a second, higher-precedence layer — `titleOverride` state plus `setTitleOverride(string | null)` on the context — and publishes `title: titleOverride ?? derivedTitle`. Nothing else changes: `setDocumentTitle` and the recompute effect still own the derived layer, and a `null` override (the default) means every collection that never calls the setter behaves exactly as before. Purely additive, same shape as change #71's `externalSaving` on `DocumentInfo`: a provider-level state + setter that lets a consuming app drive native chrome instead of duplicating it.
+
+Because the override lands in the provider rather than in one renderer, it reaches every consumer of `useDocumentTitle().title` at once — the controls-bar `RenderTitle` (`showTitleInControls`, change #18), the `SetDocumentStepNav` breadcrumb, the `DocumentDrawer` header, and the delete / permanently-delete / restore / schedule-publish modals — so the document reads with ONE name everywhere. A `Title` component slot would have been a much larger diff (core config types + client config + `renderDocument` + the Edit view + `DocumentControls`), server-rendered only, and would have fixed the controls bar while leaving the breadcrumb and the modals on the stored literal.
+
+Consumers set it from any client component mounted inside the document (e.g. a `beforeDocumentControls` component that renders `null`):
+
+```tsx
+const { setTitleOverride } = useDocumentTitle()
+const isHome = useFormFields(([fields]) => fields?.type?.value === 'home')
+
+useEffect(() => {
+  if (!isHome) return
+  setTitleOverride(t('custom:admin.collections.pages.homeTitle'))
+  return () => setTitleOverride(null)
+}, [isHome, setTitleOverride, t])
+```
+
+Motivating use: the consuming app (varig) scaffolds each storefront's home page as a `pages` doc with the hard-coded English `title: 'Storefront'`. The stored literal must stay (it is what the API, exports and any non-admin reader see), but a pt-BR merchant has to read "Vitrine". The override renders the localized label in the admin while the stored value is untouched.
+
+---
+
 ## Summary
 
-Recounted 2026-06-22: 62 entry headers across the catalog. Note `#46` is used **twice** (two unrelated changes — "List Status Cell Shows Changed" and "`payload.validate()` Dry-Run"), and `#2` is **DROPPED** (absorbed upstream in v3.85.0). That leaves **62 active changes**. Category counts below are a best-effort classification — several entries straddle fix/feature (a behavior correction that also adds a prop), so treat the split as indicative, not exact. _(Updated 2026-06-29: +#69 → 63 active. Updated 2026-07-02: +#70 → 64 active. Updated 2026-07-23: +#71 → 65 active. Updated 2026-07-24: +#72 → 66 active.)_
+Recounted 2026-06-22: 62 entry headers across the catalog. Note `#46` is used **twice** (two unrelated changes — "List Status Cell Shows Changed" and "`payload.validate()` Dry-Run"), and `#2` is **DROPPED** (absorbed upstream in v3.85.0). That leaves **62 active changes**. Category counts below are a best-effort classification — several entries straddle fix/feature (a behavior correction that also adds a prop), so treat the split as indicative, not exact. _(Updated 2026-06-29: +#69 → 63 active. Updated 2026-07-02: +#70 → 64 active. Updated 2026-07-23: +#71 → 65 active. Updated 2026-07-24: +#72 → 66 active. Updated 2026-08-01: +#73 → 67 active.)_
 
 | Category           | Count  |
 | ------------------ | ------ |
 | Bug Fixes          | 20     |
-| Features           | 45     |
+| Features           | 46     |
 | Documentation      | 1      |
 | Dropped (absorbed) | 1      |
-| **Total active**   | **66** |
+| **Total active**   | **67** |
