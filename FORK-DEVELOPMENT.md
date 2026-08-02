@@ -49,11 +49,25 @@ pnpm script:pack --all --dest ./packed
 
 ### Step 4: Create the GitHub release
 
-**COMMIT THE FORK CHANGE FIRST.** `gh release create` tags whatever the branch
-tip is at that moment — release before commit and the tag points at the
-_previous_ entry's commit, so the tag names the wrong source forever (happened
-to `v3.85.0.26` and `.27`; both had to be moved + force-pushed afterwards).
-Order: commit the `#NN` change → then release.
+**COMMIT _AND PUSH_ THE FORK CHANGE FIRST.** `gh release create` tags whatever
+the branch tip is **on the remote** at that moment — release before the commit
+is pushed and the tag points at the _previous_ entry's commit, so the tag names
+the wrong source forever (happened to `v3.85.0.26`, `.27` and `.28`; each had to
+be moved + force-pushed afterwards). Committing locally is NOT enough: an
+unpushed commit is invisible to `gh`. Order: commit the `#NN` change → push the
+branch → then release.
+
+> Claude sessions are barred from pushing (varig `CLAUDE.md` git policy), so a
+> Claude-cut release WILL be mis-tagged. Either the human pushes the `#NN`
+> commit before Claude runs Step 4, or the human fixes it afterwards:
+>
+> ```bash
+> git push origin app-v3.85.0
+> git tag -f "$NEXT" <sha-of-#NN-commit> && git push -f origin "$NEXT"
+> ```
+>
+> The release ASSETS are unaffected either way — they are packed from the local
+> working tree, so they always carry the change.
 
 ```bash
 gh release create "$NEXT" ./packed/*.tgz \
