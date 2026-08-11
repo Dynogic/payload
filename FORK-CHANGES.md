@@ -1069,6 +1069,48 @@ Motivating use: the consuming app (varig) narrows a polymorphic curriculum sourc
 
 ---
 
+### 74. `BlocksSelectionContext` — runtime row-selection mode for Blocks fields
+
+**Files:** `packages/ui/src/fields/Blocks/SelectionContext.tsx` (new), `packages/ui/src/fields/Blocks/BlockRow.tsx`, `packages/ui/src/fields/Blocks/index.scss`, `packages/ui/src/exports/client/index.ts`
+
+A consuming app can put a blocks field's rows into SELECTION MODE at runtime by
+wrapping the field in `BlocksSelectionProvider` (exported from
+`@payloadcms/ui` with `useBlocksSelection` + the `BlocksSelectionContextValue`
+type). While `active`:
+
+- the drag handle gives way to a `CheckboxInput` in the same slot (drag is
+  suspended — `dragHandleProps` not passed)
+- row actions (`⋯`) and the collapse toggle/chevron are suppressed
+  (`disableHeaderToggle` + `disableToggleIndicator` — both pre-existing
+  upstream `Collapsible` props; no `Collapsible` change was needed)
+- clicking anywhere on the row header calls `toggle(path, rowId, event)`; the
+  `MouseEvent` rides along so the app can implement shift-click ranges
+- rows are identified by `(parentPath, row.id)`, so NESTED blocks fields
+  (rows inside a section row's own blocks field) participate under one
+  provider without id collisions
+- `__row--selecting` / `__row--selected` classes style the mode (selected
+  rows tint via theme elevation vars)
+
+Selection STATE lives entirely in the consuming app — the context is a pure
+conduit and holds nothing. The DEFAULT context is inactive, so every blocks
+field without a provider renders byte-identically to before this change; no
+`admin.*` config flag, no `types.ts` change, no import-map impact.
+
+Single-instance caution (the #54 focus-trap lesson): the provider and the
+`BlockRow` consumer must resolve to ONE compiled copy of this module — import
+from `@payloadcms/ui` and verify the consuming bundle doesn't inline a second
+instance.
+
+Future: `ArrayRow` can adopt the identical pattern if array fields ever need
+selection; deliberately not built until a consumer exists.
+
+```tsx
+// Consuming app (e.g. a bulk-edit toolbar around a blocks field):
+<BlocksSelectionProvider value={{ active, isSelected, toggle }}>
+  {/* the blocks field renders inside */}
+</BlocksSelectionProvider>
+```
+
 ### 73. `DocumentTitle.setTitleOverride` — app-supplied rendered document title
 
 **Files:** `packages/ui/src/providers/DocumentTitle/index.tsx`

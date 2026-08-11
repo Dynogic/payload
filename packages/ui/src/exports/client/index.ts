@@ -202,6 +202,11 @@ export { ItemsDrawer } from '../../elements/ItemsDrawer/index.js'
 export { HiddenField } from '../../fields/Hidden/index.js'
 export { ArrayField } from '../../fields/Array/index.js'
 export { BlocksField } from '../../fields/Blocks/index.js'
+export {
+  type BlocksSelectionContextValue,
+  BlocksSelectionProvider,
+  useBlocksSelection,
+} from '../../fields/Blocks/SelectionContext.js'
 export { CheckboxField, CheckboxInput } from '../../fields/Checkbox/index.js'
 export { CodeField } from '../../fields/Code/index.js'
 export { CodeEditor as CodeEditorLazy } from '../../elements/CodeEditor/index.js'
