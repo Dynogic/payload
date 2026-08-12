@@ -37,9 +37,16 @@
     align-self: center;
     margin-right: base(0.4);
     cursor: pointer;
+    // Kill inline line-box slack — the box centers on flex geometry alone.
+    line-height: 0;
   }
 
   &__selection-checkbox {
+    // The stock .checkbox-input is inline-flex with baseline quirks inside
+    // a text row; pin the whole chain to centered flex.
+    display: flex;
+    align-items: center;
+
     .checkbox-input__input {
       display: flex;
       align-items: center;
