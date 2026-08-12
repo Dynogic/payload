@@ -23,6 +23,11 @@
   // stood; the whole header is the click target; a selected row tints.
   &__row--selecting {
     .collapsible__header-wrap {
+      // Payload keeps the header pointer-transparent so the full-row
+      // toggle button owns clicks; that button is gone in selection mode
+      // (disableHeaderToggle), so restore the subtree or the row-click
+      // handler can never fire.
+      pointer-events: auto;
       cursor: pointer;
       user-select: none;
     }
