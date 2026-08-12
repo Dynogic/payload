@@ -11,12 +11,11 @@ import { Collapsible } from '../../elements/Collapsible/index.js'
 import { ErrorPill } from '../../elements/ErrorPill/index.js'
 import { Pill } from '../../elements/Pill/index.js'
 import { ShimmerEffect } from '../../elements/ShimmerEffect/index.js'
-import { CheckboxInput, inputBaseClass } from '../../fields/Checkbox/Input.js'
+import { CheckboxInput } from '../../fields/Checkbox/Input.js'
 import { useFormSubmitted } from '../../forms/Form/context.js'
 import { RenderFields } from '../../forms/RenderFields/index.js'
 import { RowLabel } from '../../forms/RowLabel/index.js'
 import { useThrottledValue } from '../../hooks/useThrottledValue.js'
-import { ChevronIcon } from '../../icons/Chevron/index.js'
 import { useTranslation } from '../../providers/Translation/index.js'
 import { RowActions } from './RowActions.js'
 import { SectionTitle } from './SectionTitle/index.js'
@@ -87,15 +86,18 @@ export const BlockRow: React.FC<BlocksFieldProps> = ({
 }) => {
   const isLoading = useThrottledValue(isLoadingFromProps, 500)
 
-  const { i18n, t } = useTranslation()
+  const { i18n } = useTranslation()
   const hasSubmitted = useFormSubmitted()
 
   // Selection mode (fork #74): inactive default context = the row renders
-  // exactly as before; active = checkbox in the drag handle's place,
-  // actions/collapse suppressed, header click toggles selection.
+  // exactly as before; active = checkbox in the drag handle's place (the
+  // ONLY selection affordance — the header keeps its normal collapse
+  // toggle), row actions suppressed. The capture ref carries shift-click
+  // through the checkbox's native change event for range selection.
   const selection = useBlocksSelection()
   const selecting = selection.active
   const isRowSelected = selecting && selection.isSelected(parentPath, row.id)
+  const shiftClickRef = React.useRef(false)
 
   const fieldHasErrors = hasSubmitted && errorCount > 0
 
@@ -179,8 +181,6 @@ export const BlockRow: React.FC<BlocksFieldProps> = ({
         }
         className={classNames}
         collapsibleStyle={fieldHasErrors ? 'error' : 'default'}
-        disableHeaderToggle={selecting}
-        disableToggleIndicator={selecting}
         dragHandleProps={
           isSortable && !selecting
             ? {
@@ -194,36 +194,29 @@ export const BlockRow: React.FC<BlocksFieldProps> = ({
           isLoading ? (
             <ShimmerEffect height="1rem" width="8rem" />
           ) : selecting ? (
-            <div
-              aria-pressed={isRowSelected}
-              className={`${baseClass}__block-header ${baseClass}__block-header--selecting`}
-              onClick={(event) => {
-                // The checkbox's own input handles itself; a click anywhere
-                // else on the header toggles the row.
-                if ((event.target as HTMLElement).closest(`.${inputBaseClass}`)) {
-                  return
-                }
-                selection.toggle(parentPath, row.id, event)
-              }}
-              onKeyDown={(event) => {
-                if (event.key !== 'Enter' && event.key !== ' ') {
-                  return
-                }
-                if ((event.target as HTMLElement).closest(`.${inputBaseClass}`)) {
-                  return
-                }
-                event.preventDefault()
-                selection.toggle(parentPath, row.id)
-              }}
-              role="button"
-              tabIndex={0}
-            >
-              <CheckboxInput
-                checked={isRowSelected}
-                className={`${baseClass}__selection-checkbox`}
-                id={`${parentPath?.split('.').join('-')}-select-${row.id}`}
-                onToggle={() => selection.toggle(parentPath, row.id)}
-              />
+            <div className={`${baseClass}__block-header ${baseClass}__block-header--selecting`}>
+              {/* The CHECKBOX is the only selection affordance; the header
+                  keeps its normal collapse behavior. The wrapper re-enables
+                  pointer events above the full-header toggle button (the
+                  SectionTitle-input pattern) and owns the click so
+                  shift-ranges get the MouseEvent and the row never
+                  collapse-toggles from a select. */}
+              <span
+                className={`${baseClass}__selection-checkbox-wrap`}
+                onClickCapture={(event) => {
+                  shiftClickRef.current = event.shiftKey
+                }}
+              >
+                <CheckboxInput
+                  checked={isRowSelected}
+                  className={`${baseClass}__selection-checkbox`}
+                  id={`${parentPath?.split('.').join('-')}-select-${row.id}`}
+                  onToggle={() => {
+                    selection.toggle(parentPath, row.id, { shiftKey: shiftClickRef.current })
+                    shiftClickRef.current = false
+                  }}
+                />
+              </span>
               <RowLabel
                 CustomComponent={Label}
                 label={
@@ -247,18 +240,6 @@ export const BlockRow: React.FC<BlocksFieldProps> = ({
                 rowNumber={rowIndex}
               />
               {fieldHasErrors && <ErrorPill count={errorCount} i18n={i18n} withMessage />}
-              <button
-                aria-label={t('fields:toggleBlock')}
-                className={`${baseClass}__selection-collapse ${baseClass}__selection-collapse--${row.collapsed ? 'collapsed' : 'open'}`}
-                onClick={(event) => {
-                  event.stopPropagation()
-                  setCollapse(row.id, !row.collapsed)
-                }}
-                onKeyDown={(event) => event.stopPropagation()}
-                type="button"
-              >
-                <ChevronIcon direction={row.collapsed ? undefined : 'up'} />
-              </button>
             </div>
           ) : (
             <div className={`${baseClass}__block-header`}>

@@ -20,24 +20,29 @@
     }
 
   // Selection mode (fork #74): the checkbox stands where the drag handle
-  // stood; the whole header is the click target; a selected row tints.
-  &__row--selecting {
-    .collapsible__header-wrap {
-      // Payload keeps the header pointer-transparent so the full-row
-      // toggle button owns clicks; that button is gone in selection mode
-      // (disableHeaderToggle), so restore the subtree or the row-click
-      // handler can never fire.
-      pointer-events: auto;
-      cursor: pointer;
-      user-select: none;
-    }
+  // stood and is the ONLY selection affordance — the header keeps its
+  // normal collapse toggle. The wrapper re-enables pointer events above
+  // the full-header toggle button (the SectionTitle-input pattern) and
+  // centers the box against the header line.
+  &__block-header--selecting {
+    display: flex;
+    align-items: center;
+  }
+
+  &__selection-checkbox-wrap {
+    pointer-events: auto;
+    position: relative;
+    display: flex;
+    align-items: center;
+    align-self: center;
+    margin-right: base(0.4);
+    cursor: pointer;
   }
 
   &__selection-checkbox {
-    margin-right: base(0.4);
-
     .checkbox-input__input {
       display: flex;
+      align-items: center;
     }
   }
 
@@ -45,26 +50,6 @@
     > .collapsible {
       background-color: var(--theme-elevation-50);
       border-color: var(--theme-elevation-250);
-    }
-  }
-
-  // The selecting header's own expand/collapse — the stock indicator's
-  // full-header toggle is gone, so this small explicit button keeps
-  // sections openable while selecting (header click = select, chevron =
-  // toggle).
-  &__selection-collapse {
-    margin-left: auto;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: transparent;
-    border: 0;
-    padding: 0 base(0.2);
-    cursor: pointer;
-    color: var(--theme-elevation-500);
-
-    &:hover {
-      color: var(--theme-elevation-800);
     }
   }
 

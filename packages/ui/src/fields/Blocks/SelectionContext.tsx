@@ -26,11 +26,11 @@ export type BlocksSelectionContextValue = {
   active: boolean
   isSelected: (path: string, rowId: string) => boolean
   /**
-   * Toggle one row. The MouseEvent (when the interaction was a click) rides
-   * along so the app can implement range selection (shift-click) — the row
-   * itself stays selection-strategy-agnostic.
+   * Toggle one row. `options.shiftKey` reports whether the interaction was
+   * a shift-click so the app can implement range selection — the row itself
+   * stays selection-strategy-agnostic.
    */
-  toggle: (path: string, rowId: string, event?: React.MouseEvent) => void
+  toggle: (path: string, rowId: string, options?: { shiftKey?: boolean }) => void
 }
 
 const InactiveSelection: BlocksSelectionContextValue = {

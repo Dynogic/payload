@@ -1079,12 +1079,14 @@ wrapping the field in `BlocksSelectionProvider` (exported from
 type). While `active`:
 
 - the drag handle gives way to a `CheckboxInput` in the same slot (drag is
-  suspended — `dragHandleProps` not passed)
-- row actions (`⋯`) and the collapse toggle/chevron are suppressed
-  (`disableHeaderToggle` + `disableToggleIndicator` — both pre-existing
-  upstream `Collapsible` props; no `Collapsible` change was needed)
-- clicking anywhere on the row header calls `toggle(path, rowId, event)`; the
-  `MouseEvent` rides along so the app can implement shift-click ranges
+  suspended — `dragHandleProps` not passed); the CHECKBOX is the only
+  selection affordance
+- the header keeps its NORMAL collapse behavior (click toggles open/closed,
+  chevron stays) — the checkbox wrapper re-enables pointer events above the
+  full-header toggle button (the same pattern `SectionTitle`'s input uses)
+  so selecting never collapse-toggles; shift-click reaches
+  `toggle(path, rowId, { shiftKey })` via a passive capture ref for ranges
+- row actions (`⋯`) are suppressed
 - rows are identified by `(parentPath, row.id)`, so NESTED blocks fields
   (rows inside a section row's own blocks field) participate under one
   provider without id collisions
@@ -1101,18 +1103,11 @@ Single-instance caution (the #54 focus-trap lesson): the provider and the
 from `@payloadcms/ui` and verify the consuming bundle doesn't inline a second
 instance.
 
-Two behavior notes discovered live (both part of this entry):
-
-- `.collapsible__header-wrap` is pointer-transparent by upstream design (the
-  full-header toggle button owns clicks); `disableHeaderToggle` removes that
-  button, so selection mode restores `pointer-events: auto` on the wrap or
-  the row-click handler can never fire.
-- The stock chevron is a passive indicator (the toggle is the full-header
-  button), so suspending the toggle made collapsed rows unopenable while
-  selecting. The selecting header renders its own small chevron BUTTON
-  (`__selection-collapse`, right-aligned) driving `setCollapse` with
-  `stopPropagation` — header click selects, chevron expands, no gesture
-  overlap.
+(The interaction model was revised during live QA from an earlier
+header-click-selects design: keeping the stock collapse toggle proved more
+important than a bigger select target — a suspended toggle made collapsed
+sections unopenable, and the pointer-transparent header needed re-enabling
+just to receive clicks. The checkbox-only model needs neither.)
 
 Future: `ArrayRow` can adopt the identical pattern if array fields ever need
 selection; deliberately not built until a consumer exists.
