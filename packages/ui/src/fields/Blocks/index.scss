@@ -35,6 +35,11 @@
     display: flex;
     align-items: center;
     align-self: center;
+    // The checkbox input is oversized by 2px per side (the uncheckable-gap
+    // fix in the stock skin), so its focus ring draws past the box — and
+    // the header's overflow: hidden clips it flush at the left edge. Two
+    // pixels of margin keep the ring inside the clip.
+    margin-left: 2px;
     margin-right: base(0.4);
     cursor: pointer;
     // Kill inline line-box slack — the box centers on flex geometry alone.
