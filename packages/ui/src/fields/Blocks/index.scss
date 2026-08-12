@@ -48,6 +48,26 @@
     }
   }
 
+  // The selecting header's own expand/collapse — the stock indicator's
+  // full-header toggle is gone, so this small explicit button keeps
+  // sections openable while selecting (header click = select, chevron =
+  // toggle).
+  &__selection-collapse {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: 0;
+    padding: 0 base(0.2);
+    cursor: pointer;
+    color: var(--theme-elevation-500);
+
+    &:hover {
+      color: var(--theme-elevation-800);
+    }
+  }
+
     &__heading-with-error {
       display: flex;
       align-items: center;

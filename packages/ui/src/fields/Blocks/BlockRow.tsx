@@ -16,6 +16,7 @@ import { useFormSubmitted } from '../../forms/Form/context.js'
 import { RenderFields } from '../../forms/RenderFields/index.js'
 import { RowLabel } from '../../forms/RowLabel/index.js'
 import { useThrottledValue } from '../../hooks/useThrottledValue.js'
+import { ChevronIcon } from '../../icons/Chevron/index.js'
 import { useTranslation } from '../../providers/Translation/index.js'
 import { RowActions } from './RowActions.js'
 import { SectionTitle } from './SectionTitle/index.js'
@@ -86,7 +87,7 @@ export const BlockRow: React.FC<BlocksFieldProps> = ({
 }) => {
   const isLoading = useThrottledValue(isLoadingFromProps, 500)
 
-  const { i18n } = useTranslation()
+  const { i18n, t } = useTranslation()
   const hasSubmitted = useFormSubmitted()
 
   // Selection mode (fork #74): inactive default context = the row renders
@@ -246,6 +247,18 @@ export const BlockRow: React.FC<BlocksFieldProps> = ({
                 rowNumber={rowIndex}
               />
               {fieldHasErrors && <ErrorPill count={errorCount} i18n={i18n} withMessage />}
+              <button
+                aria-label={t('fields:toggleBlock')}
+                className={`${baseClass}__selection-collapse ${baseClass}__selection-collapse--${row.collapsed ? 'collapsed' : 'open'}`}
+                onClick={(event) => {
+                  event.stopPropagation()
+                  setCollapse(row.id, !row.collapsed)
+                }}
+                onKeyDown={(event) => event.stopPropagation()}
+                type="button"
+              >
+                <ChevronIcon direction={row.collapsed ? undefined : 'up'} />
+              </button>
             </div>
           ) : (
             <div className={`${baseClass}__block-header`}>

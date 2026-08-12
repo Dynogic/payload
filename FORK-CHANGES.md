@@ -1101,6 +1101,19 @@ Single-instance caution (the #54 focus-trap lesson): the provider and the
 from `@payloadcms/ui` and verify the consuming bundle doesn't inline a second
 instance.
 
+Two behavior notes discovered live (both part of this entry):
+
+- `.collapsible__header-wrap` is pointer-transparent by upstream design (the
+  full-header toggle button owns clicks); `disableHeaderToggle` removes that
+  button, so selection mode restores `pointer-events: auto` on the wrap or
+  the row-click handler can never fire.
+- The stock chevron is a passive indicator (the toggle is the full-header
+  button), so suspending the toggle made collapsed rows unopenable while
+  selecting. The selecting header renders its own small chevron BUTTON
+  (`__selection-collapse`, right-aligned) driving `setCollapse` with
+  `stopPropagation` — header click selects, chevron expands, no gesture
+  overlap.
+
 Future: `ArrayRow` can adopt the identical pattern if array fields ever need
 selection; deliberately not built until a consumer exists.
 
