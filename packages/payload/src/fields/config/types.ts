@@ -372,6 +372,27 @@ export type FieldAdmin = {
   disableBulkEdit?: boolean
   disabled?: boolean
   /**
+   * Opt-in, per-document omission of this field's value from admin form
+   * submissions (fork feature). When `true` — or when the function returns
+   * `true` for the current document — the field's value, including every
+   * nested row and subfield, is excluded from the data the admin form
+   * submits (save, publish, autosave and drawer saves alike), so
+   * out-of-band writers of the field are never clobbered by stale in-form
+   * values. The field still renders, hides and validates per its normal
+   * `admin.condition`; ONLY the submission is affected — form state keeps
+   * carrying the value for rendering, and `getSiblingData` /
+   * `getDataByPath` / `buildFormState` data reconstruction are untouched.
+   *
+   * Evaluated server-side (synchronously) at form-state build time, where
+   * `data` is the full document data and `siblingData` the field's sibling
+   * data; the result is stamped onto form state as `disableFormDataSubtree`
+   * and consumed by `reduceFieldsToValues` /
+   * `reduceFieldsToValuesWithValidation`. Never sent to the client config.
+   */
+  disableFormData?:
+    | ((args: { blockData: Data | undefined; data: Data; siblingData: Data }) => boolean)
+    | boolean
+  /**
    * Shows / hides fields from appearing in the list view groupBy options.
    * @type boolean
    */

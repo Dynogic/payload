@@ -1144,16 +1144,89 @@ useEffect(() => {
 
 Motivating use: the consuming app (varig) scaffolds each storefront's home page as a `pages` doc with the hard-coded English `title: 'Storefront'`. The stored literal must stay (it is what the API, exports and any non-admin reader see), but a pt-BR merchant has to read "Vitrine". The override renders the localized label in the admin while the stored value is untouched.
 
+### 75. `admin.disableFormData` — per-document omission of a field from form submission
+
+**Files:** `packages/payload/src/fields/config/types.ts`, `packages/payload/src/admin/forms/Form.ts`, `packages/payload/src/fields/config/client.ts`, `packages/payload/src/utilities/reduceFieldsToValues.ts` (+ new spec), `packages/ui/src/utilities/reduceFieldsToValuesWithValidation.ts` (+ new spec), `packages/ui/src/forms/fieldSchemasToFormState/addFieldStatePromise.ts` (+ new spec `disableFormDataOption.spec.ts`)
+
+Payload's form runtime submits every data field's current form-state value —
+including fields hidden by `admin.condition`, whose page-load values ride along
+unchanged. A field that is ALSO written out-of-band (server actions, a custom
+editor surface) therefore gets clobbered on any doc-form save: the form
+resubmits the stale rows it loaded with. The existing internal escape hatch,
+the form-state `disableFormData` flag honored by `reduceFieldsToValues` /
+`reduceFieldsToValuesWithValidation`, cannot express this: for array/blocks
+fields it is already `true` whenever rows exist (the parent's value is just the
+row count) and the actual row data submits via the `<path>.N.*` child keys,
+which nothing filters.
+
+New opt-in field config, on all data-affecting field types:
+
+```ts
+admin: {
+  disableFormData?: boolean
+    | ((args: { blockData: Data | undefined; data: Data; siblingData: Data }) => boolean)
+}
+```
+
+When it resolves `true` for the current document, the field's value AND its
+entire subtree are excluded from every admin form submission — manual save,
+publish, autosave, drawer saves all funnel through the same two reduce
+utilities. Mechanism, three additive pieces:
+
+- **Evaluation** (`addFieldStatePromise`, inside the data-affecting branch):
+  runs server-side on every form-state build — initial render and every
+  `buildFormState` refresh — with `data` = full document data, `siblingData` =
+  the field's sibling data, `blockData` = nearest parent block. Synchronous,
+  server-only (stripped from the client config via
+  `serverOnlyFieldAdminProperties`, like `condition`).
+- **New form-state marker** `FieldState.disableFormDataSubtree` — stamped
+  explicitly `true`/`false` whenever the option is configured (so
+  `mergeServerFormState`'s shallow spread tracks per-document flips in both
+  directions), absent otherwise (zero wire/behavior change for every field not
+  using the option). Distinct from `disableFormData` because that flag's
+  existing semantics (drop the parent key only, children still submit) must
+  stay untouched for arrays/blocks.
+- **Subtree filtering** in `reduceFieldsToValues` (payload) and
+  `reduceFieldsToValuesWithValidation` (ui): a marked key and every
+  `<key>.`-prefixed descendant are dropped from submitted data (omitted keys
+  contribute neither values nor validity); `ignoreDisableFormData: true`
+  bypasses the marker exactly as it bypasses `disableFormData`, so
+  `buildFormState`'s full-data reconstruction keeps seeing everything.
+
+Deliberately NOT touched: `admin.disabled` semantics, the global default that
+condition-hidden fields keep submitting their data, `getSiblingData` /
+`getDataByPath` (custom components and client-side consumers still see the
+field's data), and rendering — the field renders/hides per its normal
+condition; only the submission changes. Because the marker sits on the parent
+key and filtering is prefix-based, rows added client-side while the option is
+active are omitted too.
+
+Caveat: an omitted field simply doesn't appear in the request body, so the
+server keeps the stored value (standard partial-update semantics) — on CREATE
+this means the field lands as its default/empty. Live Preview windows also
+receive the reduced data, so a preview of a doc where the option resolves true
+falls back to the stored value for that field rather than the (stale) in-form
+rows — an improvement for the motivating case.
+
+Motivating use: varig's `products.curriculumItems` blocks field. In
+Structured Learning mode the Curriculum Studio owns those rows through server
+actions while the doc form hides them behind a tab condition; any form save
+(title edit, autosave, publish) used to resubmit the page-load rows over the
+studio's writes. varig sets
+`admin.disableFormData: ({ data }) => data?.type === 'curriculum' && data?.curriculumMode === 'structuredLearning'`
+on the field; every other curriculum mode keeps the stock form-based builder,
+whose in-form edits submit exactly as before.
+
 ---
 
 ## Summary
 
-Recounted 2026-06-22: 62 entry headers across the catalog. Note `#46` is used **twice** (two unrelated changes — "List Status Cell Shows Changed" and "`payload.validate()` Dry-Run"), and `#2` is **DROPPED** (absorbed upstream in v3.85.0). That leaves **62 active changes**. Category counts below are a best-effort classification — several entries straddle fix/feature (a behavior correction that also adds a prop), so treat the split as indicative, not exact. _(Updated 2026-06-29: +#69 → 63 active. Updated 2026-07-02: +#70 → 64 active. Updated 2026-07-23: +#71 → 65 active. Updated 2026-07-24: +#72 → 66 active. Updated 2026-08-01: +#73 → 67 active.)_
+Recounted 2026-06-22: 62 entry headers across the catalog. Note `#46` is used **twice** (two unrelated changes — "List Status Cell Shows Changed" and "`payload.validate()` Dry-Run"), and `#2` is **DROPPED** (absorbed upstream in v3.85.0). That leaves **62 active changes**. Category counts below are a best-effort classification — several entries straddle fix/feature (a behavior correction that also adds a prop), so treat the split as indicative, not exact. _(Updated 2026-06-29: +#69 → 63 active. Updated 2026-07-02: +#70 → 64 active. Updated 2026-07-23: +#71 → 65 active. Updated 2026-07-24: +#72 → 66 active. Updated 2026-08-01: +#73 → 67 active. Updated 2026-08-24: +#74 and +#75 → 69 active.)_
 
 | Category           | Count  |
 | ------------------ | ------ |
 | Bug Fixes          | 20     |
-| Features           | 46     |
+| Features           | 48     |
 | Documentation      | 1      |
 | Dropped (absorbed) | 1      |
-| **Total active**   | **67** |
+| **Total active**   | **69** |

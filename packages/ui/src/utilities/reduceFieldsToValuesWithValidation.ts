@@ -28,8 +28,34 @@ export const reduceFieldsToValuesWithValidation = (
     return state
   }
 
+  // Fields whose form state carries `disableFormDataSubtree` (stamped from the
+  // `admin.disableFormData` field config) are omitted from submitted data along
+  // with their ENTIRE subtree — every `<path>.`-prefixed key, i.e. array/block
+  // rows and their subfields, which are otherwise submitted independently of
+  // the parent's own `disableFormData` flag. Omitted keys contribute neither
+  // values nor validity, mirroring how `disableFormData` keys are handled.
+  let omittedSubtrees: null | string[] = null
+
+  if (ignoreDisableFormData !== true) {
+    for (const key of Object.keys(fields)) {
+      if (fields[key]?.disableFormDataSubtree) {
+        if (!omittedSubtrees) {
+          omittedSubtrees = []
+        }
+        omittedSubtrees.push(key)
+      }
+    }
+  }
+
   Object.keys(fields).forEach((key) => {
     if (ignoreDisableFormData === true || !fields[key]?.disableFormData) {
+      if (
+        omittedSubtrees &&
+        omittedSubtrees.some((subtree) => key === subtree || key.startsWith(subtree + '.'))
+      ) {
+        return
+      }
+
       state.data[key] = fields[key]?.value
       if (!fields[key].valid) {
         state.valid = false

@@ -277,6 +277,20 @@ export const addFieldStatePromise = async (args: AddFieldStatePromiseArgs): Prom
       addErrorPathToParent(path)
     }
 
+    // `admin.disableFormData` (fork feature): per-document omission of this
+    // field's value — and its entire `<path>.` subtree — from submitted form
+    // data. Stamped explicitly whenever the option is configured, `true` AND
+    // `false`, so `mergeServerFormState`'s shallow spread tracks per-document
+    // flips in both directions on every form-state round-trip; left absent for
+    // unconfigured fields so their state is byte-identical to before. Consumed
+    // by `reduceFieldsToValues` / `reduceFieldsToValuesWithValidation`.
+    if (field.admin && field.admin.disableFormData !== undefined) {
+      fieldState.disableFormDataSubtree =
+        typeof field.admin.disableFormData === 'function'
+          ? Boolean(field.admin.disableFormData({ blockData, data: fullData, siblingData: data }))
+          : field.admin.disableFormData === true
+    }
+
     switch (field.type) {
       case 'array': {
         const arrayValue = Array.isArray(data[field.name]) ? data[field.name] : []

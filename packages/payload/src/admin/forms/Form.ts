@@ -55,6 +55,20 @@ export type FieldState = {
     Label?: React.ReactNode
   }
   disableFormData?: boolean
+  /**
+   * When `true`, this field's value AND its entire subtree — every
+   * `<path>.`-prefixed form-state key, i.e. array/block rows and their
+   * subfields — are omitted from submitted form data by
+   * `reduceFieldsToValues` / `reduceFieldsToValuesWithValidation`. Unlike
+   * `disableFormData` above (which only drops the field's own key while row
+   * subfields still submit), this drops the whole subtree.
+   *
+   * Stamped server-side at form-state build time from the field's
+   * `admin.disableFormData` config — explicitly `true` or `false` whenever
+   * that option is configured, so `mergeServerFormState`'s shallow spread
+   * tracks per-document flips in both directions; absent otherwise.
+   */
+  disableFormDataSubtree?: boolean
   errorMessage?: string
   errorPaths?: string[]
   /**
