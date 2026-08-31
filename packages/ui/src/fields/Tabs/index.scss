@@ -33,16 +33,25 @@
       }
     }
 
+    // FORK (#76): the wrap is a flex row so the `__after-tabs` slot sits
+    // right-aligned ON the tab row. `__tabs` trades `min-width: 100%` for
+    // `flex: 1 0 auto` (same full-width fill, but leaves room for the slot;
+    // no shrink, so overflowing tabs still scroll the wrap). The slot
+    // stretches and carries its own border-bottom so the underline stays
+    // continuous edge to edge.
     &__tabs-wrap {
+      align-items: center;
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: $baseline;
       overflow-x: auto;
       overflow-y: hidden;
-      margin-bottom: $baseline;
     }
 
     &__tabs {
       border-bottom: 1px solid var(--theme-elevation-100);
       display: inline-flex;
-      min-width: 100%;
+      flex: 1 0 auto;
       vertical-align: bottom;
 
       &:before,
@@ -52,6 +61,15 @@
         width: var(--gutter-h);
         flex-shrink: 0;
       }
+    }
+
+    &__after-tabs {
+      align-items: center;
+      align-self: stretch;
+      border-bottom: 1px solid var(--theme-elevation-100);
+      display: flex;
+      flex-shrink: 0;
+      padding-right: var(--gutter-h);
     }
 
     &__tab--hidden {

@@ -268,6 +268,18 @@ const TabsFieldComponent: TabsFieldClientComponent = (props) => {
               />
             ))}
           </div>
+          {/* FORK (#76): zero-API right-side portal target on the tab row. The id is
+              deterministic per tabs field — `after-tabs-<path>` with dots flattened to
+              `__` (a top-level unnamed tabs field's path is its `_index-N` segment) —
+              so nested tabs fields keep distinct ids. Consumers that can mount inside
+              drawers should resolve their OWN field's slot by ancestor scoping
+              (closest('.tabs-field') → its `> .tabs-field__tabs-wrap > .tabs-field__after-tabs`)
+              rather than a document-wide id lookup, since the same collection open in a
+              drawer repeats the path. Keep slot content no taller than the tab row. */}
+          <div
+            className={`${baseClass}__after-tabs`}
+            id={`after-tabs-${(path || 'tabs').replace(/\./g, '__')}`}
+          />
         </div>
         <div className={`${baseClass}__content-wrap`}>
           {activeTabConfig && (

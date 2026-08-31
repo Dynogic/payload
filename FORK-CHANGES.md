@@ -1217,16 +1217,66 @@ studio's writes. varig sets
 on the field; every other curriculum mode keeps the stock form-based builder,
 whose in-form edits submit exactly as before.
 
+### 76. Tabs field: `__after-tabs` right-side portal slot on the tab row
+
+**Files:** `packages/ui/src/fields/Tabs/index.tsx`, `packages/ui/src/fields/Tabs/index.scss`
+
+The Tabs field's tab row (`tabs-field__tabs-wrap > tabs-field__tabs`) owns a
+full row of chrome but uses only its left side; consuming apps that want a
+right-aligned toolbar on that row (varig portals its canvas builder's simulate
+bar + undo/redo/history cluster there, reclaiming a row of vertical space) had
+no target short of duplicating the whole Tabs field.
+
+New zero-API portal target: inside `__tabs-wrap`, after `__tabs`, the field now
+renders an empty
+
+```tsx
+<div
+  className="tabs-field__after-tabs"
+  id={`after-tabs-${(path || 'tabs').replace(/\./g, '__')}`}
+/>
+```
+
+**Id scheme:** `after-tabs-<path>` where `<path>` is the tabs field's own
+`path` prop with dots flattened to `__` (Payload's standard `field-…` id
+flattening). A top-level unnamed tabs field's path is its positional segment
+(e.g. `_index-5`), a nested/named one carries its dotted path — so multiple
+tabs fields on one document never collide. The id is deterministic per
+(document form, field path); the same collection opened in a DocumentDrawer
+over itself repeats the path, so consumers that can mount inside drawers
+should resolve THEIR field's slot by ancestor scoping —
+`element.closest('.tabs-field')` → `':scope > .tabs-field__tabs-wrap > .tabs-field__after-tabs'`
+— rather than a document-wide id lookup.
+
+**SCSS:** `__tabs-wrap` becomes a flex row (`justify-content: space-between;
+align-items: center` — overflow-x scrolling and `margin-bottom` unchanged).
+`__tabs` trades `min-width: 100%` for `flex: 1 0 auto`: the same full-width
+fill (its `border-bottom` underline still reaches the slot), without pushing
+the slot out, and no shrink so an overflowing tab set still scrolls the wrap.
+The slot itself is `align-self: stretch; display: flex; align-items: center;
+flex-shrink: 0` with its own matching `border-bottom` and
+`padding-right: var(--gutter-h)`, so the underline runs continuously edge to
+edge whether the slot is empty (every tabs field renders it; empty = one
+gutter-width bordered strip, visually identical to before) or populated.
+
+Constraint for consumers: keep slot content no taller than the tab row (the
+tab buttons' `%h4` + `base(1)` padding ≈ 45px; a 32px control row fits) — a
+taller slot would center the `__tabs` block and detach the active-tab
+indicator from the underline by the difference.
+
+No config API, no behavior change to tab switching, hashes, conditions, or
+drawers.
+
 ---
 
 ## Summary
 
-Recounted 2026-06-22: 62 entry headers across the catalog. Note `#46` is used **twice** (two unrelated changes — "List Status Cell Shows Changed" and "`payload.validate()` Dry-Run"), and `#2` is **DROPPED** (absorbed upstream in v3.85.0). That leaves **62 active changes**. Category counts below are a best-effort classification — several entries straddle fix/feature (a behavior correction that also adds a prop), so treat the split as indicative, not exact. _(Updated 2026-06-29: +#69 → 63 active. Updated 2026-07-02: +#70 → 64 active. Updated 2026-07-23: +#71 → 65 active. Updated 2026-07-24: +#72 → 66 active. Updated 2026-08-01: +#73 → 67 active. Updated 2026-08-24: +#74 and +#75 → 69 active.)_
+Recounted 2026-06-22: 62 entry headers across the catalog. Note `#46` is used **twice** (two unrelated changes — "List Status Cell Shows Changed" and "`payload.validate()` Dry-Run"), and `#2` is **DROPPED** (absorbed upstream in v3.85.0). That leaves **62 active changes**. Category counts below are a best-effort classification — several entries straddle fix/feature (a behavior correction that also adds a prop), so treat the split as indicative, not exact. _(Updated 2026-06-29: +#69 → 63 active. Updated 2026-07-02: +#70 → 64 active. Updated 2026-07-23: +#71 → 65 active. Updated 2026-07-24: +#72 → 66 active. Updated 2026-08-01: +#73 → 67 active. Updated 2026-08-24: +#74 and +#75 → 69 active. Updated 2026-08-31: +#76 → 70 active.)_
 
 | Category           | Count  |
 | ------------------ | ------ |
 | Bug Fixes          | 20     |
-| Features           | 48     |
+| Features           | 49     |
 | Documentation      | 1      |
 | Dropped (absorbed) | 1      |
-| **Total active**   | **69** |
+| **Total active**   | **70** |
