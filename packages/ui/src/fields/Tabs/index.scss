@@ -2,7 +2,9 @@
 
 @layer payload-default {
   .tabs-field {
-    margin-top: base(2);
+    // #77: consuming apps can compact the space above the tab row without
+    // overriding the rule.
+    margin-top: var(--tabs-field-margin-top, #{base(2)});
     margin-left: calc(var(--gutter-h) * -1);
     margin-right: calc(var(--gutter-h) * -1);
 

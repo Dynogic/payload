@@ -1269,14 +1269,44 @@ drawers.
 
 ---
 
+### 77. CSS variables for the spacing above a document's tab row
+
+**Files:** `packages/ui/src/elements/DocumentFields/index.scss`, `packages/ui/src/fields/Tabs/index.scss`
+
+The dead space above a document's tab row is the sum of two hard-coded
+constants: `.document-fields__edit { padding-top: calc(var(--base) * 1.5) }`
+(~30px) and `.tabs-field { margin-top: base(2) }` (~40px). A consuming app
+that wants a tighter document header (varig compacts the ~70px to ~15px on
+its admin edit views) had to override both rules at matching specificity
+inside `@layer payload-default`.
+
+Both values are now CSS variables with their current values as defaults —
+zero behavior change for consumers that don't set them:
+
+```scss
+.document-fields__edit {
+  padding-top: var(--doc-edit-padding-top, calc(var(--base) * 1.5));
+}
+.tabs-field {
+  margin-top: var(--tabs-field-margin-top, #{base(2)});
+}
+```
+
+Every other rule in both files is untouched (the sidebar's own
+`padding-top: calc(var(--base) * 1.5)` in `__sidebar-fields` deliberately
+stays hard-coded — the variable governs the edit column only). No config
+API, no markup change.
+
+---
+
 ## Summary
 
-Recounted 2026-06-22: 62 entry headers across the catalog. Note `#46` is used **twice** (two unrelated changes — "List Status Cell Shows Changed" and "`payload.validate()` Dry-Run"), and `#2` is **DROPPED** (absorbed upstream in v3.85.0). That leaves **62 active changes**. Category counts below are a best-effort classification — several entries straddle fix/feature (a behavior correction that also adds a prop), so treat the split as indicative, not exact. _(Updated 2026-06-29: +#69 → 63 active. Updated 2026-07-02: +#70 → 64 active. Updated 2026-07-23: +#71 → 65 active. Updated 2026-07-24: +#72 → 66 active. Updated 2026-08-01: +#73 → 67 active. Updated 2026-08-24: +#74 and +#75 → 69 active. Updated 2026-08-31: +#76 → 70 active.)_
+Recounted 2026-06-22: 62 entry headers across the catalog. Note `#46` is used **twice** (two unrelated changes — "List Status Cell Shows Changed" and "`payload.validate()` Dry-Run"), and `#2` is **DROPPED** (absorbed upstream in v3.85.0). That leaves **62 active changes**. Category counts below are a best-effort classification — several entries straddle fix/feature (a behavior correction that also adds a prop), so treat the split as indicative, not exact. _(Updated 2026-06-29: +#69 → 63 active. Updated 2026-07-02: +#70 → 64 active. Updated 2026-07-23: +#71 → 65 active. Updated 2026-07-24: +#72 → 66 active. Updated 2026-08-01: +#73 → 67 active. Updated 2026-08-24: +#74 and +#75 → 69 active. Updated 2026-08-31: +#76 → 70 active. Updated 2026-08-31: +#77 → 71 active.)_
 
 | Category           | Count  |
 | ------------------ | ------ |
 | Bug Fixes          | 20     |
-| Features           | 49     |
+| Features           | 50     |
 | Documentation      | 1      |
 | Dropped (absorbed) | 1      |
-| **Total active**   | **70** |
+| **Total active**   | **71** |
