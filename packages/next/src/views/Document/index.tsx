@@ -392,17 +392,18 @@ export const renderDocument = async ({
       isEditing = getIsEditing({ id: doc.id, collectionSlug, globalSlug })
 
       if (!drawerSlug && redirectAfterCreate !== false) {
-        // Preserve sticky query params (prefixed with `_`) across the
-        // server-side create→edit redirect. Without this, the redirect URL
-        // is bare (no query string), and any `_*`-prefixed param (e.g.
-        // `_fromProduct=true`) is lost. The URL fragment (e.g. `#products`)
-        // is preserved automatically by the browser across HTTP redirects.
-        // (Fork change #65.)
+        // Preserve sticky query params (prefixed with `_`) AND the addressed
+        // tab (`tab=<slug>`, fork #78) across the server-side create→edit
+        // redirect. Without this, the redirect URL is bare (no query string),
+        // and any `_*`-prefixed param (e.g. `_fromProduct=true`) or the tab
+        // is lost. The URL fragment is preserved automatically by the browser
+        // across HTTP redirects. (Fork changes #65 + #78.)
         const stickyParams: string[] = []
         if (searchParams) {
           for (const [key, value] of Object.entries(searchParams)) {
-            if (key.startsWith('_')) {
-              stickyParams.push(`${key}=${value}`)
+            if (key.startsWith('_') || key === 'tab') {
+              const single = Array.isArray(value) ? value[0] : value
+              stickyParams.push(`${key}=${encodeURIComponent(String(single))}`)
             }
           }
         }

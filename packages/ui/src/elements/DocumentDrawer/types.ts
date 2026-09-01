@@ -31,7 +31,7 @@ export type DocumentDrawerProps = {
   readonly drawerSlug?: string
   readonly filterOptions?: FilterOptionsResult
   /**
-   * Hide specific field-level tabs by their `hash` while the document is open in
+   * Hide specific field-level tabs by their `slug` while the document is open in
    * this drawer (e.g. ['page', 'access']). The full tab set still renders in the
    * full-screen edit view — this only trims the in-drawer quick-edit so a
    * reduced create/edit flow can omit tabs that belong to the full builder.

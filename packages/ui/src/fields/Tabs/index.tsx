@@ -8,8 +8,9 @@ import type {
 } from 'payload'
 
 import { getTranslation } from '@payloadcms/translations'
+import { useSearchParams } from 'next/navigation.js'
 import { getFieldPaths, toKebabCase } from 'payload/shared'
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 
 import { useCollapsible } from '../../elements/Collapsible/provider.js'
 import { useOptionalDocumentDrawerContext } from '../../elements/DocumentDrawer/Provider.js'
@@ -22,10 +23,15 @@ import { useTranslation } from '../../providers/Translation/index.js'
 import { FieldDescription } from '../FieldDescription/index.js'
 import { fieldBaseClass } from '../shared/index.js'
 import { TabsProvider } from './provider.js'
+import { resolveActiveTabIndex } from './resolveTabIndex.js'
 import { TabComponent } from './Tab/index.js'
 import './index.scss'
 
 const baseClass = 'tabs-field'
+
+// FORK (#78): the query param that addresses a document tab (`?tab=<slug>`).
+// A cross-repo contract — consuming apps build deep links with the same name.
+const TabSearchParam = 'tab'
 
 export { TabsProvider }
 
@@ -45,13 +51,14 @@ const TabsFieldComponent: TabsFieldClientComponent = (props) => {
   const { i18n } = useTranslation()
   const { isWithinCollapsible } = useCollapsible()
 
-  // A DocumentDrawer layers its doc OVER another document whose Tabs field reads
-  // the SAME window.location.hash. So a Tabs field inside a drawer must NOT drive
-  // the URL hash — otherwise clicking a drawer tab whose `hash` collides with the
-  // underlying doc's (e.g. 'content'/'appearance') makes that underlying doc jump
-  // tabs, desyncing/closing the drawer and wedging focus. Inside a drawer we keep
-  // tab state purely local; only the top-level document owns the URL hash.
-  // `hideTabs` (drawer-only) trims tabs by `hash`, folded into `passesCondition`.
+  // A DocumentDrawer layers its doc OVER another document whose Tabs field
+  // reads the SAME URL. So a Tabs field inside a drawer must NOT read or write
+  // the `tab` param (#59) — otherwise clicking a drawer tab whose `slug`
+  // collides with the underlying doc's (e.g. 'content'/'page') makes that
+  // underlying doc jump tabs, desyncing/closing the drawer and wedging focus.
+  // Inside a drawer tab state is purely local; only the top-level document
+  // owns the URL. `hideTabs` (drawer-only) trims tabs by `slug`, folded into
+  // `passesCondition`.
   const drawerContext = useOptionalDocumentDrawerContext()
   const inDrawer = !!drawerContext
   const hideTabs = drawerContext?.hideTabs
@@ -67,10 +74,9 @@ const TabsFieldComponent: TabsFieldClientComponent = (props) => {
       // tabs field is '' — so the lookup key never matched and a tab-level
       // admin.condition could never hide the header. `path` matches the writer.
       const fieldKey = path ? `${path}.${id}` : id
-      const hiddenInDrawer = Boolean(
-        hideTabs?.length && (tab as any).hash && hideTabs.includes((tab as any).hash),
-      )
+      const hiddenInDrawer = Boolean(hideTabs?.length && tab.slug && hideTabs.includes(tab.slug))
       return {
+        slug: tab.slug,
         index,
         passesCondition: (fields?.[fieldKey]?.passesCondition ?? true) && !hiddenInDrawer,
         tab,
@@ -78,38 +84,53 @@ const TabsFieldComponent: TabsFieldClientComponent = (props) => {
     })
   })
 
-  // Helper function to get tab index from URL hash (single-level matching)
-  const getTabIndexFromHash = useCallback(
-    (currentTabStates?: Array<{ index: number; passesCondition: boolean; tab: ClientTab }>) => {
-      // In a drawer the hash belongs to the underlying doc — never read it here.
-      if (inDrawer || typeof window === 'undefined' || !window.location.hash) {
-        return null
+  // FORK (#78): `?tab=<slug>` replaces the URL hash (#8). The param is read
+  // through Next's router so the SAME value resolves on the server and the
+  // client — the addressed tab is in the SSR HTML, no post-hydration flip.
+  // Any tabs field whose tabs carry slugs owns the param; a field without
+  // slugs never touches the URL and stays purely local.
+  const searchParams = useSearchParams()
+  const tabParam = inDrawer ? null : (searchParams?.get(TabSearchParam) ?? null)
+  const ownsTabParam = !inDrawer && tabs.some((tab) => Boolean(tab.slug))
+
+  // Local click state — the only state the field keeps. `wrote` is the param
+  // value the click's own replaceState set (undefined = no URL write); it
+  // marks the click as "in flight" until the router reflects it, so the
+  // switch never waits on Next's async search-param sync.
+  const [local, setLocal] = useState<{ index: number; wrote?: null | string } | null>(null)
+
+  const activeTabIndex = resolveActiveTabIndex({
+    localIndex: local?.index ?? null,
+    pendingLocal: local?.wrote !== undefined && local.wrote !== tabParam,
+    slugParam: tabParam,
+    tabStates,
+  })
+
+  // When the param changes under us, decide whose change it was: our own
+  // write landing keeps the click (and clears the in-flight mark); anything
+  // else (popstate, a Next navigation, another field's write) means the URL
+  // is the truth and the stale click is dropped. Never runs in a drawer
+  // (the param belongs to the underlying doc) and never on mount (the
+  // initial render already derived from the param).
+  const mountedRef = useRef(false)
+  useEffect(() => {
+    if (!mountedRef.current) {
+      mountedRef.current = true
+      return
+    }
+    if (inDrawer) {
+      return
+    }
+    setLocal((prev) => {
+      if (!prev) {
+        return prev
       }
-
-      const hash = window.location.hash.substring(1) // Remove the # symbol
-
-      const foundTabIndex = tabs.findIndex((tab) => (tab as any).hash && (tab as any).hash === hash)
-
-      if (foundTabIndex !== -1) {
-        const passesCondition = currentTabStates
-          ? (currentTabStates[foundTabIndex]?.passesCondition ?? true)
-          : true
-
-        if (passesCondition) {
-          return foundTabIndex
-        }
+      if (prev.wrote !== undefined && prev.wrote === tabParam) {
+        return { index: prev.index }
       }
-
       return null
-    },
-    [tabs, inDrawer],
-  )
-
-  // Initialize with first visible tab (same on server and client to avoid hydration mismatch)
-  // Hash-based selection happens in useEffect after hydration
-  const [activeTabIndex, setActiveTabIndex] = useState<number>(
-    () => tabStates.filter(({ passesCondition }) => passesCondition)?.[0]?.index ?? 0,
-  )
+    })
+  }, [tabParam, inDrawer])
 
   const activeTabInfo = tabStates[activeTabIndex]
   const activeTabConfig = activeTabInfo?.tab
@@ -124,122 +145,79 @@ const TabsFieldComponent: TabsFieldClientComponent = (props) => {
 
   const handleTabChange = useCallback(
     (incomingTabIndex: number): void => {
-      setActiveTabIndex(incomingTabIndex)
-
-      // In a drawer, switching a tab stays local — never touch the URL hash or
-      // broadcast, so the underlying document's tabs don't react.
-      if (typeof window !== 'undefined' && !inDrawer) {
-        const selectedTab = tabs[incomingTabIndex]
-
-        // Dispatch tab change event for external listeners
-        window.dispatchEvent(
-          new CustomEvent('payload-tab-change', {
-            detail: {
-              name: (selectedTab as any)?.name,
-              index: incomingTabIndex,
-              label: selectedTab?.label,
-              parentPath,
-            },
-          }),
-        )
-
-        // Update URL hash if tab has a hash value; no hash → clear it.
-        const selectedTabHash = (selectedTab as any).hash
-        const nextHash = selectedTabHash ? `#${selectedTabHash}` : ''
-
-        // No-op guard (#70): an identical-URL replaceState still runs Next's
-        // history-wrapper router sync, and a gratuitous write colliding with
-        // another history write in the same commit can wedge Next's
-        // server-action queue (pending fetches never dispatch — diagnosed in
-        // the consuming app 2026-07-02). Clicking a hash-less default tab on
-        // a hash-less URL, or re-clicking the active tab, changes nothing —
-        // skip the write AND the announce event (subscribers are already in
-        // sync).
-        if (window.location.hash !== nextHash) {
-          window.history.replaceState(
-            null,
-            '',
-            window.location.pathname + window.location.search + nextHash,
-          )
-
-          // replaceState fires no native event; announce the hash write so consuming-app
-          // subscribers (e.g. varig's sidebar nav) can observe it. The event name is a
-          // cross-repo contract — consumers listen for this exact string.
-          window.dispatchEvent(new Event('admin:hashchange'))
-        }
+      // In a drawer, or in a slug-less field, switching a tab stays local —
+      // never touch the URL.
+      if (typeof window === 'undefined' || !ownsTabParam) {
+        setLocal({ index: incomingTabIndex })
+        return
       }
+
+      const selectedSlug = tabs[incomingTabIndex]?.slug ?? null
+
+      // Rebuild the query string around the `tab` param only — every other
+      // param and the fragment pass through untouched (a fragment is an
+      // in-page anchor now, never a tab).
+      const params = new URLSearchParams(window.location.search)
+      if (selectedSlug) {
+        params.set(TabSearchParam, selectedSlug)
+      } else {
+        params.delete(TabSearchParam)
+      }
+      const qs = params.toString()
+      const nextUrl = `${window.location.pathname}${qs ? `?${qs}` : ''}${window.location.hash}`
+      const currentUrl = `${window.location.pathname}${window.location.search}${window.location.hash}`
+
+      // No-op guard (#70): an identical-URL replaceState still runs Next's
+      // history-wrapper router sync, and a gratuitous write colliding with
+      // another history write in the same commit can wedge Next's
+      // server-action queue (pending fetches never dispatch — diagnosed in
+      // the consuming app 2026-07-02). Re-clicking the active tab, or a
+      // slug-less tab on a param-less URL, changes nothing — skip the write.
+      if (nextUrl === currentUrl) {
+        setLocal({ index: incomingTabIndex })
+        return
+      }
+
+      // replaceState, not pushState: a tab is a lens on the document, not a
+      // destination — Back leaves the document, it doesn't step through tabs.
+      setLocal({ index: incomingTabIndex, wrote: selectedSlug })
+      window.history.replaceState(null, '', nextUrl)
     },
-    [tabs, parentPath, inDrawer],
+    [tabs, ownsTabParam],
   )
 
-  // Track if we've done initial setup to avoid overriding manual tab changes
-  const [hasInitialized, setHasInitialized] = useState(false)
-
-  // Handle initial tab selection based on hash or first visible tab
+  // Announce every change of the DERIVED active tab — clicks, popstate, Next
+  // navigations alike — so consuming-app listeners (sidebar highlight, tab-row
+  // portal slots, live-preview mode) follow the tab regardless of who moved
+  // it. Not on mount (no change yet) and never from a drawer (#59). The event
+  // name + `{ name, index, label, parentPath }` detail are the #22 contract;
+  // `slug` is additive.
+  const announcedRef = useRef<null | number>(null)
   useEffect(() => {
-    if (hasInitialized || tabStates.length === 0) {
+    if (inDrawer || typeof window === 'undefined') {
       return
     }
-
-    const hashTabIndex = getTabIndexFromHash(tabStates)
-
-    if (hashTabIndex !== null) {
-      if (activeTabIndex !== hashTabIndex) {
-        setActiveTabIndex(hashTabIndex)
-      }
-      setHasInitialized(true)
+    if (announcedRef.current === null) {
+      announcedRef.current = activeTabIndex
       return
     }
-
-    // No hash found, use first visible tab
-    const firstVisibleIndex = tabStates.find(({ passesCondition }) => passesCondition)?.index ?? 0
-
-    if (activeTabIndex !== firstVisibleIndex) {
-      setActiveTabIndex(firstVisibleIndex)
-    }
-    setHasInitialized(true)
-  }, [tabStates, getTabIndexFromHash, activeTabIndex, hasInitialized])
-
-  useEffect(() => {
-    if (activeTabInfo?.passesCondition === false) {
-      const nextTab = tabStates.find(({ passesCondition }) => passesCondition)
-      if (nextTab) {
-        handleTabChange(nextTab.index)
-      }
-    }
-  }, [activeTabInfo, tabStates, handleTabChange])
-
-  // Listen for hash changes to update active tab
-  useEffect(() => {
-    const handleHashChange = () => {
-      const hashTabIndex = getTabIndexFromHash(tabStates)
-
-      if (hashTabIndex !== null && hashTabIndex !== activeTabIndex) {
-        setActiveTabIndex(hashTabIndex)
-      }
-    }
-
-    if (typeof window !== 'undefined') {
-      window.addEventListener('hashchange', handleHashChange)
-      return () => {
-        window.removeEventListener('hashchange', handleHashChange)
-      }
-    }
-  }, [getTabIndexFromHash, activeTabIndex, tabStates])
-
-  // Also check hash on every render (for Next.js navigation that doesn't trigger hashchange)
-  useEffect(() => {
-    if (tabStates.length === 0 || typeof window === 'undefined') {
+    if (announcedRef.current === activeTabIndex) {
       return
     }
-
-    const hashTabIndex = getTabIndexFromHash(tabStates)
-
-    if (hashTabIndex !== null && hashTabIndex !== activeTabIndex) {
-      setActiveTabIndex(hashTabIndex)
-    }
-  }) // No dependency array - runs on every render to catch Next.js navigation
-
+    announcedRef.current = activeTabIndex
+    const selectedTab = tabs[activeTabIndex]
+    window.dispatchEvent(
+      new CustomEvent('payload-tab-change', {
+        detail: {
+          name: (selectedTab as { name?: string } | undefined)?.name,
+          slug: selectedTab?.slug,
+          index: activeTabIndex,
+          label: selectedTab?.label,
+          parentPath,
+        },
+      }),
+    )
+  }, [activeTabIndex, inDrawer, tabs, parentPath])
   return (
     <div
       className={[

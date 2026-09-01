@@ -1299,9 +1299,86 @@ API, no markup change.
 
 ---
 
+### 78. Tabs field: `?tab=<slug>` replaces the URL hash (typed `slug`, SSR-correct, condition-aware)
+
+**Files:** `packages/payload/src/fields/config/types.ts`, `packages/ui/src/fields/Tabs/index.tsx`, `packages/ui/src/fields/Tabs/resolveTabIndex.ts` (+ `.spec.ts`), `packages/ui/src/elements/DocumentDrawer/types.ts`, `packages/ui/src/views/Edit/index.tsx`, `packages/next/src/views/Document/index.tsx`, `packages/ui/src/utilities/buildClientFieldSchemaMap/traverseFields.ts` (the rich-text schema-map loop told a Block from a Tab by `'slug' in x` — now also requires no `name`/`label`, since tabs may carry a slug)
+
+Supersedes #8 (hash-based tab navigation) and #57 (`admin:hashchange`), and the
+hash halves of #64 and #70. #59 (drawer scoping), #60 (tab-level condition),
+#65 (sticky `_` params) and #76 (tab-row slot) carry unchanged.
+
+**Why.** The hash lived only in the browser: the server never saw it, so every
+deep-linked tab rendered the FIRST tab in the SSR HTML and flipped after
+hydration (a visible jump, a wasted first paint, and — for tabs that host
+lazy-booting embeds — a boot that could only start post-hydration). The hash
+also collided with in-page anchors, needed a custom announce event
+(`admin:hashchange`) because `replaceState` is silent, and required three
+client-side effects (initial selection, `hashchange` listener, dependency-less
+per-render re-derive) to stay in sync.
+
+**Config.** The untyped `(tab as any).hash` becomes a typed `slug?: string` on
+`TabBase` (so `NamedTab`, `UnnamedTab` and `ClientTab` all carry it). No
+`hash` alias. `hideTabs` (#58) now keys off `slug`.
+
+**Selector.** The query param `tab`: `…/collections/products/<id>?tab=page`.
+One derivation, identical on server and client (`resolveTabIndex.ts`):
+
+1. `useSearchParams().get('tab')` → `indexOfSlug(tabStates, slug)` — the
+   FIRST tab whose slug matches **and whose condition passes** (the old code
+   bailed on the first slug match even when hidden). Condition-exclusive
+   tabs may therefore share a slug (varig: a create-form Details tab and an
+   edit-form Content tab are both `content`).
+2. else the local click state, if that tab is still visible (slug-less tabs
+   never touch the URL);
+3. else the first visible tab.
+
+The addressed tab is in the SSR HTML — no hydration flip. Inside a
+`DocumentDrawer` the param is never read or written (#59). A tabs field none
+of whose tabs carry a slug never touches the URL at all. Multiple tabs fields
+on one document resolve `tab` independently; a non-matching field falls back
+to its first visible tab.
+
+**Write path** (`handleTabChange`): rebuild `URLSearchParams(location.search)`,
+set/delete `tab`, `pathname + ?qs + location.hash` (the fragment passes
+through untouched — it is an in-page anchor now, never a tab), and only when
+the URL actually changes, `history.replaceState` (a tab is a lens, not a
+destination — Back leaves the document, it never steps through tabs). The #70
+identical-URL guard is kept verbatim: it is the anti-wedge invariant for
+Next's server-action queue. The click also sets local state marked "in
+flight" (`wrote`) so the switch renders immediately instead of waiting on
+Next's async search-param sync; when the router reflects the write the mark
+clears, and any OTHER change of the param (popstate, a Next navigation,
+another field's write) drops the stale click — the URL is the truth.
+
+**Events.** `payload-tab-change` (#22) now fires whenever the DERIVED index
+changes — click, popstate, Next navigation — not only on click; the detail
+gains an additive `slug`. `admin:hashchange` is no longer emitted. Consumers
+that want to observe tab state subscribe to `payload-tab-change` + `popstate`
+and read `location.search`.
+
+**Redirects.** The client post-create redirect (`views/Edit`, was #64)
+carries `?tab=` (and still the fragment) onto the new doc's URL; the server
+autosave redirect (`views/Document`, #65) treats `tab` as sticky beside the
+`_`-prefixed params. `handleAuthRedirect` already round-trips the full query
+through `?redirect=`, so a login bounce keeps the tab for free (the hash
+never survived that hop).
+
+**RULE for consumers (the SSR contract).** Never gate a field server
+component's output on the tab — every field renders on every doc load
+(`buildFormState({ renderAllFields: true })`), and intra-session tab switches
+are client-only (no server round-trip). Server-rendered data is at most a
+HINT for the tab the URL addresses; the client keeps its own fetch for
+anything that must be fresh after a switch.
+
+**Tests.** `resolveTabIndex.spec.ts` (vitest `unit` project): slug → index,
+condition-aware first match (both exclusivity directions), unknown/hidden/
+empty slug → null, the fallback chain, and the in-flight click preference.
+
+---
+
 ## Summary
 
-Recounted 2026-06-22: 62 entry headers across the catalog. Note `#46` is used **twice** (two unrelated changes — "List Status Cell Shows Changed" and "`payload.validate()` Dry-Run"), and `#2` is **DROPPED** (absorbed upstream in v3.85.0). That leaves **62 active changes**. Category counts below are a best-effort classification — several entries straddle fix/feature (a behavior correction that also adds a prop), so treat the split as indicative, not exact. _(Updated 2026-06-29: +#69 → 63 active. Updated 2026-07-02: +#70 → 64 active. Updated 2026-07-23: +#71 → 65 active. Updated 2026-07-24: +#72 → 66 active. Updated 2026-08-01: +#73 → 67 active. Updated 2026-08-24: +#74 and +#75 → 69 active. Updated 2026-08-31: +#76 → 70 active. Updated 2026-08-31: +#77 → 71 active.)_
+Recounted 2026-06-22: 62 entry headers across the catalog. Note `#46` is used **twice** (two unrelated changes — "List Status Cell Shows Changed" and "`payload.validate()` Dry-Run"), and `#2` is **DROPPED** (absorbed upstream in v3.85.0). That leaves **62 active changes**. Category counts below are a best-effort classification — several entries straddle fix/feature (a behavior correction that also adds a prop), so treat the split as indicative, not exact. _(Updated 2026-06-29: +#69 → 63 active. Updated 2026-07-02: +#70 → 64 active. Updated 2026-07-23: +#71 → 65 active. Updated 2026-07-24: +#72 → 66 active. Updated 2026-08-01: +#73 → 67 active. Updated 2026-08-24: +#74 and +#75 → 69 active. Updated 2026-08-31: +#76 → 70 active. Updated 2026-08-31: +#77 → 71 active. Updated 2026-09-01: +#78 → 72 active.)_
 
 | Category           | Count  |
 | ------------------ | ------ |

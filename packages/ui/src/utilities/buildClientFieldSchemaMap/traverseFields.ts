@@ -147,7 +147,10 @@ export const traverseFields = ({
         // Schema map values are a union: Block | Field | Tab | { fields: Field[] }.
         // Each variant needs different conversion to strip server-only properties.
         for (const [path, subField] of richTextFieldSchemaMap.entries()) {
-          if ('slug' in subField) {
+          // A Block is the only variant with a REQUIRED `slug` and neither a
+          // `name` (NamedTab) nor a `label` (UnnamedTab) — tabs may carry an
+          // optional `slug` too (fork #78: `?tab=<slug>` addressing).
+          if ('slug' in subField && !('name' in subField) && !('label' in subField)) {
             const clientBlocks = createClientBlocks({
               blocks: [subField],
               defaultIDType: payload.config.db.defaultIDType,

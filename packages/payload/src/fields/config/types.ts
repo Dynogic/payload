@@ -949,6 +949,14 @@ type TabBase = {
   id?: string
   interfaceName?: string
   saveToJWT?: boolean | string
+  /**
+   * FORK (#78): make the tab URL-addressable. `?tab=<slug>` on the document
+   * URL selects it (server-rendered — no hydration flip) and clicking it
+   * writes the param via `history.replaceState`. Resolution is the FIRST tab
+   * whose slug matches AND whose `admin.condition` passes, so condition-
+   * exclusive tabs may share one slug. Omit for purely local tabs.
+   */
+  slug?: string
 } & Omit<FieldBase, 'required' | 'validate'>
 
 export type NamedTab = {

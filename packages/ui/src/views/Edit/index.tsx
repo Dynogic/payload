@@ -349,16 +349,27 @@ export function DefaultEditView({
           window.sessionStorage.setItem(PENDING_SUCCESS_TOAST_KEY, json.message)
         }
 
-        // Preserve any URL fragment (e.g. a tab hash like `#products`) across the
-        // post-create redirect. A create URL can carry a fragment to land the new
-        // doc on a specific tab; `router.push` to a fragmentless path drops it.
-        // (Fork change #64.)
+        // Preserve the addressed tab (`?tab=<slug>`, fork #78) and any URL
+        // fragment across the post-create redirect. A create URL can carry
+        // either to land the new doc on a specific tab / anchor; a bare
+        // `router.push` to the id path would drop both. (Fork changes #64 → #78.)
+        const createParams =
+          typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null
         const hash = typeof window !== 'undefined' ? window.location.hash : ''
+        const redirectParams = new URLSearchParams()
+        if (locale) {
+          redirectParams.set('locale', locale)
+        }
+        const tabParam = createParams?.get('tab')
+        if (tabParam) {
+          redirectParams.set('tab', tabParam)
+        }
+        const redirectQuery = redirectParams.toString()
 
         // Redirect to the same locale if it's been set
         const redirectRoute = formatAdminURL({
           adminRoute,
-          path: `/collections/${collectionSlug}/${document?.id}${locale ? `?locale=${locale}` : ''}${hash}`,
+          path: `/collections/${collectionSlug}/${document?.id}${redirectQuery ? `?${redirectQuery}` : ''}${hash}`,
         })
 
         startRouteTransition(() => router.push(redirectRoute))
