@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import type { ExecutionResult, GraphQLSchema, ValidationRule } from 'graphql'
 import type { Request as graphQLRequest, OperationArgs } from 'graphql-http'
 import type { Logger } from 'pino'
@@ -10,6 +9,9 @@ import { fileURLToPath } from 'node:url'
 import path from 'path'
 import WebSocket from 'ws'
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
+// FORK (#79)
+import type { DocumentWidthTier } from './admin/documentWidthTier.js'
 import type { AuthArgs } from './auth/operations/auth.js'
 import type { Result as ForgotPasswordResult } from './auth/operations/forgotPassword.js'
 import type { LoginResult } from './auth/operations/login.js'
@@ -37,7 +39,8 @@ import {
   verifyEmailLocal,
   type Options as VerifyEmailOptions,
 } from './auth/operations/local/verifyEmail.js'
-export type { FieldState } from './admin/forms/Form.js'
+// FORK (#79)
+export type { DocumentWidthTier } from './admin/documentWidthTier.js'
 import type { InitOptions, SanitizedConfig } from './config/types.js'
 import type { BaseDatabaseAdapter, PaginatedDistinctDocs, PaginatedDocs } from './database/types.js'
 import type { InitializedEmailAdapter } from './email/types.js'
@@ -123,8 +126,8 @@ import {
   updateGlobalLocal,
   type Options as UpdateGlobalOptions,
 } from './globals/operations/local/update.js'
+export type { FieldState } from './admin/forms/Form.js'
 export type * from './admin/types.js'
-export { EntityType } from './admin/views/dashboard.js'
 import type { SupportedLanguages } from '@payloadcms/translations'
 
 import { Cron } from 'croner'
@@ -155,6 +158,7 @@ import { getLogger } from './utilities/logger.js'
 import { serverInit as serverInitTelemetry } from './utilities/telemetry/events/serverInit.js'
 import { traverseFields } from './utilities/traverseFields.js'
 
+export { EntityType } from './admin/views/dashboard.js'
 /**
  * Export of all base fields that could potentially be
  * useful as users wish to extend built-in fields with custom logic
@@ -164,8 +168,8 @@ export { apiKeyFields as baseAPIKeyFields } from './auth/baseFields/apiKey.js'
 export { baseAuthFields } from './auth/baseFields/auth.js'
 export { emailFieldConfig as baseEmailField } from './auth/baseFields/email.js'
 export { sessionsFieldConfig as baseSessionsField } from './auth/baseFields/sessions.js'
-export { usernameFieldConfig as baseUsernameField } from './auth/baseFields/username.js'
 
+export { usernameFieldConfig as baseUsernameField } from './auth/baseFields/username.js'
 export { verificationFields as baseVerificationFields } from './auth/baseFields/verification.js'
 export { executeAccess } from './auth/executeAccess.js'
 export { executeAuthStrategies } from './auth/executeAuthStrategies.js'
@@ -173,7 +177,6 @@ export { extractAccessFromPermission } from './auth/extractAccessFromPermission.
 export { getAccessResults } from './auth/getAccessResults.js'
 export { getFieldsToSign } from './auth/getFieldsToSign.js'
 export { getLoginOptions } from './auth/getLoginOptions.js'
-export * from './auth/index.js'
 
 /**
  * Shape constraint for PayloadTypes.
@@ -1313,6 +1316,7 @@ interface RequestContext {
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface DatabaseAdapter extends BaseDatabaseAdapter {}
 export type { Payload, RequestContext }
+export * from './auth/index.js'
 export { jwtSign } from './auth/jwt.js'
 export { accessOperation } from './auth/operations/access.js'
 export { forgotPasswordOperation } from './auth/operations/forgotPassword.js'
@@ -1350,10 +1354,11 @@ export type {
   UntypedUser as User,
   VerifyConfig,
 } from './auth/types.js'
-export { generateImportMap } from './bin/generateImportMap/index.js'
 
+export { generateImportMap } from './bin/generateImportMap/index.js'
 export type { ImportMap } from './bin/generateImportMap/index.js'
 export { genImportMapIterateFields } from './bin/generateImportMap/iterateFields.js'
+
 export { migrate as migrateCLI } from './bin/migrate.js'
 
 export {
@@ -1401,10 +1406,9 @@ export type {
   TypeWithID,
   TypeWithTimestamps,
 } from './collections/config/types.js'
-
 export type { CompoundIndex } from './collections/config/types.js'
-export type { SanitizedCompoundIndex } from './collections/config/types.js'
 
+export type { SanitizedCompoundIndex } from './collections/config/types.js'
 export { createDataloaderCacheKey, getDataLoader } from './collections/dataloader.js'
 export { countOperation } from './collections/operations/count.js'
 export { createOperation } from './collections/operations/create.js'
@@ -1431,8 +1435,8 @@ export {
 } from './config/client.js'
 export { createDynamicRoutes } from './config/createDynamicRoutes.js'
 export { defaults } from './config/defaults.js'
-export { definePlugin } from './config/definePlugin.js'
 
+export { definePlugin } from './config/definePlugin.js'
 export { type OrderableEndpointBody } from './config/orderable/index.js'
 export { sanitizeConfig } from './config/sanitize.js'
 export type * from './config/types.js'
@@ -1524,8 +1528,8 @@ export type {
   UpsertArgs,
 } from './database/types.js'
 export type { DynamicMigrationTemplate } from './database/types.js'
-export type { EmailAdapter as PayloadEmailAdapter, SendEmailOptions } from './email/types.js'
 
+export type { EmailAdapter as PayloadEmailAdapter, SendEmailOptions } from './email/types.js'
 export {
   APIError,
   APIErrorName,
@@ -1554,14 +1558,31 @@ export {
   ValidationError,
   ValidationErrorName,
 } from './errors/index.js'
+
 export type { ValidationFieldError } from './errors/index.js'
 
 export { baseBlockFields } from './fields/baseFields/baseBlockFields.js'
-
 export { baseIDField } from './fields/baseFields/baseIDField.js'
+
 export { slugField, type SlugFieldClientProps } from './fields/baseFields/slug/index.js'
 
 export { type SlugField } from './fields/baseFields/slug/index.js'
+
+export interface FieldCustom extends Record<string, any> {}
+
+export interface CollectionCustom extends Record<string, any> {}
+
+export interface CollectionAdminCustom extends Record<string, any> {
+  /** FORK (#79): the document view's page width tier (default `form`). Tabs override it via `tab.admin.custom.widthTier`. */
+  widthTier?: DocumentWidthTier
+}
+
+export interface GlobalCustom extends Record<string, any> {}
+
+export interface GlobalAdminCustom extends Record<string, any> {
+  /** FORK (#79): the document view's page width tier (default `form`). Tabs override it via `tab.admin.custom.widthTier`. */
+  widthTier?: DocumentWidthTier
+}
 
 export {
   createClientBlocks,
@@ -1570,16 +1591,6 @@ export {
   type ServerOnlyFieldAdminProperties,
   type ServerOnlyFieldProperties,
 } from './fields/config/client.js'
-
-export interface FieldCustom extends Record<string, any> {}
-
-export interface CollectionCustom extends Record<string, any> {}
-
-export interface CollectionAdminCustom extends Record<string, any> {}
-
-export interface GlobalCustom extends Record<string, any> {}
-
-export interface GlobalAdminCustom extends Record<string, any> {}
 
 export { sanitizeField, sanitizeFields } from './fields/config/sanitize.js'
 export type { SanitizeFieldArgs } from './fields/config/sanitize.js'

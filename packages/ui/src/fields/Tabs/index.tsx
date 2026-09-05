@@ -9,7 +9,7 @@ import type {
 
 import { getTranslation } from '@payloadcms/translations'
 import { useSearchParams } from 'next/navigation.js'
-import { getFieldPaths, toKebabCase } from 'payload/shared'
+import { getFieldPaths, resolveDocumentWidthTier, toKebabCase } from 'payload/shared'
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 
 import { useCollapsible } from '../../elements/Collapsible/provider.js'
@@ -334,15 +334,25 @@ function TabContent({
     parentSchemaPath,
   })
 
+  // FORK (#79): the active tab may declare its own page width tier
+  // (`admin.custom.widthTier`); stamped on the content div, where
+  // DocumentFields' SCSS reads it as an override of the document's tier.
+  // SSR-correct — the active tab is server-resolved (#78), so the stamp is
+  // in the first HTML. `tab.admin.className` lands here too (it was
+  // previously accepted by the config and dropped by the renderer).
+  const tabWidthTier = resolveDocumentWidthTier(field.admin?.custom?.widthTier)
+
   return (
     <div
       className={[
         hidden && `${baseClass}__tab--hidden`,
         `${baseClass}__tab`,
         label && `${baseClass}__tabConfigLabel-${toKebabCase(getTranslation(label, i18n))}`,
+        field.admin?.className,
       ]
         .filter(Boolean)
         .join(' ')}
+      data-width-tier={tabWidthTier}
     >
       <RenderCustomComponent
         CustomComponent={Description}

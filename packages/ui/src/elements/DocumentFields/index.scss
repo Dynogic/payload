@@ -230,5 +230,71 @@
         padding-top: calc(var(--base) / 2);
       }
     }
+
+    // FORK (#79): page width tiers. DocumentFields stamps the document's tier
+    // (collection/global `admin.custom.widthTier`, default `form`) on this root
+    // as `data-width-tier` — never inside a drawer. Any stamp on a descendant of
+    // a direct child — the Tabs field's active tab content div
+    // (`tab.admin.custom.widthTier`), or a consuming app's ui-field root —
+    // overrides the root's declaration; among several, the widest wins (source
+    // order below). Tokens belong to the consuming app; the px fallbacks are
+    // the reference values. Only `form` has an inner model: a fixed fields
+    // column beside a reserved side column (whether or not sidebar content
+    // exists); the other tiers keep Payload's stock split (`--main-width`:
+    // 66.66% beside a populated sidebar, else 100%) inside the cap.
+    &[data-width-tier],
+    &[data-width-tier]:has(> * [data-width-tier='form']) {
+      --page-width: var(--page-width-form, 950px);
+      --page-fields: var(--page-fields-column, 638px);
+      --page-side: calc(var(--page-width-form, 950px) - var(--page-fields-column, 638px));
+      --page-side-min: var(--page-side);
+    }
+
+    &[data-width-tier='wide'],
+    &[data-width-tier]:has(> * [data-width-tier='wide']) {
+      --page-width: var(--page-width-wide, 1280px);
+      --page-fields: var(--main-width, 100%);
+      --page-side: 33.33%;
+      --page-side-min: 325px;
+    }
+
+    &[data-width-tier='editor'],
+    &[data-width-tier]:has(> * [data-width-tier='editor']) {
+      --page-width: var(--page-width-editor, 1600px);
+      --page-fields: var(--main-width, 100%);
+      --page-side: 33.33%;
+      --page-side-min: 325px;
+    }
+
+    &[data-width-tier='fullbleed'],
+    &[data-width-tier]:has(> * [data-width-tier='fullbleed']) {
+      --page-width: none;
+      --page-fields: var(--main-width, 100%);
+      --page-side: 33.33%;
+      --page-side-min: 325px;
+    }
+
+    &[data-width-tier] {
+      max-width: var(--page-width);
+      margin-inline: auto;
+      // The sidebar's stock width (33.33%) and min-width (325px) follow the
+      // tier's side column; the `:has(.render-fields:empty)` zero-width case
+      // above still wins (it sets the variable on the wrap element itself).
+      --sidebar-wrap-width: var(--page-side);
+      --doc-sidebar-width: var(--page-side-min);
+
+      > .document-fields__main {
+        width: var(--page-fields);
+        max-width: 100%;
+        flex-grow: 0;
+      }
+
+      // Stacked layout below mid-break: the fields take the full width again.
+      @include mid-break {
+        > .document-fields__main {
+          width: 100%;
+        }
+      }
+    }
   }
 }
