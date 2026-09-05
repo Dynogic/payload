@@ -588,6 +588,8 @@ export type DocumentSlots = {
   SaveButton?: React.ReactNode
   SaveDraftButton?: React.ReactNode
   Status?: React.ReactNode
+  /** Fork #80: replaces `RenderTitle` in the controls bar (edit + create view; not in drawers). */
+  Title?: React.ReactNode
   UnpublishButton?: React.ReactNode
   Upload?: React.ReactNode
   UploadControls?: React.ReactNode
@@ -654,6 +656,9 @@ export type {
   DocumentViewServerPropsOnly,
   EditViewProps,
   RenderDocumentVersionsProperties,
+  TitleClientProps,
+  TitleServerProps,
+  TitleServerPropsOnly,
 } from './views/document.js'
 
 export type {

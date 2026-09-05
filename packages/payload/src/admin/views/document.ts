@@ -109,3 +109,16 @@ export type BeforeDocumentControlsClientProps = {}
 export type BeforeDocumentControlsServerPropsOnly = {} & ServerProps
 export type BeforeDocumentControlsServerProps = BeforeDocumentControlsClientProps &
   BeforeDocumentControlsServerPropsOnly
+
+// Title (fork #80) — the document title slot on DocumentControls. Rendered
+// in `.doc-controls__content` in place of `RenderTitle` on both the edit and
+// the create view; never inside a DocumentDrawer (the drawer header already
+// carries the title — #43).
+export type TitleClientProps = {
+  readonly collectionSlug: string
+  readonly id?: number | string
+  /** `true` once the document exists (the edit view); `false` on the create view. */
+  readonly isEditing: boolean
+}
+export type TitleServerPropsOnly = {} & ServerProps
+export type TitleServerProps = TitleClientProps & TitleServerPropsOnly

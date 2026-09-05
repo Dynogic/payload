@@ -10,6 +10,8 @@ import type {
   DeleteButtonServerProps,
   PublishButtonClientProps,
   PublishButtonServerProps,
+  TitleClientProps,
+  TitleServerProps,
   UnpublishButtonClientProps,
   UnpublishButtonServerProps,
   ViewTypes,
@@ -438,6 +440,13 @@ export type CollectionAdminOptions = {
        * Replaces the "Status" section
        */
       Status?: CustomStatus
+      /**
+       * Fork #80: replaces the document title in the controls bar (`RenderTitle`)
+       * on the edit AND the create view. Not rendered inside a DocumentDrawer —
+       * the drawer header already carries the title (#43). Receives
+       * `{ collectionSlug, id, isEditing }` as client props.
+       */
+      Title?: PayloadComponent<TitleServerProps, TitleClientProps>
       /**
        * Replaces the "Unpublish" button
        * + drafts must be enabled

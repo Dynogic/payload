@@ -1376,14 +1376,33 @@ empty slug → null, the fallback chain, and the in-flight click preference.
 
 ---
 
+### 80. `admin.components.edit.Title` — app-supplied document title slot on DocumentControls
+
+**Files:** `packages/payload/src/admin/views/document.ts` (`TitleClientProps` / `TitleServerProps` / `TitleServerPropsOnly`), `packages/payload/src/admin/types.ts` (`DocumentSlots.Title` + type exports), `packages/payload/src/collections/config/types.ts` (`admin.components.edit.Title`), `packages/payload/src/bin/generateImportMap/iterateCollections.ts`, `packages/next/src/views/Document/renderDocumentSlots.tsx`, `packages/ui/src/views/Edit/index.tsx`, `packages/ui/src/elements/DocumentControls/index.tsx`. SCSS untouched.
+
+(#79 — page width tiers — was cut and reverted the same day; the number is retired.)
+
+**Why.** The document title in the controls bar (`RenderTitle`, gated by `showTitleInControls`) is Payload's own: it reads `useAsTitle`, falls back to `ID: <hex>` for an unnamed doc, and is inert. An app that wants the title to BE the identity control (rename in place, a placeholder noun instead of the id, a link editor beside it) had to turn `showTitleInControls` off and portal its own control into `.doc-controls__content` from a `beforeDocumentControls` component — a DOM-lookup workaround that depends on the bar's class names and on the render order of a sibling slot. Complements #73 (`setTitleOverride`), which re-titles Payload's OWN renderers; this replaces the controls-bar renderer wholesale.
+
+**Config.** Collection-level `admin.components.edit.Title?: PayloadComponent<TitleServerProps, TitleClientProps>`. Client props: `{ collectionSlug, id?, isEditing }` (`isEditing` = the doc exists; `false` on the create view). Server props: the standard `ServerProps`. Collections only — a global's title is its label.
+
+**Render.** `renderDocumentSlots` renders it into `DocumentSlots.Title`; `DefaultEditView` threads it through `customComponents`; `DocumentControls` renders it in `.doc-controls__content` **in place of** `RenderTitle`:
+
+- rendered on the edit view AND the create view (the app decides what an unsaved document is called);
+- **never inside a DocumentDrawer** — the drawer header already carries the title (#43), so the slot is skipped when `isInDrawer`;
+- when it renders, the "Creating new <Label>" meta line yields to it exactly as `showTitleInControls: true` makes it yield to `RenderTitle`;
+- absent → behavior is byte-identical to before (`showTitleInControls` + `RenderTitle`).
+
+**Import map.** `iterateCollections` registers the component like the other `edit.*` slots.
+
 ## Summary
 
-Recounted 2026-06-22: 62 entry headers across the catalog. Note `#46` is used **twice** (two unrelated changes — "List Status Cell Shows Changed" and "`payload.validate()` Dry-Run"), and `#2` is **DROPPED** (absorbed upstream in v3.85.0). That leaves **62 active changes**. Category counts below are a best-effort classification — several entries straddle fix/feature (a behavior correction that also adds a prop), so treat the split as indicative, not exact. _(Updated 2026-06-29: +#69 → 63 active. Updated 2026-07-02: +#70 → 64 active. Updated 2026-07-23: +#71 → 65 active. Updated 2026-07-24: +#72 → 66 active. Updated 2026-08-01: +#73 → 67 active. Updated 2026-08-24: +#74 and +#75 → 69 active. Updated 2026-08-31: +#76 → 70 active. Updated 2026-08-31: +#77 → 71 active. Updated 2026-09-01: +#78 → 72 active.)_
+Recounted 2026-06-22: 62 entry headers across the catalog. Note `#46` is used **twice** (two unrelated changes — "List Status Cell Shows Changed" and "`payload.validate()` Dry-Run"), and `#2` is **DROPPED** (absorbed upstream in v3.85.0). That leaves **62 active changes**. Category counts below are a best-effort classification — several entries straddle fix/feature (a behavior correction that also adds a prop), so treat the split as indicative, not exact. _(Updated 2026-06-29: +#69 → 63 active. Updated 2026-07-02: +#70 → 64 active. Updated 2026-07-23: +#71 → 65 active. Updated 2026-07-24: +#72 → 66 active. Updated 2026-08-01: +#73 → 67 active. Updated 2026-08-24: +#74 and +#75 → 69 active. Updated 2026-08-31: +#76 → 70 active. Updated 2026-08-31: +#77 → 71 active. Updated 2026-09-01: +#78 → 72 active. Updated 2026-09-05: +#80 → 72 active per the table recount; #79 cut and reverted the same day, number retired.)_
 
 | Category           | Count  |
 | ------------------ | ------ |
 | Bug Fixes          | 20     |
-| Features           | 50     |
+| Features           | 51     |
 | Documentation      | 1      |
 | Dropped (absorbed) | 1      |
-| **Total active**   | **71** |
+| **Total active**   | **72** |

@@ -54,6 +54,8 @@ export const DocumentControls: React.FC<{
     readonly SaveButton?: React.ReactNode
     readonly SaveDraftButton?: React.ReactNode
     readonly Status?: React.ReactNode
+    /** Fork #80: replaces `RenderTitle` (edit + create view; skipped in drawers). */
+    readonly Title?: React.ReactNode
     readonly UnpublishButton?: React.ReactNode
   }
   readonly data?: Data
@@ -94,6 +96,7 @@ export const DocumentControls: React.FC<{
       SaveButton: CustomSaveButton,
       SaveDraftButton: CustomSaveDraftButton,
       Status: CustomStatus,
+      Title: CustomTitle,
       UnpublishButton: CustomUnpublishButton,
     } = {},
     data,
@@ -207,13 +210,23 @@ export const DocumentControls: React.FC<{
   const showFolderMetaIcon = collectionConfig && collectionConfig.folders
   const showLockedMetaIcon = user && readOnlyForIncomingUser
 
+  // Fork #80: a collection-level `admin.components.edit.Title` replaces
+  // RenderTitle in the content box — on the edit view AND the create view
+  // (the app decides what an unsaved doc is called). Never in a drawer: the
+  // drawer header already carries the title (#43). When it renders, the
+  // "Creating new <Label>" meta line yields to it the same way `showTitle`
+  // does.
+  const hasCustomTitle = Boolean(CustomTitle) && !isInDrawer
+  const titleShown = hasCustomTitle || Boolean(showTitle)
+
   return (
     <Gutter className={baseClass}>
       <div className={`${baseClass}__wrapper`}>
         <div className={`${baseClass}__content`}>
-          {showTitle && !isInDrawer && (
-            <RenderTitle className={`${baseClass}__title`} element="h1" />
-          )}
+          {hasCustomTitle
+            ? CustomTitle
+            : showTitle &&
+              !isInDrawer && <RenderTitle className={`${baseClass}__title`} element="h1" />}
           {showLockedMetaIcon || showFolderMetaIcon ? (
             <div className={`${baseClass}__meta-icons`}>
               {showLockedMetaIcon && (
@@ -228,7 +241,7 @@ export const DocumentControls: React.FC<{
             </div>
           ) : null}
           <ul className={`${baseClass}__meta`}>
-            {collectionConfig && !isEditing && !isAccountView && !showTitle && (
+            {collectionConfig && !isEditing && !isAccountView && !titleShown && (
               <li className={`${baseClass}__list-item`}>
                 <p className={`${baseClass}__value`}>
                   {i18n.t('general:creatingNewLabel', {

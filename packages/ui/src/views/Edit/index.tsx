@@ -65,6 +65,7 @@ export function DefaultEditView({
   SaveButton,
   SaveDraftButton,
   Status,
+  Title,
   UnpublishButton,
   Upload: CustomUpload,
   UploadControls,
@@ -732,6 +733,7 @@ export function DefaultEditView({
               SaveButton,
               SaveDraftButton,
               Status,
+              Title,
               UnpublishButton,
             }}
             data={data}

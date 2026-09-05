@@ -15,6 +15,8 @@ import type {
   ServerFunction,
   ServerProps,
   StaticDescription,
+  TitleClientProps,
+  TitleServerPropsOnly,
   UnpublishButtonServerPropsOnly,
   ViewDescriptionClientProps,
   ViewDescriptionServerPropsOnly,
@@ -134,6 +136,24 @@ export const renderDocumentSlots: (args: {
       Fallback: ViewDescription,
       importMap: req.payload.importMap,
       serverProps: serverProps satisfies ViewDescriptionServerPropsOnly,
+    })
+  }
+
+  // Fork #80: the document title slot (collections only — a global's title is
+  // its label). Rendered on the edit AND the create view; DocumentControls
+  // skips it inside a drawer.
+  const CustomTitle = collectionConfig?.admin?.components?.edit?.Title
+
+  if (collectionConfig && CustomTitle) {
+    components.Title = RenderServerComponent({
+      clientProps: {
+        id,
+        collectionSlug: collectionConfig.slug,
+        isEditing: Boolean(id),
+      } satisfies TitleClientProps,
+      Component: CustomTitle,
+      importMap: req.payload.importMap,
+      serverProps: serverProps satisfies TitleServerPropsOnly,
     })
   }
 
