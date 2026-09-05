@@ -1376,74 +1376,14 @@ empty slug → null, the fallback chain, and the in-flight click preference.
 
 ---
 
-### 79. Page width tiers — `admin.custom.widthTier` on documents and tabs, stamped as `data-width-tier`
-
-**Files:** `packages/payload/src/admin/documentWidthTier.ts` (new), `packages/payload/src/exports/shared.ts`, `packages/payload/src/index.ts`, `packages/ui/src/elements/DocumentFields/index.tsx`, `packages/ui/src/elements/DocumentFields/index.scss`, `packages/ui/src/fields/Tabs/index.tsx`
-
-Payload's document view stretches its fields across whatever the viewport
-gives it: on a 2000px screen a plain text field runs ~1600px wide. A consuming
-app that wants Shopify-style capped, centered pages had to override the layout
-from outside, per collection, with no hook for "this tab is a canvas, that tab
-is a form."
-
-**Config.** A document declares its page width tier on the collection or
-global: `admin.custom.widthTier: 'form' | 'wide' | 'editor' | 'fullbleed'`
-(typed as `widthTier?: DocumentWidthTier` on `CollectionAdminCustom` /
-`GlobalAdminCustom`, both already client-visible). Any tab may override it for
-the time it is active: `tab.admin.custom.widthTier` (tab `admin.custom` already
-reaches the client untouched). Missing or unknown value → `form`. Reference
-widths (the consuming app's tokens win, see below): `form` 950px (a 638px
-fields column beside a reserved side column, whether or not sidebar fields
-exist), `wide` 1280px, `editor` 1600px, `fullbleed` no cap.
-
-**Stamps.** `DocumentFields` reads `useDocumentInfo().collectionSlug /
-globalSlug` → `useConfig().getEntityConfig(...)` and stamps the resolved tier
-on its root: `<div class="document-fields …" data-width-tier="form">`. Never
-inside a drawer (`useDrawerDepth() > 1` — covers `DocumentDrawer` and the
-bulk-upload drawer alike; a drawer's document is never capped) and never in
-the live-preview split pane (`forceSidebarWrap`, where the pane already bounds
-the fields). The Tabs field's `TabContent` stamps the ACTIVE tab's declared
-tier on its content div (`.tabs-field__tab[data-width-tier=…]`) — SSR-correct
-because the active tab is server-resolved (#78), so the first HTML already
-carries the right width, no hydration jump. `TabContent` also finally applies
-`tab.admin.className` on that div (the config accepted it; the renderer
-dropped it).
-
-**CSS** (DocumentFields/index.scss, `@layer payload-default`). The root stamp
-selects the tier; `.document-fields[data-width-tier]:has(> * [data-width-tier='X'])`
-lets ANY stamp on a descendant of a direct child — the active tab's content
-div, or a consuming app's own ui-field root — override the root's declaration,
-widest winning by source order (form → wide → editor → fullbleed). The cap is
-`max-width: var(--page-width) + margin-inline: auto` on `.document-fields`
-(main + sidebar center together; the fixed-left nav is untouched). Tokens are
-the consuming app's, with the reference px as fallbacks:
-`--page-width-form|wide|editor`, `--page-fields-column`. Only `form` changes
-the inner split: `.document-fields__main` is `width: var(--page-fields-column,
-638px); flex-grow: 0` and the sidebar variables (`--sidebar-wrap-width`,
-`--doc-sidebar-width`) follow the side column (`950 − 638`); the other tiers
-keep the stock `--main-width` split (66.66% beside a populated sidebar, else
-100%) inside their cap. Below `mid-break` the stacked layout gets full-width
-fields again. Payload's `:has(.render-fields:empty)` zero-width sidebar case
-is untouched (it sets its variable on the wrap element itself).
-
-**Shared helpers** (`payload/shared`): `DocumentWidthTier`,
-`documentWidthTiers`, `defaultDocumentWidthTier`, `resolveDocumentWidthTier`.
-
-No behavior change for a consuming app that declares nothing? Not quite:
-every top-level document now caps at `form` (950px, 638px fields column) by
-default — that is the point. Apps wanting the old edge-to-edge layout set
-`admin.custom.widthTier: 'fullbleed'` per collection.
-
----
-
 ## Summary
 
-Recounted 2026-06-22: 62 entry headers across the catalog. Note `#46` is used **twice** (two unrelated changes — "List Status Cell Shows Changed" and "`payload.validate()` Dry-Run"), and `#2` is **DROPPED** (absorbed upstream in v3.85.0). That leaves **62 active changes**. Category counts below are a best-effort classification — several entries straddle fix/feature (a behavior correction that also adds a prop), so treat the split as indicative, not exact. _(Updated 2026-06-29: +#69 → 63 active. Updated 2026-07-02: +#70 → 64 active. Updated 2026-07-23: +#71 → 65 active. Updated 2026-07-24: +#72 → 66 active. Updated 2026-08-01: +#73 → 67 active. Updated 2026-08-24: +#74 and +#75 → 69 active. Updated 2026-08-31: +#76 → 70 active. Updated 2026-08-31: +#77 → 71 active. Updated 2026-09-01: +#78 → 72 active. Updated 2026-09-05: +#79 → 73 active.)_
+Recounted 2026-06-22: 62 entry headers across the catalog. Note `#46` is used **twice** (two unrelated changes — "List Status Cell Shows Changed" and "`payload.validate()` Dry-Run"), and `#2` is **DROPPED** (absorbed upstream in v3.85.0). That leaves **62 active changes**. Category counts below are a best-effort classification — several entries straddle fix/feature (a behavior correction that also adds a prop), so treat the split as indicative, not exact. _(Updated 2026-06-29: +#69 → 63 active. Updated 2026-07-02: +#70 → 64 active. Updated 2026-07-23: +#71 → 65 active. Updated 2026-07-24: +#72 → 66 active. Updated 2026-08-01: +#73 → 67 active. Updated 2026-08-24: +#74 and +#75 → 69 active. Updated 2026-08-31: +#76 → 70 active. Updated 2026-08-31: +#77 → 71 active. Updated 2026-09-01: +#78 → 72 active.)_
 
 | Category           | Count  |
 | ------------------ | ------ |
 | Bug Fixes          | 20     |
-| Features           | 51     |
+| Features           | 50     |
 | Documentation      | 1      |
 | Dropped (absorbed) | 1      |
-| **Total active**   | **72** |
+| **Total active**   | **71** |
