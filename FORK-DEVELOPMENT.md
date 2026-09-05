@@ -78,7 +78,7 @@ gh release create "$NEXT" ./packed/*.tgz \
 
 ### Step 5: Update the consuming project
 
-**Ask the user for the absolute path to their project's `package.json`** (e.g. `/Users/agua/myproject/package.json`).
+**Ask the user for the absolute path to their project's `package.json`** (e.g. `/Users/sol/github/varig/package.json` — varig, the usual consumer, lives on this machine alongside this fork).
 
 Then find all Dynogic/payload release URLs in that file and replace the old version tag with `$NEXT`. The URLs follow this pattern:
 
