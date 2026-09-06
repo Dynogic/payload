@@ -986,15 +986,28 @@ export type UnnamedTab = {
 } & Omit<TabBase, 'hooks' | 'name' | 'virtual'>
 
 export type Tab = NamedTab | UnnamedTab
+
+/**
+ * FORK (#81): tabs-field-only admin options.
+ */
+export type TabsFieldAdminExtras = {
+  /**
+   * FORK (#81): when at most ONE tab passes its `admin.condition`, render that
+   * tab's content WITHOUT the tab bar (a strip with a single tab is chrome
+   * without a choice). Opt-in — default `false` keeps the bar as before.
+   */
+  hideWhenSingle?: boolean
+}
+
 export type TabsField = {
-  admin?: Omit<FieldAdmin, 'description'>
+  admin?: Omit<FieldAdmin, 'description'> & TabsFieldAdminExtras
   type: 'tabs'
 } & {
   tabs: Tab[]
 } & Omit<FieldBase, 'admin' | 'localized' | 'name' | 'saveToJWT' | 'virtual'>
 
 export type TabsFieldClient = {
-  admin?: Omit<AdminClient, 'description'>
+  admin?: Omit<AdminClient, 'description'> & TabsFieldAdminExtras
   tabs: ClientTab[]
 } & Omit<FieldBaseClient, 'admin' | 'localized' | 'name' | 'saveToJWT'> &
   Pick<TabsField, 'type'>

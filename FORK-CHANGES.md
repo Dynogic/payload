@@ -1395,14 +1395,24 @@ empty slug → null, the fallback chain, and the in-flight click preference.
 
 **Import map.** `iterateCollections` registers the component like the other `edit.*` slots.
 
+### 81. `admin.hideWhenSingle` on the Tabs field — no tab bar when only one tab is visible
+
+**Files:** `packages/payload/src/fields/config/types.ts` (`TabsFieldAdminExtras`, threaded into `TabsField.admin` + `TabsFieldClient.admin`), `packages/ui/src/fields/Tabs/index.tsx`. SCSS untouched.
+
+**Why.** A tabs field whose tabs carry `admin.condition`s can end up with exactly one tab passing — a strip with a single tab is chrome without a choice (varig's pages: the Card tab is public-kind-only, so home / lesson / collection pages showed a lone "Page" tab). Payload always draws the bar when the field renders; the only app-side escape was a condition on the whole tabs field plus a duplicated standalone field for the other kinds.
+
+**Config.** `admin.hideWhenSingle?: boolean` on the tabs field (opt-in, default `false` = unchanged behavior). Passes to the client like any other admin boolean.
+
+**Render.** When the flag is set and at most one tab passes its condition, the field renders the active tab's content without `.tabs-field__tabs-wrap` — no tab headers and **no `__after-tabs` slot (#76)**, so consumers that portal into that slot must fall back to their own row when it is absent (varig's inline canvas already does). The field gets `.tabs-field--bar-hidden` for styling hooks. Zero visible tabs still hides the whole field (`--hidden`, as before); two or more visible tabs render the bar exactly as before. Fields without the flag are byte-identical.
+
 ## Summary
 
-Recounted 2026-06-22: 62 entry headers across the catalog. Note `#46` is used **twice** (two unrelated changes — "List Status Cell Shows Changed" and "`payload.validate()` Dry-Run"), and `#2` is **DROPPED** (absorbed upstream in v3.85.0). That leaves **62 active changes**. Category counts below are a best-effort classification — several entries straddle fix/feature (a behavior correction that also adds a prop), so treat the split as indicative, not exact. _(Updated 2026-06-29: +#69 → 63 active. Updated 2026-07-02: +#70 → 64 active. Updated 2026-07-23: +#71 → 65 active. Updated 2026-07-24: +#72 → 66 active. Updated 2026-08-01: +#73 → 67 active. Updated 2026-08-24: +#74 and +#75 → 69 active. Updated 2026-08-31: +#76 → 70 active. Updated 2026-08-31: +#77 → 71 active. Updated 2026-09-01: +#78 → 72 active. Updated 2026-09-05: +#80 → 72 active per the table recount; #79 cut and reverted the same day, number retired.)_
+Recounted 2026-06-22: 62 entry headers across the catalog. Note `#46` is used **twice** (two unrelated changes — "List Status Cell Shows Changed" and "`payload.validate()` Dry-Run"), and `#2` is **DROPPED** (absorbed upstream in v3.85.0). That leaves **62 active changes**. Category counts below are a best-effort classification — several entries straddle fix/feature (a behavior correction that also adds a prop), so treat the split as indicative, not exact. _(Updated 2026-06-29: +#69 → 63 active. Updated 2026-07-02: +#70 → 64 active. Updated 2026-07-23: +#71 → 65 active. Updated 2026-07-24: +#72 → 66 active. Updated 2026-08-01: +#73 → 67 active. Updated 2026-08-24: +#74 and +#75 → 69 active. Updated 2026-08-31: +#76 → 70 active. Updated 2026-08-31: +#77 → 71 active. Updated 2026-09-01: +#78 → 72 active. Updated 2026-09-05: +#80 → 72 active per the table recount; #79 cut and reverted the same day, number retired. Updated 2026-09-06: +#81 → 73 active.)_
 
 | Category           | Count  |
 | ------------------ | ------ |
 | Bug Fixes          | 20     |
-| Features           | 51     |
+| Features           | 52     |
 | Documentation      | 1      |
 | Dropped (absorbed) | 1      |
-| **Total active**   | **72** |
+| **Total active**   | **73** |

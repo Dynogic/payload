@@ -37,7 +37,7 @@ export { TabsProvider }
 
 const TabsFieldComponent: TabsFieldClientComponent = (props) => {
   const {
-    field: { admin: { className } = {}, tabs = [] },
+    field: { admin: { className, hideWhenSingle = false } = {}, tabs = [] },
     forceRender = false,
     indexPath = '',
     parentPath = '',
@@ -141,7 +141,12 @@ const TabsFieldComponent: TabsFieldClientComponent = (props) => {
       ? activeTabDescription({ i18n, t: i18n.t })
       : activeTabDescription
 
-  const hasVisibleTabs = tabStates.some(({ passesCondition }) => passesCondition)
+  const visibleTabCount = tabStates.filter(({ passesCondition }) => passesCondition).length
+  const hasVisibleTabs = visibleTabCount > 0
+  // FORK (#81): an opted-in field with at most one visible tab renders that
+  // tab's content bare — no tab bar, no `__after-tabs` slot (consumers that
+  // portal into the slot must fall back when it is absent).
+  const hideTabBar = hideWhenSingle && visibleTabCount <= 1
 
   const handleTabChange = useCallback(
     (incomingTabIndex: number): void => {
@@ -226,27 +231,29 @@ const TabsFieldComponent: TabsFieldClientComponent = (props) => {
         baseClass,
         isWithinCollapsible && `${baseClass}--within-collapsible`,
         !hasVisibleTabs && `${baseClass}--hidden`,
+        hideTabBar && `${baseClass}--bar-hidden`,
       ]
         .filter(Boolean)
         .join(' ')}
     >
       <TabsProvider>
-        <div className={`${baseClass}__tabs-wrap`}>
-          <div className={`${baseClass}__tabs`}>
-            {tabStates.map(({ index, passesCondition, tab }) => (
-              <TabComponent
-                hidden={!passesCondition}
-                isActive={activeTabIndex === index}
-                key={index}
-                parentPath={path}
-                setIsActive={() => {
-                  handleTabChange(index)
-                }}
-                tab={tab}
-              />
-            ))}
-          </div>
-          {/* FORK (#76): zero-API right-side portal target on the tab row. The id is
+        {!hideTabBar && (
+          <div className={`${baseClass}__tabs-wrap`}>
+            <div className={`${baseClass}__tabs`}>
+              {tabStates.map(({ index, passesCondition, tab }) => (
+                <TabComponent
+                  hidden={!passesCondition}
+                  isActive={activeTabIndex === index}
+                  key={index}
+                  parentPath={path}
+                  setIsActive={() => {
+                    handleTabChange(index)
+                  }}
+                  tab={tab}
+                />
+              ))}
+            </div>
+            {/* FORK (#76): zero-API right-side portal target on the tab row. The id is
               deterministic per tabs field — `after-tabs-<path>` with dots flattened to
               `__` (a top-level unnamed tabs field's path is its `_index-N` segment) —
               so nested tabs fields keep distinct ids. Consumers that can mount inside
@@ -254,11 +261,12 @@ const TabsFieldComponent: TabsFieldClientComponent = (props) => {
               (closest('.tabs-field') → its `> .tabs-field__tabs-wrap > .tabs-field__after-tabs`)
               rather than a document-wide id lookup, since the same collection open in a
               drawer repeats the path. Keep slot content no taller than the tab row. */}
-          <div
-            className={`${baseClass}__after-tabs`}
-            id={`after-tabs-${(path || 'tabs').replace(/\./g, '__')}`}
-          />
-        </div>
+            <div
+              className={`${baseClass}__after-tabs`}
+              id={`after-tabs-${(path || 'tabs').replace(/\./g, '__')}`}
+            />
+          </div>
+        )}
         <div className={`${baseClass}__content-wrap`}>
           {activeTabConfig && (
             <TabContent
