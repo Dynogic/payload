@@ -1496,7 +1496,7 @@ describe('Locked Documents', () => {
         await wait(500)
 
         // User 2 clicks reload button in modal
-        await user2Page.locator('#document-stale-data-reload').click()
+        await user2Page.locator('.document-stale-data #confirm-action').click()
 
         // eslint-disable-next-line payload/no-wait-function
         await wait(500)
@@ -1532,7 +1532,7 @@ describe('Locked Documents', () => {
         await expect(modalContainer).toBeVisible()
 
         // User 2 reloads
-        await user2Page.locator('#document-stale-data-reload').click()
+        await user2Page.locator('.document-stale-data #confirm-action').click()
 
         // eslint-disable-next-line payload/no-wait-function
         await wait(500)
@@ -1556,7 +1556,7 @@ describe('Locked Documents', () => {
         await expect(modalContainer).toBeVisible()
 
         // User 1 reloads
-        await page.locator('#document-stale-data-reload').click()
+        await page.locator('.document-stale-data #confirm-action').click()
 
         // eslint-disable-next-line payload/no-wait-function
         await wait(500)
@@ -1580,7 +1580,7 @@ describe('Locked Documents', () => {
         await expect(modalContainer).toBeVisible()
 
         // User 2 reloads
-        await user2Page.locator('#document-stale-data-reload').click()
+        await user2Page.locator('.document-stale-data #confirm-action').click()
 
         // eslint-disable-next-line payload/no-wait-function
         await wait(500)
@@ -1628,7 +1628,7 @@ describe('Locked Documents', () => {
         await expect(modalContainer).toBeVisible()
 
         // User 2 reloads
-        await user2Page.locator('#document-stale-data-reload').click()
+        await user2Page.locator('.document-stale-data #confirm-action').click()
 
         // eslint-disable-next-line payload/no-wait-function
         await wait(500)
@@ -1652,7 +1652,7 @@ describe('Locked Documents', () => {
         await expect(modalContainer).toBeVisible()
 
         // User 1 reloads
-        await page.locator('#document-stale-data-reload').click()
+        await page.locator('.document-stale-data #confirm-action').click()
 
         // eslint-disable-next-line payload/no-wait-function
         await wait(500)
@@ -1676,7 +1676,7 @@ describe('Locked Documents', () => {
         await expect(modalContainer).toBeVisible()
 
         // User 2 reloads
-        await user2Page.locator('#document-stale-data-reload').click()
+        await user2Page.locator('.document-stale-data #confirm-action').click()
 
         // eslint-disable-next-line payload/no-wait-function
         await wait(500)
@@ -1903,7 +1903,7 @@ describe('Locked Documents', () => {
         await wait(500)
 
         // User 2 clicks reload button in modal
-        await user2Page.locator('#document-stale-data-reload').click()
+        await user2Page.locator('.document-stale-data #confirm-action').click()
 
         // eslint-disable-next-line payload/no-wait-function
         await wait(500)
@@ -1948,7 +1948,7 @@ describe('Locked Documents', () => {
         await expect(modalContainer).toBeVisible()
 
         // User 2 reloads
-        await user2Page.locator('#document-stale-data-reload').click()
+        await user2Page.locator('.document-stale-data #confirm-action').click()
 
         // eslint-disable-next-line payload/no-wait-function
         await wait(500)
@@ -1972,7 +1972,7 @@ describe('Locked Documents', () => {
         await expect(modalContainer).toBeVisible()
 
         // User 1 reloads
-        await page.locator('#document-stale-data-reload').click()
+        await page.locator('.document-stale-data #confirm-action').click()
 
         // eslint-disable-next-line payload/no-wait-function
         await wait(500)
@@ -1996,7 +1996,7 @@ describe('Locked Documents', () => {
         await expect(modalContainer).toBeVisible()
 
         // User 2 reloads
-        await user2Page.locator('#document-stale-data-reload').click()
+        await user2Page.locator('.document-stale-data #confirm-action').click()
 
         // eslint-disable-next-line payload/no-wait-function
         await wait(500)
@@ -2102,7 +2102,7 @@ describe('Locked Documents', () => {
         await expect(modalContainer).toBeVisible()
 
         // User 2 reloads
-        await user2Page.locator('#document-stale-data-reload').click()
+        await user2Page.locator('.document-stale-data #confirm-action').click()
 
         // eslint-disable-next-line payload/no-wait-function
         await wait(500)
@@ -2126,7 +2126,7 @@ describe('Locked Documents', () => {
         await expect(modalContainer).toBeVisible()
 
         // User 1 reloads
-        await page.locator('#document-stale-data-reload').click()
+        await page.locator('.document-stale-data #confirm-action').click()
 
         // eslint-disable-next-line payload/no-wait-function
         await wait(500)
@@ -2150,7 +2150,7 @@ describe('Locked Documents', () => {
         await expect(modalContainer).toBeVisible()
 
         // User 2 reloads
-        await user2Page.locator('#document-stale-data-reload').click()
+        await user2Page.locator('.document-stale-data #confirm-action').click()
 
         // eslint-disable-next-line payload/no-wait-function
         await wait(500)

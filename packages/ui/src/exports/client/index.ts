@@ -39,7 +39,7 @@ export { QueryPresetsGroupByField } from '../../elements/QueryPresets/fields/Gro
 
 // elements
 export { ConfirmationModal } from '../../elements/ConfirmationModal/index.js'
-export type { OnCancel } from '../../elements/ConfirmationModal/index.js'
+export type { ConfirmationModalProps, OnCancel } from '../../elements/ConfirmationModal/index.js'
 export { CloseModalButton } from '../../elements/CloseModalButton/index.js'
 export { Link } from '../../elements/Link/index.js'
 export { LeaveWithoutSaving } from '../../elements/LeaveWithoutSaving/index.js'
@@ -345,6 +345,11 @@ export { useDocumentTitle } from '../../providers/DocumentTitle/index.js'
 export type { DocumentInfoContext, DocumentInfoProps } from '../../providers/DocumentInfo/index.js'
 export { useUploadControls } from '../../providers/UploadControls/index.js'
 export { EditDepthProvider, useEditDepth } from '../../providers/EditDepth/index.js'
+export {
+  type ConfirmRenderer,
+  ConfirmRendererProvider,
+  useConfirmRenderer,
+} from '../../providers/ConfirmRenderer/index.js'
 export {
   EntityVisibilityProvider,
   useEntityVisibility,

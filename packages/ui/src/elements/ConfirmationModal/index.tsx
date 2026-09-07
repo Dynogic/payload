@@ -2,6 +2,7 @@
 import { Modal, useModal } from '@faceless-ui/modal'
 import React, { useCallback } from 'react'
 
+import { useConfirmRenderer } from '../../providers/ConfirmRenderer/index.js'
 import { useTranslation } from '../../providers/Translation/index.js'
 import { Button } from '../Button/index.js'
 import { CloseModalButton } from '../CloseModalButton/index.js'
@@ -20,6 +21,12 @@ export type ConfirmationModalProps = {
   confirmLabel?: string
   destructive?: boolean
   heading: React.ReactNode
+  /**
+   * Forced-decision confirm: no Cancel button and no close X — the only way
+   * out is the confirm action (e.g. DocumentStaleData's "Reload"). Route
+   * changes still close it through the modal bus.
+   */
+  hideCancel?: boolean
   modalSlug: string
   onCancel?: OnCancel
   onConfirm: () => Promise<void> | void
@@ -34,6 +41,7 @@ export function ConfirmationModal(props: ConfirmationModalProps) {
     confirmLabel,
     destructive,
     heading,
+    hideCancel,
     modalSlug,
     onCancel: onCancelFromProps,
     onConfirm: onConfirmFromProps,
@@ -45,6 +53,7 @@ export function ConfirmationModal(props: ConfirmationModalProps) {
 
   const { closeModal, isModalOpen } = useModal()
   const { t } = useTranslation()
+  const renderCustom = useConfirmRenderer()
 
   const onConfirm = useCallback(async () => {
     if (!confirming) {
@@ -69,6 +78,17 @@ export function ConfirmationModal(props: ConfirmationModalProps) {
     }
   }, [confirming, onCancelFromProps, closeModal, modalSlug])
 
+  // FORK-CHANGES.md #82 — an app-registered ConfirmRenderer replaces the
+  // stock modal wholesale (it owns open/close through the same modal bus).
+  // Delegated BEFORE the open check so the custom overlay can own its own
+  // mount/exit lifecycle from `isModalOpen(modalSlug)`.
+  if (renderCustom) {
+    const custom = renderCustom(props)
+    if (custom !== undefined) {
+      return custom
+    }
+  }
+
   if (!isModalOpen(modalSlug)) {
     return null
   }
@@ -84,26 +104,30 @@ export function ConfirmationModal(props: ConfirmationModalProps) {
       }}
     >
       <div className={`${baseClass}__wrapper`}>
-        <CloseModalButton
-          className={`${baseClass}__close`}
-          disabled={confirming}
-          slug={modalSlug}
-        />
+        {!hideCancel && (
+          <CloseModalButton
+            className={`${baseClass}__close`}
+            disabled={confirming}
+            slug={modalSlug}
+          />
+        )}
         <div className={`${baseClass}__content`}>
           {typeof heading === 'string' ? <h1>{heading}</h1> : heading}
           {typeof body === 'string' ? <p>{body}</p> : body}
         </div>
         <div className={`${baseClass}__controls`}>
-          <Button
-            buttonStyle="secondary"
-            disabled={confirming}
-            id="confirm-cancel"
-            onClick={onCancel}
-            size="large"
-            type="button"
-          >
-            {cancelLabel || t('general:cancel')}
-          </Button>
+          {!hideCancel && (
+            <Button
+              buttonStyle="secondary"
+              disabled={confirming}
+              id="confirm-cancel"
+              onClick={onCancel}
+              size="large"
+              type="button"
+            >
+              {cancelLabel || t('general:cancel')}
+            </Button>
+          )}
           <Button
             buttonStyle={destructive ? 'error' : undefined}
             disabled={confirming}

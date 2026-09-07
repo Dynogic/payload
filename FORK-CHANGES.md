@@ -1405,14 +1405,30 @@ empty slug → null, the fallback chain, and the in-flight click preference.
 
 **Render.** When the flag is set and at most one tab passes its condition, the field renders the active tab's content without `.tabs-field__tabs-wrap` — no tab headers and **no `__after-tabs` slot (#76)**, so consumers that portal into that slot must fall back to their own row when it is absent (varig's inline canvas already does). The field gets `.tabs-field--bar-hidden` for styling hooks. Zero visible tabs still hides the whole field (`--hidden`, as before); two or more visible tabs render the bar exactly as before. Fields without the flag are byte-identical.
 
+### 82. `ConfirmRenderer` — app-supplied renderer for every `ConfirmationModal`
+
+**Files:** `packages/ui/src/providers/ConfirmRenderer/index.tsx` (new), `packages/ui/src/elements/ConfirmationModal/index.tsx`, `packages/ui/src/elements/DocumentStaleData/index.tsx` (rewritten on `ConfirmationModal`; its `index.scss` deleted), `packages/ui/src/exports/client/index.ts`, `test/locked-documents/e2e.spec.ts` (selector follow-up).
+
+**Why.** A consuming app that standardizes its overlays on its own dialog primitive (varig: shadcn `AlertDialog` for every confirm it authors) still gets Payload's stock `ConfirmationModal` from the surfaces Payload owns — delete / bulk delete / unpublish / revert-to-published / duplicate / leave-without-saving / stale-data reload. Every confirm the merchant sees should look like one system; overriding each slot component just to swap the modal chrome is the wrong layer.
+
+**Provider.** `ConfirmRendererProvider` (`renderer: (props: ConfirmationModalProps) => React.ReactNode | undefined`) + `useConfirmRenderer()`, exported from `@payloadcms/ui`. Register it through `admin.components.providers` — it then wraps every admin route. The renderer receives the full `ConfirmationModalProps` (now exported) including `modalSlug`, and is expected to keep the **modal bus semantics**: mount from `isModalOpen(modalSlug)`, dismiss through `closeModal(modalSlug)`, so callers that drive the slug externally (`openModal` / `toggleModal`, route-change close) keep working unchanged. Return `undefined` to fall through to the stock render for that call. Prefer returning a component element (`<MyConfirm {...props} />`) so the custom confirm's hooks live in their own render.
+
+**`ConfirmationModal`.** Delegates to the renderer BEFORE its own `isModalOpen` early-return, so the custom overlay owns its mount/exit lifecycle. Also gains `hideCancel?: boolean` — a forced-decision confirm with no Cancel button and no close X (the stock render omits both; a custom renderer decides how to honor it).
+
+**`DocumentStaleData`.** Rewritten as a `ConfirmationModal` (`hideCancel`, one primary Reload → `confirmLabel`, `className="document-stale-data"` kept for the e2e `h1` selector) so it inherits the renderer; the confirm is `#confirm-action` now (the spec's `#document-stale-data-reload` selectors updated). Behavior unchanged: `clearRouteCache()` then `onReload()`, and the modal closes through `ConfirmationModal`'s own confirm path.
+
+**Reach.** Every in-tree `ConfirmationModal` consumer inherits the renderer: DeleteDocument, DeleteMany, DuplicateDocument, Status (revert to published), UnpublishButton, UnpublishMany, PublishMany, LeaveWithoutSaving, BulkUpload DiscardWithoutSaving, GenerateConfirmation, RestoreButton/RestoreMany, PermanentlyDeleteButton, ListEmptyTrashButton, ListSelection, the Folder-view confirms, QueryPresetBar, and DocumentStaleData. **`StayLoggedInModal` is the one exception**: `RootProvider` mounts it as a sibling of `children` (outside the app-provider subtree), so no app provider reaches it — it renders the stock modal. Unreachable in varig anyway (its sessions carry no JWT expiry, so the modal never opens).
+
+---
+
 ## Summary
 
-Recounted 2026-06-22: 62 entry headers across the catalog. Note `#46` is used **twice** (two unrelated changes — "List Status Cell Shows Changed" and "`payload.validate()` Dry-Run"), and `#2` is **DROPPED** (absorbed upstream in v3.85.0). That leaves **62 active changes**. Category counts below are a best-effort classification — several entries straddle fix/feature (a behavior correction that also adds a prop), so treat the split as indicative, not exact. _(Updated 2026-06-29: +#69 → 63 active. Updated 2026-07-02: +#70 → 64 active. Updated 2026-07-23: +#71 → 65 active. Updated 2026-07-24: +#72 → 66 active. Updated 2026-08-01: +#73 → 67 active. Updated 2026-08-24: +#74 and +#75 → 69 active. Updated 2026-08-31: +#76 → 70 active. Updated 2026-08-31: +#77 → 71 active. Updated 2026-09-01: +#78 → 72 active. Updated 2026-09-05: +#80 → 72 active per the table recount; #79 cut and reverted the same day, number retired. Updated 2026-09-06: +#81 → 73 active.)_
+Recounted 2026-06-22: 62 entry headers across the catalog. Note `#46` is used **twice** (two unrelated changes — "List Status Cell Shows Changed" and "`payload.validate()` Dry-Run"), and `#2` is **DROPPED** (absorbed upstream in v3.85.0). That leaves **62 active changes**. Category counts below are a best-effort classification — several entries straddle fix/feature (a behavior correction that also adds a prop), so treat the split as indicative, not exact. _(Updated 2026-06-29: +#69 → 63 active. Updated 2026-07-02: +#70 → 64 active. Updated 2026-07-23: +#71 → 65 active. Updated 2026-07-24: +#72 → 66 active. Updated 2026-08-01: +#73 → 67 active. Updated 2026-08-24: +#74 and +#75 → 69 active. Updated 2026-08-31: +#76 → 70 active. Updated 2026-08-31: +#77 → 71 active. Updated 2026-09-01: +#78 → 72 active. Updated 2026-09-05: +#80 → 72 active per the table recount; #79 cut and reverted the same day, number retired. Updated 2026-09-06: +#81 → 73 active. Updated 2026-09-07: +#82 → 74 active.)_
 
 | Category           | Count  |
 | ------------------ | ------ |
 | Bug Fixes          | 20     |
-| Features           | 52     |
+| Features           | 53     |
 | Documentation      | 1      |
 | Dropped (absorbed) | 1      |
-| **Total active**   | **73** |
+| **Total active**   | **74** |
