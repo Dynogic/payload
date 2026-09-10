@@ -49,6 +49,8 @@ export const DocumentControls: React.FC<{
   readonly BeforeDocumentControls?: React.ReactNode
   readonly customComponents?: {
     readonly DeleteButton?: React.ReactNode
+    /** Fork #84: replaces the whole ⋯ menu (`Popup` + list) wherever it would render. */
+    readonly DocumentMenu?: React.ReactNode
     readonly PreviewButton?: React.ReactNode
     readonly PublishButton?: React.ReactNode
     readonly SaveButton?: React.ReactNode
@@ -91,6 +93,7 @@ export const DocumentControls: React.FC<{
     BeforeDocumentControls,
     customComponents: {
       DeleteButton: CustomDeleteButton,
+      DocumentMenu: CustomDocumentMenu,
       PreviewButton: CustomPreviewButton,
       PublishButton: CustomPublishButton,
       SaveButton: CustomSaveButton,
@@ -378,7 +381,9 @@ export const DocumentControls: React.FC<{
               </Button>
             )}
           </div>
-          {showDotMenu && !readOnlyForIncomingUser && (
+          {/* Fork #84: an app-supplied menu replaces the whole Popup. */}
+          {showDotMenu && !readOnlyForIncomingUser && CustomDocumentMenu}
+          {showDotMenu && !readOnlyForIncomingUser && !CustomDocumentMenu && (
             <Popup
               button={
                 <div className={`${baseClass}__dots`}>
@@ -420,27 +425,32 @@ export const DocumentControls: React.FC<{
                     )}
                   </React.Fragment>
                 )}
-                {hasDeletePermission && (
-                  <RenderCustomComponent
-                    CustomComponent={CustomDeleteButton}
-                    Fallback={
-                      <DeleteDocument
-                        buttonId="action-delete"
-                        collectionSlug={collectionConfig?.slug}
-                        id={id.toString()}
-                        onDelete={onDelete}
-                        redirectAfterDelete={redirectAfterDelete}
-                        singularLabel={collectionConfig?.labels?.singular}
-                        useAsTitle={collectionConfig?.admin?.useAsTitle}
-                      />
-                    }
-                  />
-                )}
+                {/* Fork #83: destructive LAST — Unpublish and the app's own
+                    entries come first, then a divider, then Delete. */}
                 <RenderCustomComponent
                   CustomComponent={CustomUnpublishButton}
                   Fallback={<UnpublishButton />}
                 />
                 {EditMenuItems}
+                {hasDeletePermission && (
+                  <React.Fragment>
+                    <PopupList.Divider />
+                    <RenderCustomComponent
+                      CustomComponent={CustomDeleteButton}
+                      Fallback={
+                        <DeleteDocument
+                          buttonId="action-delete"
+                          collectionSlug={collectionConfig?.slug}
+                          id={id.toString()}
+                          onDelete={onDelete}
+                          redirectAfterDelete={redirectAfterDelete}
+                          singularLabel={collectionConfig?.labels?.singular}
+                          useAsTitle={collectionConfig?.admin?.useAsTitle}
+                        />
+                      }
+                    />
+                  </React.Fragment>
+                )}
               </PopupList.ButtonGroup>
             </Popup>
           )}

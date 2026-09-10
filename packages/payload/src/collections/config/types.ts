@@ -8,6 +8,8 @@ import type {
   CustomUpload,
   DeleteButtonClientProps,
   DeleteButtonServerProps,
+  DocumentMenuClientProps,
+  DocumentMenuServerProps,
   PublishButtonClientProps,
   PublishButtonServerProps,
   TitleClientProps,
@@ -412,6 +414,14 @@ export type CollectionAdminOptions = {
        * Replaces the "Delete" button inside the 3-dot menu dropdown
        */
       DeleteButton?: PayloadComponent<DeleteButtonServerProps, DeleteButtonClientProps>
+      /**
+       * Fork #84: replaces the document's ⋯ menu in the controls bar — the
+       * whole `Popup` (dots trigger + list), so the app renders it with its
+       * own overlay primitive and owns the entries. Rendered wherever the
+       * stock menu would render (never in create drawers). Receives
+       * `{ collectionSlug, id, isEditing }` as client props.
+       */
+      DocumentMenu?: PayloadComponent<DocumentMenuServerProps, DocumentMenuClientProps>
       /**
        * Inject custom components within the 3-dot menu dropdown
        */

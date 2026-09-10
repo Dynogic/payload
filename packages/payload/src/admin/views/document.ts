@@ -122,3 +122,18 @@ export type TitleClientProps = {
 }
 export type TitleServerPropsOnly = {} & ServerProps
 export type TitleServerProps = TitleClientProps & TitleServerPropsOnly
+
+// DocumentMenu (fork #84) — the document's ⋯ menu on DocumentControls. When
+// set, it REPLACES the whole `<Popup>` block (dots trigger + list) so an app
+// renders the menu with its own overlay primitive; the app is then also
+// responsible for the entries (duplicate / delete / unpublish / its own).
+// Rendered only where the stock menu would render (`showDotMenu` — never in
+// create drawers, #45). Absent → byte-identical to before.
+export type DocumentMenuClientProps = {
+  readonly collectionSlug: string
+  readonly id?: number | string
+  /** `true` once the document exists (the edit view); `false` on the create view. */
+  readonly isEditing: boolean
+}
+export type DocumentMenuServerPropsOnly = {} & ServerProps
+export type DocumentMenuServerProps = DocumentMenuClientProps & DocumentMenuServerPropsOnly

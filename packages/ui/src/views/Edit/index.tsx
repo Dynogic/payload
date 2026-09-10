@@ -58,6 +58,7 @@ export function DefaultEditView({
   BeforeDocumentControls,
   DeleteButton,
   Description,
+  DocumentMenu,
   EditMenuItems,
   LivePreview: CustomLivePreview,
   PreviewButton,
@@ -728,6 +729,7 @@ export function DefaultEditView({
             BeforeDocumentControls={BeforeDocumentControls}
             customComponents={{
               DeleteButton,
+              DocumentMenu,
               PreviewButton,
               PublishButton,
               SaveButton,

@@ -1419,6 +1419,34 @@ empty slug → null, the fallback chain, and the in-flight click preference.
 
 **Reach.** Every in-tree `ConfirmationModal` consumer inherits the renderer: DeleteDocument, DeleteMany, DuplicateDocument, Status (revert to published), UnpublishButton, UnpublishMany, PublishMany, LeaveWithoutSaving, BulkUpload DiscardWithoutSaving, GenerateConfirmation, RestoreButton/RestoreMany, PermanentlyDeleteButton, ListEmptyTrashButton, ListSelection, the Folder-view confirms, QueryPresetBar, and DocumentStaleData. **`StayLoggedInModal` is the one exception**: `RootProvider` mounts it as a sibling of `children` (outside the app-provider subtree), so no app provider reaches it — it renders the stock modal. Unreachable in varig anyway (its sessions carry no JWT expiry, so the modal never opens).
 
+### 83. DocumentControls ⋯ menu: destructive last, behind a divider
+
+**Files:** `packages/ui/src/elements/DocumentControls/index.tsx`. SCSS untouched.
+
+**Why.** The stock order was Duplicate → Delete → Unpublish → app entries: the one irreversible action sat in the middle of the list, one row above a recoverable one, with nothing separating it. Every other menu in the consuming app (varig) puts its destructive entry last behind a divider.
+
+**Render.** The `PopupList.ButtonGroup` now reads: CopyLocaleData → Duplicate(s) → Unpublish (`UnpublishButton` / its custom slot) → `EditMenuItems` → **`PopupList.Divider` → Delete** (`DeleteDocument` / its custom slot). The divider renders only when the Delete entry does (`hasDeletePermission`). No other behavior changes.
+
+### 84. `admin.components.edit.DocumentMenu` — app-supplied ⋯ menu on DocumentControls
+
+**Files:** `packages/payload/src/admin/views/document.ts` (`DocumentMenuClientProps` / `DocumentMenuServerProps` / `DocumentMenuServerPropsOnly`), `packages/payload/src/admin/types.ts` (`DocumentSlots.DocumentMenu` + type exports), `packages/payload/src/collections/config/types.ts` (`admin.components.edit.DocumentMenu`), `packages/payload/src/bin/generateImportMap/iterateCollections.ts`, `packages/next/src/views/Document/renderDocumentSlots.tsx`, `packages/ui/src/views/Edit/index.tsx`, `packages/ui/src/elements/DocumentControls/index.tsx`. SCSS untouched.
+
+**Why.** The per-entry slots (`DeleteButton`, `UnpublishButton`, `EditMenuItems`) let an app own the entries but not the menu: the trigger and the list stay Payload's `Popup`, so an app that renders every other menu with its own overlay primitive (varig: shadcn `DropdownMenu`, with the drawer focus bridge) gets one foreign-looking menu per document. The same shape as #80 (Title): a whole-block slot with a byte-identical fallback.
+
+**Config.** Collection-level `admin.components.edit.DocumentMenu?: PayloadComponent<DocumentMenuServerProps, DocumentMenuClientProps>`. Client props: `{ collectionSlug, id?, isEditing }`.
+
+**Render.** `renderDocumentSlots` renders it into `DocumentSlots.DocumentMenu`; `DefaultEditView` threads it through `customComponents`; `DocumentControls` renders it **in place of the whole `<Popup>` block** (dots trigger + `PopupList`) under the exact condition the stock menu renders (`showDotMenu && !readOnlyForIncomingUser` — so never in a create drawer, #45, and never for a read-only incoming user). The app owns every entry (duplicate / delete / unpublish / its own); the per-entry slots are not consulted when this slot is set. Absent → byte-identical to before.
+
+**Import map.** `iterateCollections` registers the component like the other `edit.*` slots.
+
+### 85. DocumentControls: the title truncates, the meta keeps its width
+
+**Files:** `packages/ui/src/elements/DocumentControls/index.scss`.
+
+**Why.** `.doc-controls__title` shipped `flex-shrink: 0` with no truncation, so a long document title claimed its full single-line width inside `.doc-controls__content` (`overflow: hidden`) and shoved the status meta past the clipped edge. varig carried this as an unlayered override in its admin `custom.css`; it belongs in the element.
+
+**Render.** `&__title` gains `flex-shrink: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap` (RenderTitle sets the `title` attribute, so hover still shows the full text); `&__meta` gains `flex-shrink: 0; width: auto` so the status badge always survives.
+
 ---
 
 ## Summary
@@ -1427,8 +1455,8 @@ Recounted 2026-06-22: 62 entry headers across the catalog. Note `#46` is used **
 
 | Category           | Count  |
 | ------------------ | ------ |
-| Bug Fixes          | 20     |
-| Features           | 53     |
+| Bug Fixes          | 21     |
+| Features           | 55     |
 | Documentation      | 1      |
 | Dropped (absorbed) | 1      |
-| **Total active**   | **74** |
+| **Total active**   | **77** |

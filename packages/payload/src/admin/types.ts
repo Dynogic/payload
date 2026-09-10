@@ -581,6 +581,8 @@ export type DocumentSlots = {
   BeforeDocumentControls?: React.ReactNode
   DeleteButton?: React.ReactNode
   Description?: React.ReactNode
+  /** Fork #84: replaces the whole ⋯ menu (`Popup` + list) on DocumentControls. */
+  DocumentMenu?: React.ReactNode
   EditMenuItems?: React.ReactNode
   LivePreview?: React.ReactNode
   PreviewButton?: React.ReactNode
@@ -621,6 +623,9 @@ export type {
   BeforeDocumentControlsClientProps,
   BeforeDocumentControlsServerProps,
   BeforeDocumentControlsServerPropsOnly,
+  DocumentMenuClientProps,
+  DocumentMenuServerProps,
+  DocumentMenuServerPropsOnly,
   DocumentSubViewTypes,
   DocumentTabClientProps,
   /**

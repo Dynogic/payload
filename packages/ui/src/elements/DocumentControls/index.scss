@@ -42,7 +42,14 @@
     }
 
     &__title {
-      flex-shrink: 0;
+      // Fork #85: a long title shrinks + ellipsizes instead of shoving the
+      // status meta past the clipped edge (RenderTitle sets `title`, so hover
+      // still shows the full text); the meta keeps its natural width.
+      flex-shrink: 1;
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
       margin: 0;
     }
 
@@ -55,6 +62,8 @@
 
     &__meta {
       flex-grow: 1;
+      flex-shrink: 0;
+      width: auto;
       display: flex;
       list-style: none;
       padding: 0;

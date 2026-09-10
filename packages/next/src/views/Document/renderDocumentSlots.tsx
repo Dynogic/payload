@@ -1,6 +1,8 @@
 import type {
   BeforeDocumentControlsServerPropsOnly,
   DeleteButtonServerPropsOnly,
+  DocumentMenuClientProps,
+  DocumentMenuServerPropsOnly,
   DocumentSlots,
   EditMenuItemsServerPropsOnly,
   Locale,
@@ -154,6 +156,23 @@ export const renderDocumentSlots: (args: {
       Component: CustomTitle,
       importMap: req.payload.importMap,
       serverProps: serverProps satisfies TitleServerPropsOnly,
+    })
+  }
+
+  // Fork #84: the ⋯ document menu slot (collections only). DocumentControls
+  // renders it in place of the stock Popup wherever that Popup would render.
+  const CustomDocumentMenu = collectionConfig?.admin?.components?.edit?.DocumentMenu
+
+  if (collectionConfig && CustomDocumentMenu) {
+    components.DocumentMenu = RenderServerComponent({
+      clientProps: {
+        id,
+        collectionSlug: collectionConfig.slug,
+        isEditing: Boolean(id),
+      } satisfies DocumentMenuClientProps,
+      Component: CustomDocumentMenu,
+      importMap: req.payload.importMap,
+      serverProps: serverProps satisfies DocumentMenuServerPropsOnly,
     })
   }
 
