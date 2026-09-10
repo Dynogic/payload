@@ -1445,7 +1445,7 @@ empty slug → null, the fallback chain, and the in-flight click preference.
 
 **Why.** `.doc-controls__title` shipped `flex-shrink: 0` with no truncation, so a long document title claimed its full single-line width inside `.doc-controls__content` (`overflow: hidden`) and shoved the status meta past the clipped edge. varig carried this as an unlayered override in its admin `custom.css`; it belongs in the element.
 
-**Render.** `&__title` gains `flex-shrink: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap` (RenderTitle sets the `title` attribute, so hover still shows the full text); `&__meta` gains `flex-shrink: 0; width: auto` so the status badge always survives.
+**Render.** `&__title` gains `flex-shrink: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap` (RenderTitle sets the `title` attribute, so hover still shows the full text); `&__meta` gains `flex-shrink: 0` and its `width: 100%` becomes `width: auto` — v3.85.0.37 shipped `flex-shrink: 0` beside the old `width: 100%`, which made the meta claim the whole row and collapsed the (now shrinkable) title to zero on every edit page; v3.85.0.38 corrects it. The status badge always survives; the title takes what the meta leaves.
 
 ---
 

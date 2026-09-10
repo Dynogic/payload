@@ -62,6 +62,9 @@
 
     &__meta {
       flex-grow: 1;
+      // Fork #85: never `width: 100%` here — with `flex-shrink: 0` a full-width
+      // basis claims the whole row and the (shrinkable) title collapses to 0.
+      // `auto` lets the meta grow into what the title leaves.
       flex-shrink: 0;
       width: auto;
       display: flex;
@@ -69,7 +72,6 @@
       padding: 0;
       gap: var(--base);
       margin: 0;
-      width: 100%;
 
       & button {
         margin: 0;
