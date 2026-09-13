@@ -143,10 +143,11 @@ const TabsFieldComponent: TabsFieldClientComponent = (props) => {
 
   const visibleTabCount = tabStates.filter(({ passesCondition }) => passesCondition).length
   const hasVisibleTabs = visibleTabCount > 0
-  // FORK (#81): an opted-in field with at most one visible tab renders that
-  // tab's content bare — no tab bar, no `__after-tabs` slot (consumers that
-  // portal into the slot must fall back when it is absent).
-  const hideTabBar = hideWhenSingle && visibleTabCount <= 1
+  // FORK (#81, revised by #86): an opted-in field with at most one visible
+  // tab hides the tab BUTTONS — a bar offering a single choice is a label
+  // pretending to be navigation — but KEEPS the row and its `__after-tabs`
+  // slot (#76), which is where the surface's own controls live.
+  const hideTabLabels = hideWhenSingle && visibleTabCount <= 1
 
   const handleTabChange = useCallback(
     (incomingTabIndex: number): void => {
@@ -231,28 +232,30 @@ const TabsFieldComponent: TabsFieldClientComponent = (props) => {
         baseClass,
         isWithinCollapsible && `${baseClass}--within-collapsible`,
         !hasVisibleTabs && `${baseClass}--hidden`,
-        hideTabBar && `${baseClass}--bar-hidden`,
+        hideTabLabels && `${baseClass}--labels-hidden`,
       ]
         .filter(Boolean)
         .join(' ')}
     >
       <TabsProvider>
-        {!hideTabBar && (
+        {hasVisibleTabs && (
           <div className={`${baseClass}__tabs-wrap`}>
-            <div className={`${baseClass}__tabs`}>
-              {tabStates.map(({ index, passesCondition, tab }) => (
-                <TabComponent
-                  hidden={!passesCondition}
-                  isActive={activeTabIndex === index}
-                  key={index}
-                  parentPath={path}
-                  setIsActive={() => {
-                    handleTabChange(index)
-                  }}
-                  tab={tab}
-                />
-              ))}
-            </div>
+            {!hideTabLabels && (
+              <div className={`${baseClass}__tabs`}>
+                {tabStates.map(({ index, passesCondition, tab }) => (
+                  <TabComponent
+                    hidden={!passesCondition}
+                    isActive={activeTabIndex === index}
+                    key={index}
+                    parentPath={path}
+                    setIsActive={() => {
+                      handleTabChange(index)
+                    }}
+                    tab={tab}
+                  />
+                ))}
+              </div>
+            )}
             {/* FORK (#76): zero-API right-side portal target on the tab row. The id is
               deterministic per tabs field — `after-tabs-<path>` with dots flattened to
               `__` (a top-level unnamed tabs field's path is its `_index-N` segment) —

@@ -78,6 +78,16 @@
       display: none;
     }
 
+    // FORK (#86): with the labels hidden the slot is the row's only child,
+    // so `space-between` would park it at the LEFT — it keeps its place at
+    // the trailing edge, and the row keeps the underline the labels carried.
+    &--labels-hidden {
+      .tabs-field__after-tabs {
+        flex: 1 0 auto;
+        justify-content: flex-end;
+      }
+    }
+
     &__description {
       margin-bottom: calc(var(--base) / 2);
     }
