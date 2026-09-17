@@ -222,6 +222,21 @@ export const DocumentControls: React.FC<{
   const hasCustomTitle = Boolean(CustomTitle) && !isInDrawer
   const titleShown = hasCustomTitle || Boolean(showTitle)
 
+  // Autosave runs full-page, in a 'default' drawer, and in a 'createEdit'
+  // EDIT drawer — all cases where the doc has (or the server minted) an id,
+  // so the autosave PATCH has a target. It stays OFF in a 'createEdit'
+  // CREATE drawer (no auto-draft to PATCH — #45 skips it via `!drawerSlug`),
+  // which would otherwise spin forever on "Saving…"; that drawer uses
+  // explicit Save Draft / Publish buttons.
+  const showAutosave = Boolean(
+    (collectionHasDraftsEnabled || globalHasDraftsEnabled) &&
+      hasSavePermission &&
+      autosaveEnabled &&
+      !unsavedDraftWithValidations &&
+      (!isInDrawer || drawerDefault || createEditEdit) &&
+      !isTrashed,
+  )
+
   return (
     <Gutter className={baseClass}>
       <div className={`${baseClass}__wrapper`}>
@@ -267,31 +282,26 @@ export const DocumentControls: React.FC<{
                     <RenderCustomComponent CustomComponent={CustomStatus} Fallback={<Status />} />
                   </li>
                 )}
-                {hasSavePermission &&
-                  autosaveEnabled &&
-                  !unsavedDraftWithValidations &&
-                  // Autosave runs full-page, in a 'default' drawer, and in a
-                  // 'createEdit' EDIT drawer — all cases where the doc has (or the
-                  // server minted) an id, so the autosave PATCH has a target. It stays
-                  // OFF in a 'createEdit' CREATE drawer (no auto-draft to PATCH — #45
-                  // skips it via `!drawerSlug`), which would otherwise spin forever on
-                  // "Saving…"; that drawer uses explicit Save Draft / Publish buttons.
-                  (!isInDrawer || drawerDefault || createEditEdit) &&
-                  !isTrashed && (
-                    <li className={`${baseClass}__list-item`}>
-                      <Autosave
-                        collection={collectionConfig}
-                        global={globalConfig}
-                        id={id}
-                        publishedDocUpdatedAt={data?.createdAt}
-                      />
-                    </li>
-                  )}
               </Fragment>
             )}
           </ul>
         </div>
         <div className={`${baseClass}__controls-wrapper`}>
+          {/* Fork #87: the save time is a fact about the PUBLISH cluster — how
+              fresh the draft the button would publish is — so it renders at
+              the cluster's left edge, muted, and not in the content list
+              beside the document's identity. ONE mount: `Autosave` performs
+              the autosave, so it is never rendered in two places. */}
+          {showAutosave && (
+            <div className={`${baseClass}__autosave`}>
+              <Autosave
+                collection={collectionConfig}
+                global={globalConfig}
+                id={id}
+                publishedDocUpdatedAt={data?.createdAt}
+              />
+            </div>
+          )}
           <div className={`${baseClass}__controls`}>
             {BeforeDocumentControls}
             {isLivePreviewEnabled && !isInDrawer && <LivePreviewToggler />}

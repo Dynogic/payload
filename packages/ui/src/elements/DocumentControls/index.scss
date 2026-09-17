@@ -36,7 +36,16 @@
       display: flex;
       align-items: center;
       flex-grow: 1;
-      overflow: hidden;
+      // Fork #87: `clip`, not `hidden`, with a margin — the box still cuts
+      // a runaway row horizontally, but a FieldError tooltip hung above the
+      // title (23px tall, rising 31px over its anchor: `--position-top`'s
+      // -25px plus the caret's -6px translate) paints instead of vanishing
+      // at the padding edge, and an app's framed title can keep a few px
+      // of inset in the gutter. `clip` makes no scroll container, so the
+      // flex item's automatic minimum has to be zeroed by hand.
+      overflow: clip;
+      overflow-clip-margin: base(1.6); // 32px
+      min-width: 0;
       padding: base(0.8) 0;
       gap: calc(var(--base) * 0.5);
     }
@@ -119,6 +128,19 @@
       margin: 0;
       gap: var(--controls-gap);
       position: relative;
+    }
+
+    // Fork #87: the autosave status ("Saving…" / "Last saved …") sits at the
+    // left edge of the publish cluster, muted and one step under the body
+    // size, 16px before the first control: the wrapper's own gap plus the
+    // remainder here, so the number is spelled once against the gap.
+    &__autosave {
+      flex-shrink: 0;
+      color: var(--theme-elevation-500);
+      font-size: base(0.65); // 13px
+      line-height: base(1); // 20px
+      white-space: nowrap;
+      margin-inline-end: calc(base(0.8) - var(--controls-gap));
     }
 
     &__controls {
@@ -235,6 +257,19 @@
         justify-content: space-between;
         height: var(--doc-controls-height);
         border-top: 1px solid var(--theme-elevation-100);
+      }
+
+      // Fork #87: on the mobile bar the status takes the slack at the left
+      // (ellipsized) so the controls and the ⋯ keep their edge.
+      &__autosave {
+        flex: 1 1 auto;
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        margin-inline-end: 0;
+        [dir='ltr'] & {
+          padding-left: var(--gutter-h);
+        }
       }
 
       &__controls {

@@ -1459,16 +1459,28 @@ empty slug → null, the fallback chain, and the in-flight click preference.
 
 **Render.** `&__title` gains `flex-shrink: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap` (RenderTitle sets the `title` attribute, so hover still shows the full text); `&__meta` gains `flex-shrink: 0` and its `width: 100%` becomes `width: auto` — v3.85.0.37 shipped `flex-shrink: 0` beside the old `width: 100%`, which made the meta claim the whole row and collapsed the (now shrinkable) title to zero on every edit page; v3.85.0.38 corrects it. The status badge always survives; the title takes what the meta leaves.
 
+### 87. DocumentControls: the autosave status joins the publish cluster; the content box stops clipping vertically
+
+**Files:** `packages/ui/src/elements/DocumentControls/index.tsx`, `packages/ui/src/elements/DocumentControls/index.scss`.
+
+**Why.** Two things the controls bar got wrong for an app that renders its own identity in the `Title` slot (#80). (1) The `Autosave` status ("Saving…" / "Last saved less than a minute ago") rendered as the last `<li>` of `.doc-controls__meta`, i.e. INSIDE the content box beside the document's identity and its status, a sentence parked among badges. It is a fact about the Publish cluster — how fresh the draft the button would publish is — and reads there, at the cluster's left edge. (2) `.doc-controls__content` was `overflow: hidden` on a wrapper whose height is a fixed `--doc-controls-height` (56px), so anything an app hung above its title inside the box was cut off: a `FieldError` tooltip (23px tall, hung 31px above its anchor — `--position-top`'s -25px plus the caret's -6px translate) vanished entirely, which forced the consuming app to invent a second error vocabulary for the title.
+
+**Render.** The `Autosave` element leaves `__meta` and mounts once (it PERFORMS the autosave, so it is never rendered twice) as `.doc-controls__autosave`, the first child of `.doc-controls__controls-wrapper`, before `__controls` (preview / publish) and the ⋯ menu. The visibility condition is unchanged (drafts enabled, save permission, autosave on, not a validated unsaved draft, not trashed, and never in a `createEdit` CREATE drawer). SCSS: `&__autosave` is `--theme-elevation-500`, `base(0.65)` (13px) on a `base(1)` line, `white-space: nowrap`, `flex-shrink: 0`, and ends `calc(base(0.8) - var(--controls-gap))` before the wrapper's own gap so the first control sits exactly 16px after it. At `mid-break` it takes the mobile bar's slack (`flex: 1 1 auto`, ellipsized, `--gutter-h` at its start) so the controls and the ⋯ keep their edge.
+
+`&__content`: `overflow: hidden` → `overflow: clip` with `overflow-clip-margin: base(1.6)` (32px — the tooltip's 31px rise from an anchor at the box's top, rounded up) and an explicit `min-width: 0` (`clip` makes no scroll container, so the flex item's automatic minimum is no longer zeroed for free). A runaway row is still cut horizontally; a tooltip hung above the title, or a framed title's few px of inset in the gutter, now paints. The mobile `overflow: auto` on the content box is untouched (that band scrolls).
+
+**Consumers.** varig's `document-identity.client.tsx` (its header row: name, then facts; the save time at the right) and its `PublishFieldError` on the title. Copy is untouched — `general:saving` / `version:lastSavedAgo` — shortening it is a separate copy decision.
+
 ---
 
 ## Summary
 
-Recounted 2026-06-22: 62 entry headers across the catalog. Note `#46` is used **twice** (two unrelated changes — "List Status Cell Shows Changed" and "`payload.validate()` Dry-Run"), and `#2` is **DROPPED** (absorbed upstream in v3.85.0). That leaves **62 active changes**. Category counts below are a best-effort classification — several entries straddle fix/feature (a behavior correction that also adds a prop), so treat the split as indicative, not exact. _(Updated 2026-06-29: +#69 → 63 active. Updated 2026-07-02: +#70 → 64 active. Updated 2026-07-23: +#71 → 65 active. Updated 2026-07-24: +#72 → 66 active. Updated 2026-08-01: +#73 → 67 active. Updated 2026-08-24: +#74 and +#75 → 69 active. Updated 2026-08-31: +#76 → 70 active. Updated 2026-08-31: +#77 → 71 active. Updated 2026-09-01: +#78 → 72 active. Updated 2026-09-05: +#80 → 72 active per the table recount; #79 cut and reverted the same day, number retired. Updated 2026-09-06: +#81 → 73 active. Updated 2026-09-07: +#82 → 74 active. Updated 2026-09-13: +#86 → 78 active, revising #81.)_
+Recounted 2026-06-22: 62 entry headers across the catalog. Note `#46` is used **twice** (two unrelated changes — "List Status Cell Shows Changed" and "`payload.validate()` Dry-Run"), and `#2` is **DROPPED** (absorbed upstream in v3.85.0). That leaves **62 active changes**. Category counts below are a best-effort classification — several entries straddle fix/feature (a behavior correction that also adds a prop), so treat the split as indicative, not exact. _(Updated 2026-06-29: +#69 → 63 active. Updated 2026-07-02: +#70 → 64 active. Updated 2026-07-23: +#71 → 65 active. Updated 2026-07-24: +#72 → 66 active. Updated 2026-08-01: +#73 → 67 active. Updated 2026-08-24: +#74 and +#75 → 69 active. Updated 2026-08-31: +#76 → 70 active. Updated 2026-08-31: +#77 → 71 active. Updated 2026-09-01: +#78 → 72 active. Updated 2026-09-05: +#80 → 72 active per the table recount; #79 cut and reverted the same day, number retired. Updated 2026-09-06: +#81 → 73 active. Updated 2026-09-07: +#82 → 74 active. Updated 2026-09-13: +#86 → 78 active, revising #81. Updated 2026-09-16: +#87 → 79 active.)_
 
 | Category           | Count  |
 | ------------------ | ------ |
 | Bug Fixes          | 21     |
-| Features           | 55     |
+| Features           | 56     |
 | Documentation      | 1      |
 | Dropped (absorbed) | 1      |
-| **Total active**   | **77** |
+| **Total active**   | **78** |
