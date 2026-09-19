@@ -1524,13 +1524,15 @@ Placed BEFORE the `{...(htmlAttributes ?? {})}` spread on the text input, so an 
 
 ### 90. Tab error counter: one fault, counted once
 
-**File:** `packages/ui/src/forms/WatchChildErrors/index.tsx`
+**Files:** `packages/ui/src/forms/WatchChildErrors/index.tsx`, `packages/ui/src/forms/WatchChildErrors/countChildErrors.ts` (new), `packages/ui/src/forms/WatchChildErrors/countChildErrors.spec.ts` (new)
 
 The badge on a tab (and on a collapsible, and the bulk-upload error count) counted every invalid key in form state whose path matched the subtree. Server-built form state marks a CONTAINER invalid beside the leaf that is actually at fault — one subtitle track with no name flags both `subtitles.0.name` and `subtitles` — so a single missing value read as **2**. The merchant opens the tab, finds one framed field, and is told there is another one somewhere.
 
 The count now takes only the DEEPEST invalid key of each chain: an invalid key that has an invalid descendant (`<key>.` prefix, checked against every invalid key in form state, not only the matching ones) is the same fault said twice and is skipped. Everything else about the matching is unchanged.
 
 A genuinely container-level error is NOT hidden: `minRows` on an array whose rows are all valid, or a group whose own `validate` failed, has no invalid descendant and still counts 1. The one lossy case is a container error AND a leaf error at the same time, which reads 1 instead of 2 — the badge still says the tab is in error, which is what it is for, and the alternative (counting the parent) mis-states every single-leaf fault, which is the common one.
+
+The counting itself moved out of the effect into a pure `countChildErrors({ formState, parentPath, segmentsToMatch })`, so it has a spec (9 cases: one fault once, two leaves in one row, one leaf per faulty row, `minRows` alone still 1, a plain sibling beside an array fault, all-valid, out-of-subtree, a tab inside an array row, and a name-prefix sibling that must not be read as a descendant). Four of the nine are red against the old body. `WatchChildErrors` is otherwise unchanged — same props, same throttle, same `hasSubmitted` gate.
 
 **Consumer.** varig's Files document, whose Playback tab read 2 for one nameless subtitle track.
 
