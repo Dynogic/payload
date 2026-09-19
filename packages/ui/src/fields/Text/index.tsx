@@ -130,6 +130,7 @@ const TextFieldComponent: TextFieldClientComponent = (props) => {
       Label={Label}
       label={label}
       localized={localized}
+      maxLength={maxLength}
       maxRows={maxRows}
       minRows={minRows}
       onChange={

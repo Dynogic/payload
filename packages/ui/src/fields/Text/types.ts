@@ -28,6 +28,12 @@ export type TextInputProps = {
   readonly Label?: React.ReactNode
   readonly label?: StaticLabel
   readonly localized?: boolean
+  /**
+   * Forwarded to the native input's `maxLength` attribute so the browser
+   * stops accepting characters at the cap, rather than the value being typed,
+   * submitted and refused afterwards. Ignored for `hasMany` (react-select).
+   */
+  readonly maxLength?: number
   readonly maxRows?: number
   readonly minRows?: number
   readonly onKeyDown?: React.KeyboardEventHandler<HTMLInputElement>

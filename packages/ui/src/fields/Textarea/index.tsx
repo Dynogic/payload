@@ -83,6 +83,7 @@ const TextareaFieldComponent: TextareaFieldClientComponent = (props) => {
       Label={Label}
       label={label}
       localized={localized}
+      maxLength={maxLength}
       onChange={(e) => {
         setValue(e.target.value)
       }}

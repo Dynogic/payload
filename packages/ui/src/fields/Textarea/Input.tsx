@@ -25,6 +25,7 @@ export const TextareaInput: React.FC<TextAreaInputProps> = (props) => {
     Label,
     label,
     localized,
+    maxLength,
     onChange,
     path,
     placeholder,
@@ -75,6 +76,7 @@ export const TextareaInput: React.FC<TextAreaInputProps> = (props) => {
             data-rtl={rtl}
             disabled={readOnly}
             id={`field-${path.replace(/\./g, '__')}`}
+            maxLength={maxLength}
             name={path}
             onChange={onChange}
             placeholder={getTranslation(placeholder, i18n)}

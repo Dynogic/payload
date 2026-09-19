@@ -14,6 +14,12 @@ export type TextAreaInputProps = {
   readonly Label?: React.ReactNode
   readonly label?: StaticLabel
   readonly localized?: boolean
+  /**
+   * Forwarded to the native textarea's `maxLength` attribute so the browser
+   * stops accepting characters at the cap, rather than the value being typed,
+   * submitted and refused afterwards.
+   */
+  readonly maxLength?: number
   readonly onChange?: (e: ChangeEvent<HTMLTextAreaElement>) => void
   readonly onKeyDown?: React.KeyboardEventHandler<HTMLInputElement>
   readonly path: string

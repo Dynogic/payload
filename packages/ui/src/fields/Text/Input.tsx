@@ -30,6 +30,7 @@ export const TextInput: React.FC<TextInputProps> = (props) => {
     Label,
     label,
     localized,
+    maxLength,
     maxRows,
     onChange,
     onKeyDown,
@@ -157,6 +158,7 @@ export const TextInput: React.FC<TextInputProps> = (props) => {
             data-rtl={rtl}
             disabled={readOnly}
             id={`field-${path?.replace(/\./g, '__')}`}
+            maxLength={maxLength}
             name={path}
             onChange={onChange as (e: ChangeEvent<HTMLInputElement>) => void}
             onKeyDown={onKeyDown}

@@ -1473,9 +1473,72 @@ empty slug → null, the fallback chain, and the in-flight click preference.
 
 ---
 
+### 88. `payload.validate()` — `operation: 'create'` with no id
+
+**Files:** `packages/payload/src/collections/operations/validate.ts`, `packages/payload/src/collections/operations/local/validate.ts`, `packages/payload/src/index.ts`
+
+The dry-run validator from the second `#46` loaded the original document by id before it validated anything, whatever `operation` said. So it could only ever answer questions about a document that already exists: a CREATE form had nothing to be pre-flighted against, and its Save fell through to Payload's native submit — a 400 whose `ValidationError` carries BOTH the field list (which Payload puts into form state, the pill and the frame on the field) and its own summary sentence (which Payload raises as a toast through `FieldErrorsToast`). One refusal, said twice, once in a corner beside the field it has just framed.
+
+Fix, in three parts:
+
+1. **`id` is optional**, and the read is keyed on the OPERATION, not on the id: `operation: 'create'` reads nothing (`originalDoc = {}`, exactly what the real `create` operation hands `beforeChange` when nothing is duplicated-from), `operation: 'update'` reads as before. An update with no id is now an explicit `APIError` rather than a crash inside `findByID`.
+2. **A create runs the FIELD-level `beforeValidate` step first** — the step the real create operation runs immediately before `beforeChange`, whose documented job includes "compute default values for undefined fields". Without it every required field with a `defaultValue` that the caller did not spell out reads as missing, so a create pre-flight would refuse forms the real create accepts. The UPDATE path is deliberately left byte-identical to `#46`: there the original document already carries every stored value, so defaults are moot, and a shipped pre-flight (the publish cascade) keeps its exact behavior.
+3. `data` is no longer merged onto an original doc on the create path — the submitted data IS the document.
+
+**Still out of scope, by design, and it matters more on a create.** `validate()` runs field-level validation only; COLLECTION-level `beforeValidate` / `beforeChange` hooks are skipped because they may have side effects unsafe in a dry run. On an update that is invisible (the stored doc already holds whatever those hooks wrote). On a create, any required field that a collection hook fills — rather than the form — will read as missing. Callers supply those themselves; the varig consumer supplies `store`, the one required field its permission hook writes.
+
+```ts
+await payload.validate({
+  collection: 'curations',
+  data: formData, // no id
+  operation: 'create',
+  overrideAccess: false,
+  user,
+})
+```
+
+**Consumer.** varig's `preflightSave` (`src/lib/admin/save-preflight.actions.js`) and the Save button in front of it (`src/components/admin/save-with-preflight.client.jsx`), on the document views with no drafts (Media, Collections). Its create form now asks the same authority a stored document asks, for every rule. It deletes a second spelling: until this change the button read "the name is empty" out of form state in the browser and refused there, so "a collection's name is required" was written in two places, one of which could never learn a rule the schema added later.
+
+---
+
+### 89. Text and Textarea forward `maxLength` to the native input
+
+**Files:** `packages/ui/src/fields/Text/index.tsx`, `packages/ui/src/fields/Text/Input.tsx`, `packages/ui/src/fields/Text/types.ts`, `packages/ui/src/fields/Textarea/index.tsx`, `packages/ui/src/fields/Textarea/Input.tsx`, `packages/ui/src/fields/Textarea/types.ts`
+
+A field config's `maxLength` reached exactly one place: the `memoizedValidate` closure, which hands it to the validator that REFUSES an over-long value after the merchant has typed it, tabbed away and submitted. The `<input>` and `<textarea>` themselves were rendered without the attribute, so the box happily accepted the 201st character of a 200-character field and the merchant learned the cap from an error.
+
+`maxLength` now rides from the field component into `TextInput` / `TextareaInput` as a prop and onto the native element, so the browser stops accepting characters at the cap: an impossible state is made impossible rather than refused. Paste is truncated at the cap by the same attribute. The validator is untouched — it remains the authority for an API write, a hostile client, or a value that was already over the cap when the document was stored.
+
+Placed BEFORE the `{...(htmlAttributes ?? {})}` spread on the text input, so an app that passes its own `maxLength` through `htmlAttributes` still wins.
+
+**Not covered, and why.**
+
+- **`hasMany` text** renders react-select, not an input; a cap on each created option is a different feature.
+- **Email** has no `maxLength` in its field config at all (`EmailField` omits it, unlike `TextField` / `TextareaField` / `CodeField`), so there is nothing to forward.
+- **Code** carries `maxLength` in its config but renders a Monaco editor, which has no such attribute; capping it means a change listener, which is a behavior change rather than a forwarding.
+- **A field with a custom `validate` and no declared `maxLength` key** is out of reach: the cap lives inside the validator, and nothing in the config says what it is. Consuming apps that put their length wall in a custom `validate` (to control the sentence) should ALSO declare `maxLength` — the custom validate still suppresses Payload's own length validator, so the sentence does not change, but the input gets its cap.
+
+**Consumer.** varig, whose schema comment at `src/lib/admin/collections.ts` → _THE LENGTH WALL, IN THE HOUSE SENTENCE_ named this fork change as the open half of its own rule.
+
+---
+
+### 90. Tab error counter: one fault, counted once
+
+**File:** `packages/ui/src/forms/WatchChildErrors/index.tsx`
+
+The badge on a tab (and on a collapsible, and the bulk-upload error count) counted every invalid key in form state whose path matched the subtree. Server-built form state marks a CONTAINER invalid beside the leaf that is actually at fault — one subtitle track with no name flags both `subtitles.0.name` and `subtitles` — so a single missing value read as **2**. The merchant opens the tab, finds one framed field, and is told there is another one somewhere.
+
+The count now takes only the DEEPEST invalid key of each chain: an invalid key that has an invalid descendant (`<key>.` prefix, checked against every invalid key in form state, not only the matching ones) is the same fault said twice and is skipped. Everything else about the matching is unchanged.
+
+A genuinely container-level error is NOT hidden: `minRows` on an array whose rows are all valid, or a group whose own `validate` failed, has no invalid descendant and still counts 1. The one lossy case is a container error AND a leaf error at the same time, which reads 1 instead of 2 — the badge still says the tab is in error, which is what it is for, and the alternative (counting the parent) mis-states every single-leaf fault, which is the common one.
+
+**Consumer.** varig's Files document, whose Playback tab read 2 for one nameless subtitle track.
+
+---
+
 ## Summary
 
-Recounted 2026-06-22: 62 entry headers across the catalog. Note `#46` is used **twice** (two unrelated changes — "List Status Cell Shows Changed" and "`payload.validate()` Dry-Run"), and `#2` is **DROPPED** (absorbed upstream in v3.85.0). That leaves **62 active changes**. Category counts below are a best-effort classification — several entries straddle fix/feature (a behavior correction that also adds a prop), so treat the split as indicative, not exact. _(Updated 2026-06-29: +#69 → 63 active. Updated 2026-07-02: +#70 → 64 active. Updated 2026-07-23: +#71 → 65 active. Updated 2026-07-24: +#72 → 66 active. Updated 2026-08-01: +#73 → 67 active. Updated 2026-08-24: +#74 and +#75 → 69 active. Updated 2026-08-31: +#76 → 70 active. Updated 2026-08-31: +#77 → 71 active. Updated 2026-09-01: +#78 → 72 active. Updated 2026-09-05: +#80 → 72 active per the table recount; #79 cut and reverted the same day, number retired. Updated 2026-09-06: +#81 → 73 active. Updated 2026-09-07: +#82 → 74 active. Updated 2026-09-13: +#86 → 78 active, revising #81. Updated 2026-09-16: +#87 → 79 active.)_
+Recounted 2026-06-22: 62 entry headers across the catalog. Note `#46` is used **twice** (two unrelated changes — "List Status Cell Shows Changed" and "`payload.validate()` Dry-Run"), and `#2` is **DROPPED** (absorbed upstream in v3.85.0). That leaves **62 active changes**. Category counts below are a best-effort classification — several entries straddle fix/feature (a behavior correction that also adds a prop), so treat the split as indicative, not exact. _(Updated 2026-06-29: +#69 → 63 active. Updated 2026-07-02: +#70 → 64 active. Updated 2026-07-23: +#71 → 65 active. Updated 2026-07-24: +#72 → 66 active. Updated 2026-08-01: +#73 → 67 active. Updated 2026-08-24: +#74 and +#75 → 69 active. Updated 2026-08-31: +#76 → 70 active. Updated 2026-08-31: +#77 → 71 active. Updated 2026-09-01: +#78 → 72 active. Updated 2026-09-05: +#80 → 72 active per the table recount; #79 cut and reverted the same day, number retired. Updated 2026-09-06: +#81 → 73 active. Updated 2026-09-07: +#82 → 74 active. Updated 2026-09-13: +#86 → 78 active, revising #81. Updated 2026-09-16: +#87 → 79 active. Updated 2026-09-19: +#88, +#89 and +#90 → 82 active.)_
 
 | Category           | Count  |
 | ------------------ | ------ |

@@ -14,11 +14,19 @@ export type Options<TSlug extends CollectionSlug> = {
   context?: RequestContext
   /** Proposed data — merged onto the existing doc before validation. */
   data: Partial<DataFromCollectionSlug<TSlug>>
-  /** ID of the document to validate against. */
-  id: number | string
+  /**
+   * ID of the document to validate against. Required for `operation: 'update'`.
+   * Omit it for `operation: 'create'` — a document that does not exist yet has
+   * nothing to be read.
+   */
+  id?: number | string
   /** Locale for any localized field validation. */
   locale?: 'all' | TypedLocale
-  /** Which operation's validation rules to apply. Defaults to 'update'. */
+  /**
+   * Which operation's validation rules to apply. Defaults to 'update'.
+   * 'create' skips the read of the original document entirely: the submitted
+   * data IS the document, exactly as the real create operation sees it.
+   */
   operation?: 'create' | 'update'
   /** Skip access control on the validation. Defaults to false. */
   overrideAccess?: boolean
@@ -32,8 +40,9 @@ export type Options<TSlug extends CollectionSlug> = {
 }
 
 /**
- * Dry-run validation for a hypothetical update on a document. Pure CPU — no
- * database mutation, no hooks with side effects, no transaction.
+ * Dry-run validation for a hypothetical create or update. Pure CPU — no
+ * database mutation, no hooks with side effects, no transaction. An update
+ * costs one read of the original document; a create reads nothing.
  *
  * Throws `ValidationError` on field validation failure; resolves to void on
  * success. Catch and inspect `err.data.errors` for field-level details
@@ -54,6 +63,15 @@ export type Options<TSlug extends CollectionSlug> = {
  *     // err.data.errors is [{ path, message, label? }, ...]
  *   }
  * }
+ *
+ * @example a create form's first save, with no id yet
+ * await payload.validate({
+ *   collection: 'curations',
+ *   data: formData,
+ *   operation: 'create',
+ *   overrideAccess: false,
+ *   user,
+ * })
  */
 export async function validateLocal<TSlug extends CollectionSlug>(
   payload: Payload,

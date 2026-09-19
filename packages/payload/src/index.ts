@@ -1047,6 +1047,9 @@ export class BasePayload {
    *
    * Useful for pre-flight checks — e.g., "would publishing this draft pass
    * required-field validation?" without actually attempting the write.
+   *
+   * `operation: 'create'` needs no `id`: it reads no original document, so a
+   * document that does not exist yet can be pre-flighted from its form data.
    */
   validate<TSlug extends CollectionSlug>(options: ValidateOptions<TSlug>): Promise<void> {
     return validateLocal<TSlug>(this, options)
