@@ -100,6 +100,8 @@ export const roTranslations: DefaultTranslationsObject = {
     accountAlreadyActivated: 'Acest cont a fost deja activat.',
     autosaving: 'A existat o problemă în timpul salvării automate a acestui document.',
     correctInvalidFields: 'Vă rugăm să corectați datele invalide.',
+    couldNotReachServer: "Couldn't reach the server. Check your connection and try again.",
+    couldNotSave: "Couldn't save. Please try again.",
     deletingFile: 'S-a produs o eroare la ștergerea fișierului.',
     deletingTitle:
       'S-a produs o eroare în timpul ștergerii {{title}}. Vă rugăm să verificați conexiunea și să încercați din nou.',

@@ -183,7 +183,6 @@ const NumberFieldComponent: NumberFieldClientComponent = (props) => {
         ) : (
           <div>
             <input
-              disabled={readOnly || disabled}
               id={`field-${path.replace(/\./g, '__')}`}
               max={max}
               min={min}
@@ -194,6 +193,7 @@ const NumberFieldComponent: NumberFieldClientComponent = (props) => {
                 e.target.blur()
               }}
               placeholder={placeholder}
+              readOnly={readOnly || disabled}
               step={step}
               type="number"
               value={typeof value === 'number' ? value : ''}

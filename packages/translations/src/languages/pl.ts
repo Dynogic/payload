@@ -98,6 +98,8 @@ export const plTranslations: DefaultTranslationsObject = {
     accountAlreadyActivated: 'To konto zostało już aktywowane.',
     autosaving: 'Wystąpił problem podczas automatycznego zapisywania tego dokumentu.',
     correctInvalidFields: 'Popraw nieprawidłowe pola.',
+    couldNotReachServer: "Couldn't reach the server. Check your connection and try again.",
+    couldNotSave: "Couldn't save. Please try again.",
     deletingFile: '',
     deletingTitle:
       'Wystąpił błąd podczas usuwania {{title}}. Proszę, sprawdź swoje połączenie i spróbuj ponownie.',

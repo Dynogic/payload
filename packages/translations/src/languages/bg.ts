@@ -98,6 +98,8 @@ export const bgTranslations: DefaultTranslationsObject = {
     accountAlreadyActivated: 'Този профил вече е активиран.',
     autosaving: 'Имаше проблем в автоматичното запазване на този документ.',
     correctInvalidFields: 'Моля, поправи некоректните полета.',
+    couldNotReachServer: "Couldn't reach the server. Check your connection and try again.",
+    couldNotSave: "Couldn't save. Please try again.",
     deletingFile: 'Имаше грешка при изтриването на файла.',
     deletingTitle:
       'Имаше проблем при изтриването на {{title}}. Моля провери връзката си и опитай отново.',

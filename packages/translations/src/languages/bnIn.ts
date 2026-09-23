@@ -98,6 +98,8 @@ export const bnInTranslations: DefaultTranslationsObject = {
     accountAlreadyActivated: 'এই অ্যাকাউন্ট ইতিমধ্যে সক্রিয় করা হয়েছে।',
     autosaving: 'এই ডকুমেন্টটি স্বয়ংক্রিয়ভাবে সংরক্ষণ করার সময় একটি সমস্যা হয়েছে।',
     correctInvalidFields: 'অবৈধ ক্ষেত্রগুলি সংশোধন করুন।',
+    couldNotReachServer: "Couldn't reach the server. Check your connection and try again.",
+    couldNotSave: "Couldn't save. Please try again.",
     deletingFile: 'ফাইল মুছতে একটি ত্রুটি হয়েছে।',
     deletingTitle:
       '{{title}} মুছতে একটি ত্রুটি হয়েছে। আপনার সংযোগ পরীক্ষা করুন এবং আবার চেষ্টা করুন।',

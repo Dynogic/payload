@@ -98,6 +98,8 @@ export const caTranslations: DefaultTranslationsObject = {
     accountAlreadyActivated: 'Aquest compte ja ha estat activat.',
     autosaving: "Hi ha hagut un problema mentre s'estava desant automàticament aquest document.",
     correctInvalidFields: 'Si us plau, corregeix els camps no vàlids.',
+    couldNotReachServer: "Couldn't reach the server. Check your connection and try again.",
+    couldNotSave: "Couldn't save. Please try again.",
     deletingFile: "Hi ha hagut un error en eliminar l'arxiu.",
     deletingTitle:
       "Hi ha hagut un error mentre s'eliminava {{title}}. Si us plau, comprova la teva connexió i torna-ho a intentar.",

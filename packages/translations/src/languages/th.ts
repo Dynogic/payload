@@ -96,6 +96,8 @@ export const thTranslations: DefaultTranslationsObject = {
     accountAlreadyActivated: 'บัญชีนี้ถูกเปิดใช้งานไปแล้ว',
     autosaving: 'เกิดปัญหาระหว่างการบันทึกเอกสารอัตโนมัติ',
     correctInvalidFields: 'โปรดแก้ไขช่องที่ไม่ถูกต้อง',
+    couldNotReachServer: "Couldn't reach the server. Check your connection and try again.",
+    couldNotSave: "Couldn't save. Please try again.",
     deletingFile: 'เกิดปัญหาระหว่างการลบไฟล์',
     deletingTitle: 'เกิดปัญหาระหว่างการลบ {{title}} โปรดตรวจสอบการเชื่อมต่อของคุณแล้วลองอีกครั้ง',
     documentNotFound:

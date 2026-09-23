@@ -99,6 +99,8 @@ export const ukTranslations: DefaultTranslationsObject = {
     accountAlreadyActivated: 'Цей обліковий запис вже активований',
     autosaving: 'Виникла проблема під час автозбереження цього документа.',
     correctInvalidFields: 'Будь ласка, виправте невірні поля.',
+    couldNotReachServer: "Couldn't reach the server. Check your connection and try again.",
+    couldNotSave: "Couldn't save. Please try again.",
     deletingFile: 'Виникла помилка під час видалення файлу',
     deletingTitle:
       "Виникла помилка під час видалення {{title}}. Будь ласка, перевірте ваше з'єднання та спробуйте ще раз.",

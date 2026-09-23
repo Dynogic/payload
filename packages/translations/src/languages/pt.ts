@@ -99,6 +99,9 @@ export const ptTranslations: DefaultTranslationsObject = {
     accountAlreadyActivated: 'Essa conta já foi ativada.',
     autosaving: 'Ocorreu um problema ao salvar automaticamente esse documento.',
     correctInvalidFields: 'Por favor, corrija os campos inválidos.',
+    couldNotReachServer:
+      'Não foi possível conectar ao servidor. Verifique sua conexão e tente novamente.',
+    couldNotSave: 'Não foi possível salvar. Tente novamente.',
     deletingFile: 'Ocorreu um erro ao excluir o arquivo.',
     deletingTitle:
       'Ocorreu um erro ao excluir {{title}}. Por favor, verifique sua conexão e tente novamente.',

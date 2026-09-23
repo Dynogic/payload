@@ -266,9 +266,10 @@ export function PublishButton({
 
   const activeLocaleLabel = activeLocale && getTranslation(activeLocale.label, i18n)
 
-  if (!hasPublishPermission) {
-    return null
-  }
+  // Fork #91: no early `return null` without publish permission — the button
+  // renders visible and inert (`canPublish` already requires the permission,
+  // and the schedule / per-locale submenu does too), so a read-only viewer
+  // sees the action exists rather than a header with nothing in it.
 
   return (
     <React.Fragment>

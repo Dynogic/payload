@@ -100,6 +100,8 @@ export const huTranslations: DefaultTranslationsObject = {
     accountAlreadyActivated: 'Ez a fiók már aktiválva van.',
     autosaving: 'Hiba történt a dokumentum automatikus mentése közben.',
     correctInvalidFields: 'Kérjük, javítsa ki az érvénytelen mezőket.',
+    couldNotReachServer: "Couldn't reach the server. Check your connection and try again.",
+    couldNotSave: "Couldn't save. Please try again.",
     deletingFile: 'Hiba történt a fájl törlésekor.',
     deletingTitle:
       'Hiba történt a {{title}} törlése közben. Kérjük, ellenőrizze a kapcsolatot, és próbálja meg újra.',

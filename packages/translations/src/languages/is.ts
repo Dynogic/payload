@@ -99,6 +99,8 @@ export const isTranslations: DefaultTranslationsObject = {
     accountAlreadyActivated: 'Þessi aðgangur hefur þegar verið virkjaður.',
     autosaving: 'Villa kom upp við sjálfvirka vistun á færslu.',
     correctInvalidFields: 'Vinsamlega leiðréttu rangt skráða reiti.',
+    couldNotReachServer: "Couldn't reach the server. Check your connection and try again.",
+    couldNotSave: "Couldn't save. Please try again.",
     deletingFile: 'Villa kom upp við að eyða skrá.',
     deletingTitle:
       'Villa kom upp við að eyða {{title}}. Vinsamlegast athugaðu tenginguna þína og reyndu aftur.',

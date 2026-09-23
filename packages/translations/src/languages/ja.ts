@@ -99,6 +99,8 @@ export const jaTranslations: DefaultTranslationsObject = {
     accountAlreadyActivated: 'このアカウントはすでに有効です。',
     autosaving: 'このデータを自動保存する際に問題が発生しました。',
     correctInvalidFields: '無効なフィールドを修正してください。',
+    couldNotReachServer: "Couldn't reach the server. Check your connection and try again.",
+    couldNotSave: "Couldn't save. Please try again.",
     deletingFile: 'ファイルの削除中にエラーが発生しました。',
     deletingTitle:
       '{{title}} を削除する際にエラーが発生しました。接続を確認してからもう一度お試しください。',

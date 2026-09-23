@@ -97,6 +97,8 @@ export const koTranslations: DefaultTranslationsObject = {
     accountAlreadyActivated: '이 계정은 이미 활성화되었습니다.',
     autosaving: '이 문서를 자동 저장하는 중에 문제가 발생했습니다.',
     correctInvalidFields: '입력하신 내용을 확인해주세요.',
+    couldNotReachServer: "Couldn't reach the server. Check your connection and try again.",
+    couldNotSave: "Couldn't save. Please try again.",
     deletingFile: '파일을 삭제하는 중에 오류가 발생했습니다.',
     deletingTitle:
       '{{title}} 삭제하는 중에 오류가 발생했습니다. 인터넷 연결을 확인하고 다시 시도하세요.',

@@ -39,7 +39,7 @@ export const renderDocumentSlots: (args: {
   permissions: SanitizedPermissions
   req: PayloadRequest
 }) => DocumentSlots = (args) => {
-  const { id, collectionConfig, globalConfig, hasSavePermission, locale, permissions, req } = args
+  const { id, collectionConfig, globalConfig, locale, permissions, req } = args
 
   const components: DocumentSlots = {} as DocumentSlots
 
@@ -190,57 +190,59 @@ export const renderDocumentSlots: (args: {
     }
   }
 
-  if (hasSavePermission) {
-    if (hasDraftsEnabled(collectionConfig || globalConfig)) {
-      const CustomPublishButton =
-        collectionConfig?.admin?.components?.edit?.PublishButton ||
-        globalConfig?.admin?.components?.elements?.PublishButton
+  // Fork #91: the save / publish slots render for a viewer WITHOUT save
+  // permission too. DocumentControls now shows those buttons visible and
+  // inert (the Form is disabled) instead of hiding them, so an app's custom
+  // button must be what a read-only viewer sees, not the stock fallback.
+  if (hasDraftsEnabled(collectionConfig || globalConfig)) {
+    const CustomPublishButton =
+      collectionConfig?.admin?.components?.edit?.PublishButton ||
+      globalConfig?.admin?.components?.elements?.PublishButton
 
-      if (CustomPublishButton) {
-        components.PublishButton = RenderServerComponent({
-          Component: CustomPublishButton,
-          importMap: req.payload.importMap,
-          serverProps: serverProps satisfies PublishButtonServerPropsOnly,
-        })
-      }
+    if (CustomPublishButton) {
+      components.PublishButton = RenderServerComponent({
+        Component: CustomPublishButton,
+        importMap: req.payload.importMap,
+        serverProps: serverProps satisfies PublishButtonServerPropsOnly,
+      })
+    }
 
-      const CustomUnpublishButton =
-        collectionConfig?.admin?.components?.edit?.UnpublishButton ||
-        globalConfig?.admin?.components?.elements?.UnpublishButton
+    const CustomUnpublishButton =
+      collectionConfig?.admin?.components?.edit?.UnpublishButton ||
+      globalConfig?.admin?.components?.elements?.UnpublishButton
 
-      if (CustomUnpublishButton) {
-        components.UnpublishButton = RenderServerComponent({
-          Component: CustomUnpublishButton,
-          importMap: req.payload.importMap,
-          serverProps: serverProps satisfies UnpublishButtonServerPropsOnly,
-        })
-      }
+    if (CustomUnpublishButton) {
+      components.UnpublishButton = RenderServerComponent({
+        Component: CustomUnpublishButton,
+        importMap: req.payload.importMap,
+        serverProps: serverProps satisfies UnpublishButtonServerPropsOnly,
+      })
+    }
 
-      const CustomSaveDraftButton =
-        collectionConfig?.admin?.components?.edit?.SaveDraftButton ||
-        globalConfig?.admin?.components?.elements?.SaveDraftButton
+    const CustomSaveDraftButton =
+      collectionConfig?.admin?.components?.edit?.SaveDraftButton ||
+      globalConfig?.admin?.components?.elements?.SaveDraftButton
 
-      const draftsEnabled = hasDraftsEnabled(collectionConfig || globalConfig)
+    const draftsEnabled = hasDraftsEnabled(collectionConfig || globalConfig)
 
-      if ((draftsEnabled || unsavedDraftWithValidations) && CustomSaveDraftButton) {
-        components.SaveDraftButton = RenderServerComponent({
-          Component: CustomSaveDraftButton,
-          importMap: req.payload.importMap,
-          serverProps: serverProps satisfies SaveDraftButtonServerPropsOnly,
-        })
-      }
-    } else {
-      const CustomSaveButton =
-        collectionConfig?.admin?.components?.edit?.SaveButton ||
-        globalConfig?.admin?.components?.elements?.SaveButton
+    if ((draftsEnabled || unsavedDraftWithValidations) && CustomSaveDraftButton) {
+      components.SaveDraftButton = RenderServerComponent({
+        Component: CustomSaveDraftButton,
+        importMap: req.payload.importMap,
+        serverProps: serverProps satisfies SaveDraftButtonServerPropsOnly,
+      })
+    }
+  } else {
+    const CustomSaveButton =
+      collectionConfig?.admin?.components?.edit?.SaveButton ||
+      globalConfig?.admin?.components?.elements?.SaveButton
 
-      if (CustomSaveButton) {
-        components.SaveButton = RenderServerComponent({
-          Component: CustomSaveButton,
-          importMap: req.payload.importMap,
-          serverProps: serverProps satisfies SaveButtonServerPropsOnly,
-        })
-      }
+    if (CustomSaveButton) {
+      components.SaveButton = RenderServerComponent({
+        Component: CustomSaveButton,
+        importMap: req.payload.importMap,
+        serverProps: serverProps satisfies SaveButtonServerPropsOnly,
+      })
     }
   }
 

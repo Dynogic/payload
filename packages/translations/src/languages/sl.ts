@@ -98,6 +98,8 @@ export const slTranslations: DefaultTranslationsObject = {
     accountAlreadyActivated: 'Ta račun je že aktiviran.',
     autosaving: 'Pri samodejnem shranjevanju tega dokumenta je prišlo do težave.',
     correctInvalidFields: 'Prosimo, popravite neveljavna polja.',
+    couldNotReachServer: "Couldn't reach the server. Check your connection and try again.",
+    couldNotSave: "Couldn't save. Please try again.",
     deletingFile: 'Pri brisanju datoteke je prišlo do napake.',
     deletingTitle:
       'Pri brisanju {{title}} je prišlo do napake. Prosimo, preverite povezavo in poskusite znova.',

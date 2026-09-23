@@ -99,6 +99,8 @@ export const itTranslations: DefaultTranslationsObject = {
     autosaving:
       'Si è verificato un problema durante il salvataggio automatico di questo documento.',
     correctInvalidFields: 'Per favore correggi i campi non validi.',
+    couldNotReachServer: "Couldn't reach the server. Check your connection and try again.",
+    couldNotSave: "Couldn't save. Please try again.",
     deletingFile: "Si è verificato un errore durante l'eleminazione del file.",
     deletingTitle:
       "Si è verificato un errore durante l'eliminazione di {{title}}. Per favore controlla la tua connessione e riprova.",

@@ -57,6 +57,12 @@ $cal-icon-width: 18px;
       padding: 0;
       display: flex;
       cursor: pointer;
+
+      // Fork #92: read-only — the ✕ stays visible, inert.
+      &:disabled {
+        cursor: default;
+        opacity: 0.4;
+      }
     }
 
     &__appearance--timeOnly {

@@ -99,6 +99,8 @@ export const skTranslations: DefaultTranslationsObject = {
     accountAlreadyActivated: 'Tento účet už bol aktivovaný.',
     autosaving: 'Pri automatickom ukladaní tohto dokumentu došlo k chybe.',
     correctInvalidFields: 'Opravte neplatné polia.',
+    couldNotReachServer: "Couldn't reach the server. Check your connection and try again.",
+    couldNotSave: "Couldn't save. Please try again.",
     deletingFile: 'Pri mazaní súboru došlo k chybe.',
     deletingTitle:
       'Pri mazaní {{title}} došlo k chybe. Skontrolujte svoje pripojenie a skúste to znova.',

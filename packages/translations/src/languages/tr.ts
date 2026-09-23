@@ -99,6 +99,8 @@ export const trTranslations: DefaultTranslationsObject = {
     accountAlreadyActivated: 'Hesap zaten etkinleştirildi.',
     autosaving: 'Otomatik kaydetme başarısız oldu',
     correctInvalidFields: 'Lütfen geçersiz alanları düzeltin.',
+    couldNotReachServer: "Couldn't reach the server. Check your connection and try again.",
+    couldNotSave: "Couldn't save. Please try again.",
     deletingFile: 'Dosya silinirken bir hatayla karşılaşıldı.',
     deletingTitle:
       '{{title}} silinirken bir sorun yaşandı. Lütfen internet bağlantınızı kontrol edip tekrar deneyin.',

@@ -96,6 +96,8 @@ export const hyTranslations: DefaultTranslationsObject = {
     accountAlreadyActivated: 'Այս հաշիվն արդեն ակտիվացված է։',
     autosaving: 'Այս փաստաթղթի ավտոմատ պահպանման ժամանակ խնդիր է առաջացել։',
     correctInvalidFields: 'Խնդրում ենք ուղղել անվավեր դաշտերը։',
+    couldNotReachServer: "Couldn't reach the server. Check your connection and try again.",
+    couldNotSave: "Couldn't save. Please try again.",
     deletingFile: 'Ֆայլը ջնջելու ժամանակ սխալ է տեղի ունեցել։',
     deletingTitle:
       '{{title}}-ը ջնջելու ժամանակ սխալ է տեղի ունեցել։ Խնդրում ենք ստուգել Ձեր կապը և կրկին փորձել։',

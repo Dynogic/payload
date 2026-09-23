@@ -99,6 +99,8 @@ export const enTranslations = {
     accountAlreadyActivated: 'This account has already been activated.',
     autosaving: 'There was a problem while autosaving this document.',
     correctInvalidFields: 'Please correct invalid fields.',
+    couldNotReachServer: "Couldn't reach the server. Check your connection and try again.",
+    couldNotSave: "Couldn't save. Please try again.",
     deletingFile: 'There was an error deleting file.',
     deletingTitle:
       'There was an error while deleting {{title}}. Please check your connection and try again.',

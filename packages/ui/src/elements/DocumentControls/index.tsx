@@ -41,6 +41,7 @@ import './index.scss'
 import { SaveDraftButton } from '../SaveDraftButton/index.js'
 import { Status } from '../Status/index.js'
 import { UnpublishButton } from '../UnpublishButton/index.js'
+import { getDotMenuState } from './getDotMenuState.js'
 
 const baseClass = 'doc-controls'
 
@@ -189,14 +190,20 @@ export const DocumentControls: React.FC<{
   const globalHasDraftsEnabled = hasDraftsEnabled(globalConfig)
   const collectionHasDraftsEnabled = hasDraftsEnabled(collectionConfig)
 
-  const showDotMenu = Boolean(
-    !disableActions &&
-      // Fork change #45: hide the dot menu in create drawers (no Create New / Duplicate / Delete
-      // for a document being created inline).
-      !isCreateDrawer &&
-      ((collectionConfig && id && (hasCreatePermission || hasDeletePermission)) ||
-        (globalConfig && (globalHasDraftsEnabled || localization))),
-  )
+  // Fork #91: a read-only viewer sees the ⋯ menu INERT (disabled trigger),
+  // not hidden. The #45 create-drawer rule and the stock placement rules live
+  // in getDotMenuState.
+  const { inert: dotMenuInert, show: showDotMenu } = getDotMenuState({
+    id,
+    disableActions,
+    hasCreatePermission: Boolean(hasCreatePermission),
+    hasDeletePermission: Boolean(hasDeletePermission),
+    hasSavePermission: Boolean(hasSavePermission),
+    hasVersionsOrLocalization: Boolean(globalHasDraftsEnabled || localization),
+    isCollection: Boolean(collectionConfig),
+    isCreateDrawer,
+    isGlobal: Boolean(globalConfig),
+  })
   const collectionAutosaveEnabled = hasAutosaveEnabled(collectionConfig)
   const globalAutosaveEnabled = hasAutosaveEnabled(globalConfig)
   const autosaveEnabled = collectionAutosaveEnabled || globalAutosaveEnabled
@@ -311,7 +318,11 @@ export const DocumentControls: React.FC<{
                 Fallback={<PreviewButton />}
               />
             )}
-            {hasSavePermission && !isTrashed && (
+            {/* Fork #91: rendered for a viewer WITHOUT save permission too —
+                the Form is disabled for them (views/Edit), so every
+                FormSubmit-based button here renders visible and inert
+                instead of vanishing. */}
+            {!isTrashed && (
               <Fragment>
                 {drawerSaveAndAdd ? (
                   // 'saveAndAdd' (#45): lone Save & Add (create) / Save (edit).
@@ -391,7 +402,9 @@ export const DocumentControls: React.FC<{
               </Button>
             )}
           </div>
-          {/* Fork #84: an app-supplied menu replaces the whole Popup. */}
+          {/* Fork #84: an app-supplied menu replaces the whole Popup. Since
+              #91 it also mounts for a read-only viewer (showDotMenu); the app
+              owns rendering its own trigger inert in that case. */}
           {showDotMenu && !readOnlyForIncomingUser && CustomDocumentMenu}
           {showDotMenu && !readOnlyForIncomingUser && !CustomDocumentMenu && (
             <Popup
@@ -402,8 +415,10 @@ export const DocumentControls: React.FC<{
                   <div />
                 </div>
               }
-              className={`${baseClass}__popup`}
-              disabled={initializing || processing}
+              className={[`${baseClass}__popup`, dotMenuInert && `${baseClass}__popup--inert`]
+                .filter(Boolean)
+                .join(' ')}
+              disabled={dotMenuInert || initializing || processing}
               horizontalAlign="right"
               size="large"
               verticalAlign="bottom"

@@ -85,7 +85,6 @@ const DatePicker: React.FC<Props> = (props) => {
   > = {
     customInputRef: 'ref',
     dateFormat,
-    disabled: readOnly,
     maxDate,
     maxTime,
     minDate,
@@ -94,6 +93,10 @@ const DatePicker: React.FC<Props> = (props) => {
     onChange,
     placeholderText,
     popperPlacement: 'bottom-start',
+    // Fork #92: read-only is the native `readonly` (selectable, copyable,
+    // never opens the calendar — react-datepicker gates open on it), not
+    // `disabled`.
+    readOnly,
     selected: value && new Date(value),
     showMonthYearPicker: pickerAppearance === 'monthOnly',
     showPopperArrow: false,
@@ -129,6 +132,7 @@ const DatePicker: React.FC<Props> = (props) => {
         {dateTimePickerProps.selected && (
           <button
             className={`${baseClass}__clear-button`}
+            disabled={readOnly}
             onClick={() => onChange(null)}
             type="button"
           >

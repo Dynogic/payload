@@ -99,6 +99,8 @@ export const rsLatinTranslations: DefaultTranslationsObject = {
     accountAlreadyActivated: 'Ovaj nalog je već aktiviran.',
     autosaving: 'Nastao je problem pri automatskom čuvanju ovog dokumenta.',
     correctInvalidFields: 'Molimo ispravite nevalidna polja.',
+    couldNotReachServer: "Couldn't reach the server. Check your connection and try again.",
+    couldNotSave: "Couldn't save. Please try again.",
     deletingFile: 'Dogodila se greška pri brisanju datoteke.',
     deletingTitle:
       'Dogodila se greška pri brisanju {{title}}. Proverite internet konekciju i pokušajte ponovo.',

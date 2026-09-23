@@ -100,6 +100,8 @@ export const frTranslations: DefaultTranslationsObject = {
     accountAlreadyActivated: 'Ce compte a déjà été activé.',
     autosaving: 'Un problème est survenu lors de l’enregistrement automatique de ce document.',
     correctInvalidFields: 'Veuillez corriger les champs invalides.',
+    couldNotReachServer: "Couldn't reach the server. Check your connection and try again.",
+    couldNotSave: "Couldn't save. Please try again.",
     deletingFile: 'Une erreur s’est produite lors de la suppression du fichier.',
     deletingTitle:
       'Une erreur s’est produite lors de la suppression de {{title}}. Veuillez vérifier votre connexion puis réessayer.',

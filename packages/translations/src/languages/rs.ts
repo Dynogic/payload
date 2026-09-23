@@ -99,6 +99,8 @@ export const rsTranslations: DefaultTranslationsObject = {
     accountAlreadyActivated: 'Овај налог је већ активиран.',
     autosaving: 'Настао је проблем при аутоматском чувању овог документа.',
     correctInvalidFields: 'Молимо исправите невалидна поља.',
+    couldNotReachServer: "Couldn't reach the server. Check your connection and try again.",
+    couldNotSave: "Couldn't save. Please try again.",
     deletingFile: 'Догодила се грешка при брисању датотеке.',
     deletingTitle:
       'Догодила се грешка при брисању {{title}}. Проверите интернет конекцију и покушајте поново.',

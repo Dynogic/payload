@@ -98,6 +98,8 @@ export const svTranslations: DefaultTranslationsObject = {
     accountAlreadyActivated: 'Detta konto har redan aktiverats',
     autosaving: 'Det uppstod ett problem när det här dokumentet skulle sparas automatiskt.',
     correctInvalidFields: 'Vänligen korrigera ogiltiga fält',
+    couldNotReachServer: "Couldn't reach the server. Check your connection and try again.",
+    couldNotSave: "Couldn't save. Please try again.",
     deletingFile: 'Det gick inte att ta bort filen',
     deletingTitle:
       'Det uppstod ett fel vid borttagningen av {{title}}. Vänligen kontrollera din anslutning och försök igen.',

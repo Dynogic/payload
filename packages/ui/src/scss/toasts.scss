@@ -105,6 +105,13 @@
         border-color: var(--theme-error-250);
         background-color: var(--theme-error-100);
 
+        // Fork #93: no icon on the error level (sonner would otherwise paint
+        // its own default glyph in place of the one the Toaster no longer
+        // passes).
+        .toast-icon {
+          display: none;
+        }
+
         .payload-toast-close-button {
           color: var(--theme-error-600);
 

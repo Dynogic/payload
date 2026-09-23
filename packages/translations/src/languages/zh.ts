@@ -94,6 +94,8 @@ export const zhTranslations: DefaultTranslationsObject = {
     accountAlreadyActivated: '该账号已被激活。',
     autosaving: '自动保存该文档时出现了问题。',
     correctInvalidFields: '请更正无效字段。',
+    couldNotReachServer: "Couldn't reach the server. Check your connection and try again.",
+    couldNotSave: "Couldn't save. Please try again.",
     deletingFile: '删除文件时出现了错误。',
     deletingTitle: '删除{{title}}时出现了错误。请检查您的连接并重试。',
     documentNotFound:

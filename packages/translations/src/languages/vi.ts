@@ -98,6 +98,8 @@ export const viTranslations: DefaultTranslationsObject = {
     accountAlreadyActivated: 'Lỗi - Tài khoản này đã được kích hoạt.',
     autosaving: 'Lỗi - Đã xảy ra vấn đề khi tự động sao lưu bản tài liệu này.',
     correctInvalidFields: 'Lỗi - Xin hãy sửa lại những fields không hợp lệ.',
+    couldNotReachServer: "Couldn't reach the server. Check your connection and try again.",
+    couldNotSave: "Couldn't save. Please try again.",
     deletingFile: 'Lỗi - Đã xảy ra vấn đề khi xóa tệp này.',
     deletingTitle:
       'Lỗi - Đã xảy ra vấn đề khi xóa {{title}}. Hãy kiểm tra kết nối mạng và thử lại.',

@@ -99,6 +99,8 @@ export const idTranslations: DefaultTranslationsObject = {
     accountAlreadyActivated: 'Akun ini sudah diaktifkan.',
     autosaving: 'Terjadi masalah saat menyimpan otomatis dokumen ini.',
     correctInvalidFields: 'Harap perbaiki isian yang tidak valid.',
+    couldNotReachServer: "Couldn't reach the server. Check your connection and try again.",
+    couldNotSave: "Couldn't save. Please try again.",
     deletingFile: 'Terjadi kesalahan saat menghapus file.',
     deletingTitle:
       'Terjadi kesalahan saat menghapus {{title}}. Harap periksa koneksi Anda dan coba lagi.',

@@ -96,6 +96,8 @@ export const heTranslations: DefaultTranslationsObject = {
     accountAlreadyActivated: 'חשבון זה כבר הופעל.',
     autosaving: 'אירעה בעיה בזמן שמירה אוטומטית של מסמך זה.',
     correctInvalidFields: 'נא לתקן שדות לא תקינים.',
+    couldNotReachServer: "Couldn't reach the server. Check your connection and try again.",
+    couldNotSave: "Couldn't save. Please try again.",
     deletingFile: 'אירעה שגיאה במחיקת הקובץ.',
     deletingTitle: 'אירעה שגיאה במחיקת {{title}}. נא בדוק את החיבור שלך ונסה שנית.',
     documentNotFound:

@@ -99,6 +99,8 @@ export const nlTranslations: DefaultTranslationsObject = {
     accountAlreadyActivated: 'Dit account is al geactiveerd.',
     autosaving: 'Er is een probleem opgetreden bij het automatisch bewaren van dit document.',
     correctInvalidFields: 'Gelieve de ongeldige velden te corrigeren.',
+    couldNotReachServer: "Couldn't reach the server. Check your connection and try again.",
+    couldNotSave: "Couldn't save. Please try again.",
     deletingFile: 'Er is een fout opgetreden bij het verwijderen van dit bestand.',
     deletingTitle:
       'Er is een fout opgetreden tijdens het verwijderen van {{title}}. Controleer uw verbinding en probeer het opnieuw.',

@@ -128,6 +128,24 @@ $focus-box-shadow: 0 0 0 $style-stroke-width-m var(--theme-success-500);
   }
 }
 
+// Fork #92: a read-only TEXT input — the native `readonly` attribute, not
+// `disabled`. The same fill as `readOnly` (so it reads as not-editable next to
+// its editable siblings), but the value keeps its full text colour: it is
+// content to read, select and copy, not a greyed-out control. No caret (it
+// cannot be typed into) and no hover answer; the keyboard focus ring stays,
+// since focusing it to select the value is a real use.
+@mixin readOnlyText {
+  background: var(--theme-elevation-100);
+  color: var(--theme-elevation-800);
+  box-shadow: none;
+  caret-color: transparent;
+
+  &:hover {
+    border-color: var(--theme-elevation-150);
+    box-shadow: none;
+  }
+}
+
 @mixin formInput() {
   @include inputShadow;
   font-family: var(--font-body);
@@ -174,6 +192,10 @@ $focus-box-shadow: 0 0 0 $style-stroke-width-m var(--theme-success-500);
 
   &:disabled {
     @include readOnly;
+  }
+
+  &[readonly] {
+    @include readOnlyText;
   }
 }
 

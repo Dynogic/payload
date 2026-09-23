@@ -98,6 +98,8 @@ export const arTranslations: DefaultTranslationsObject = {
     accountAlreadyActivated: 'تم تفعيل هذا الحساب بالفعل.',
     autosaving: 'حدثت مشكلة أثناء حفظ هذا المستند تلقائيًا.',
     correctInvalidFields: 'يرجى تصحيح الحقول غير الصالحة.',
+    couldNotReachServer: "Couldn't reach the server. Check your connection and try again.",
+    couldNotSave: "Couldn't save. Please try again.",
     deletingFile: 'حدث خطأ أثناء حذف الملف.',
     deletingTitle:
       'حدث خطأ أثناء حذف {{title}}. يرجى التحقق من الاتصال الخاص بك والمحاولة مرة أخرى.',

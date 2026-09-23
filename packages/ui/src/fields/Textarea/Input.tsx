@@ -74,12 +74,12 @@ export const TextareaInput: React.FC<TextAreaInputProps> = (props) => {
         <div className="textarea-outer">
           <textarea
             data-rtl={rtl}
-            disabled={readOnly}
             id={`field-${path.replace(/\./g, '__')}`}
             maxLength={maxLength}
             name={path}
             onChange={onChange}
             placeholder={getTranslation(placeholder, i18n)}
+            readOnly={readOnly}
             rows={rows}
             style={
               {

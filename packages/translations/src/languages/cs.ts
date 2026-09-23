@@ -98,6 +98,8 @@ export const csTranslations: DefaultTranslationsObject = {
     accountAlreadyActivated: 'Tento účet již byl aktivován.',
     autosaving: 'Při automatickém ukládání tohoto dokumentu došlo k chybě.',
     correctInvalidFields: 'Opravte neplatná pole.',
+    couldNotReachServer: "Couldn't reach the server. Check your connection and try again.",
+    couldNotSave: "Couldn't save. Please try again.",
     deletingFile: 'Při mazání souboru došlo k chybě.',
     deletingTitle:
       'Při mazání {{title}} došlo k chybě. Zkontrolujte své připojení a zkuste to znovu.',

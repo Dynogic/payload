@@ -97,6 +97,8 @@ export const taTranslations: DefaultTranslationsObject = {
     accountAlreadyActivated: 'இந்த கணக்கு ஏற்கனவே செயல்படுத்தப்பட்டுள்ளது.',
     autosaving: 'இந்த ஆவணத்தை தானாகச் சேமிக்கும் போது ஒரு பிரச்சனை ஏற்பட்டது.',
     correctInvalidFields: 'தயவுசெய்து தவறான புலங்களைச் சரிசெய்யவும்.',
+    couldNotReachServer: "Couldn't reach the server. Check your connection and try again.",
+    couldNotSave: "Couldn't save. Please try again.",
     deletingFile: 'கோப்பை நீக்கும் போது பிழை ஏற்பட்டது.',
     deletingTitle:
       '{{title}}-ஐ நீக்கும் போது பிழை ஏற்பட்டது. உங்கள் இணைப்பைச் சரிபார்த்து மீண்டும் முயற்சிக்கவும்.',

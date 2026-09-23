@@ -4,7 +4,6 @@ import type { ClientConfig } from 'payload'
 import React from 'react'
 import { Toaster } from 'sonner'
 
-import { Error } from './icons/Error.js'
 import { Info } from './icons/Info.js'
 import { Success } from './icons/Success.js'
 import { Warning } from './icons/Warning.js'
@@ -23,8 +22,13 @@ export const ToastContainer: React.FC<{
       duration={duration ?? 4000}
       expand={expand ?? false}
       gap={8}
+      // Fork #93: NO icon on an error toast — the error level is said by the
+      // toast's red surface and its sentence; the circle-✕ read as a second,
+      // louder "no". Sonner falls back to its own default glyph for any level
+      // missing from this map, so the error level is also hidden in CSS
+      // (scss/toasts.scss → `.toast-error .toast-icon`). Other levels keep
+      // theirs.
       icons={{
-        error: <Error />,
         info: <Info />,
         success: <Success />,
         warning: <Warning />,

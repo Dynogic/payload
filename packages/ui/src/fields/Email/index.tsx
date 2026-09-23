@@ -92,11 +92,11 @@ const EmailFieldComponent: EmailFieldClientComponent = (props) => {
         {/* eslint-disable-next-line jsx-a11y/control-has-associated-label */}
         <input
           autoComplete={autoComplete}
-          disabled={readOnly || disabled}
           id={`field-${path.replace(/\./g, '__')}`}
           name={path}
           onChange={setValue}
           placeholder={getTranslation(placeholder, i18n)}
+          readOnly={readOnly || disabled}
           required={required}
           type="email"
           value={(value as string) || ''}

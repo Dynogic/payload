@@ -98,6 +98,8 @@ export const azTranslations: DefaultTranslationsObject = {
     accountAlreadyActivated: 'Bu hesab artıq aktivləşdirilib.',
     autosaving: 'Bu sənədin avto yadda saxlanılması zamanı problem yarandı.',
     correctInvalidFields: 'Zəhmət olmasa, yanlış sahələri düzəlt.',
+    couldNotReachServer: "Couldn't reach the server. Check your connection and try again.",
+    couldNotSave: "Couldn't save. Please try again.",
     deletingFile: 'Faylın silinməsində xəta baş verdi.',
     deletingTitle:
       '{{title}} silinərkən xəta baş verdi. Zəhmət olmasa, bağlantınızı yoxlayın və yenidən cəhd edin.',

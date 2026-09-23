@@ -54,6 +54,7 @@ import {
 import { errorMessages } from './errorMessages.js'
 import { fieldReducer } from './fieldReducer.js'
 import { initContextState } from './initContextState.js'
+import { responseSubmitFailureMessage, thrownSubmitFailureMessage } from './submitFailureMessage.js'
 
 const baseClass = 'form'
 
@@ -413,6 +414,10 @@ export const Form: React.FC<FormProps> = (props) => {
         return
       }
 
+      // Fork #94: whether the server answered before a throw — a throw after
+      // a response is not the network's fault.
+      let responseReceived = false
+
       try {
         const formData = await contextRef.current.createFormData(overrides, {
           data,
@@ -431,6 +436,8 @@ export const Form: React.FC<FormProps> = (props) => {
         } else if (typeof action === 'function') {
           res = await action(formData)
         }
+
+        responseReceived = Boolean(res)
 
         if (!modifiedWhileProcessingRef.current) {
           setModified(false)
@@ -507,8 +514,11 @@ export const Form: React.FC<FormProps> = (props) => {
 
           contextRef.current = { ...contextRef.current } // triggers rerender of all components that subscribe to form
 
+          // Fork #94: a 5xx never paints its own (raw, English) sentence.
           if (json.message) {
-            errorToast(json.message)
+            errorToast(
+              responseSubmitFailureMessage({ message: json.message, status: res.status, t }),
+            )
             return
           }
 
@@ -547,14 +557,24 @@ export const Form: React.FC<FormProps> = (props) => {
               errors: fieldErrors,
             })
 
-            nonFieldErrors.forEach((err) => {
-              errorToast(<FieldErrorsToast errorMessage={err.message || t('error:unknown')} />)
-            })
+            // Fork #94: a 5xx says "Couldn't save" ONCE instead of each raw
+            // server sentence; a 4xx (validation included) is unchanged.
+            if (res.status >= 500) {
+              if (nonFieldErrors.length > 0) {
+                errorToast(responseSubmitFailureMessage({ status: res.status, t }))
+              }
+            } else {
+              nonFieldErrors.forEach((err) => {
+                errorToast(<FieldErrorsToast errorMessage={err.message || t('error:unknown')} />)
+              })
+            }
 
             return
           }
 
-          const message = errorMessages?.[res.status] || res?.statusText || t('error:unknown')
+          // Fork #94: no body sentence → "Couldn't save", never `statusText`.
+          const message =
+            errorMessages?.[res.status] || responseSubmitFailureMessage({ status: res.status, t })
 
           errorToast(message)
         }
@@ -570,7 +590,8 @@ export const Form: React.FC<FormProps> = (props) => {
           toast.dismiss(toastId)
           uploadToastIdRef.current = null
         }
-        errorToast(err.message)
+        // Fork #94: never the raw `err.message` ("Failed to fetch").
+        errorToast(thrownSubmitFailureMessage({ err, responseReceived, t }))
       }
     },
     [

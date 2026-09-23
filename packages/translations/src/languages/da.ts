@@ -97,6 +97,8 @@ export const daTranslations: DefaultTranslationsObject = {
     accountAlreadyActivated: 'Denne konto er allerede blevet aktiveret.',
     autosaving: 'Der opstod et problem under autosaving af dette dokument.',
     correctInvalidFields: 'Venligst korriger ugyldige felter.',
+    couldNotReachServer: "Couldn't reach the server. Check your connection and try again.",
+    couldNotSave: "Couldn't save. Please try again.",
     deletingFile: 'Der opstod en fejl under sletning af filen.',
     deletingTitle:
       'Der opstod en fejl under sletningen {{title}}. Tjek din forbindelse eller prøv igen.',

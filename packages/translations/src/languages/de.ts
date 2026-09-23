@@ -100,6 +100,8 @@ export const deTranslations: DefaultTranslationsObject = {
     accountAlreadyActivated: 'Dieses Benutzerkonto wurde bereits aktiviert',
     autosaving: 'Es gab ein Problem bei der automatischen Speicherung für dieses Dokument',
     correctInvalidFields: 'Bitte ungültige Felder korrigieren.',
+    couldNotReachServer: "Couldn't reach the server. Check your connection and try again.",
+    couldNotSave: "Couldn't save. Please try again.",
     deletingFile: 'Beim Löschen der Datei ist ein Fehler aufgetreten.',
     deletingTitle:
       'Es gab ein Problem während der Löschung von {{title}}. Bitte überprüfe deine Verbindung und versuche es erneut.',

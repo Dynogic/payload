@@ -98,6 +98,8 @@ export const nbTranslations: DefaultTranslationsObject = {
     accountAlreadyActivated: 'Denne kontoen er allerede aktivert.',
     autosaving: 'Det oppstod et problem under automatisk lagring av dokumentet.',
     correctInvalidFields: 'Korriger ugyldige felt.',
+    couldNotReachServer: "Couldn't reach the server. Check your connection and try again.",
+    couldNotSave: "Couldn't save. Please try again.",
     deletingFile: 'Det oppstod en feil under sletting av filen.',
     deletingTitle:
       'Det oppstod en feil under sletting av {{title}}. Sjekk tilkoblingen og prøv igjen.',

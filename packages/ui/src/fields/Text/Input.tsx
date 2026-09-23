@@ -156,13 +156,13 @@ export const TextInput: React.FC<TextInputProps> = (props) => {
         ) : (
           <input
             data-rtl={rtl}
-            disabled={readOnly}
             id={`field-${path?.replace(/\./g, '__')}`}
             maxLength={maxLength}
             name={path}
             onChange={onChange as (e: ChangeEvent<HTMLInputElement>) => void}
             onKeyDown={onKeyDown}
             placeholder={placeholder}
+            readOnly={readOnly}
             ref={inputRef}
             type="text"
             value={value || ''}

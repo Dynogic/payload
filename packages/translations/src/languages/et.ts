@@ -97,6 +97,8 @@ export const etTranslations: DefaultTranslationsObject = {
     accountAlreadyActivated: 'See konto on juba aktiveeritud.',
     autosaving: 'Dokumendi automaatsel salvestamisel tekkis probleem.',
     correctInvalidFields: 'Palun paranda vigased väljad.',
+    couldNotReachServer: "Couldn't reach the server. Check your connection and try again.",
+    couldNotSave: "Couldn't save. Please try again.",
     deletingFile: 'Faili kustutamisel tekkis viga.',
     deletingTitle:
       '{{title}} kustutamisel tekkis viga. Palun kontrollige ühendust ja proovige uuesti.',

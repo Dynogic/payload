@@ -99,6 +99,8 @@ export const ltTranslations: DefaultTranslationsObject = {
     accountAlreadyActivated: 'Ši paskyra jau aktyvuota.',
     autosaving: 'Šio dokumento automatinio išsaugojimo metu kilo problema.',
     correctInvalidFields: 'Prašome ištaisyti neteisingus laukus.',
+    couldNotReachServer: "Couldn't reach the server. Check your connection and try again.",
+    couldNotSave: "Couldn't save. Please try again.",
     deletingFile: 'Įvyko klaida trinant failą.',
     deletingTitle:
       'Įvyko klaida bandant ištrinti {{title}}. Patikrinkite savo ryšį ir bandykite dar kartą.',

@@ -97,6 +97,8 @@ export const faTranslations: DefaultTranslationsObject = {
     accountAlreadyActivated: 'این حساب کاربری قبلاً فعال شده است.',
     autosaving: 'هنگام ذخیره خودکار این صفحه، خطایی رخ داد.',
     correctInvalidFields: 'لطفاً فیلدهای نامعتبر را اصلاح کنید.',
+    couldNotReachServer: "Couldn't reach the server. Check your connection and try again.",
+    couldNotSave: "Couldn't save. Please try again.",
     deletingFile: 'هنگام حذف این فایل خطایی رخ داد.',
     deletingTitle: 'در حذف "{{title}}" خطایی رخ داد. لطفاً اتصال اینترنت خود را بررسی کنید.',
     documentNotFound:

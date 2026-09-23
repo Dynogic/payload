@@ -1538,9 +1538,73 @@ The counting itself moved out of the effect into a pure `countChildErrors({ form
 
 ---
 
+### 91. Read-only viewers see the document actions inert, not hidden
+
+**Files:** `packages/ui/src/elements/DocumentControls/index.tsx`, `packages/ui/src/elements/DocumentControls/index.scss`, `packages/ui/src/elements/DocumentControls/getDotMenuState.ts` (new), `packages/ui/src/elements/DocumentControls/getDotMenuState.spec.ts` (new), `packages/ui/src/elements/PublishButton/index.tsx`, `packages/next/src/views/Document/renderDocumentSlots.tsx`
+
+**Why.** For a viewer without update permission Payload removed the document header's actions outright: the Save / Save Draft / Publish cluster was wrapped in `hasSavePermission &&`, `PublishButton` returned `null` without publish permission, and the ⋯ menu rendered only when the viewer could create or delete. The header of a read-only document therefore read as a document with no actions at all. The consuming app's rule is "disable, don't hide" (varig Axiom 11): an affordance stays visible and becomes inert.
+
+**Render.** Four places, one rule:
+
+1. **DocumentControls save cluster** — the gate is `!isTrashed` alone. The Edit view already disables the `Form` for a viewer without save permission (`views/Edit` → `disabled={… || !hasSavePermission …}`), and every stock button (and any app button built on `FormSubmit`) is disabled while the form is, so the cluster renders visible and inert. The `Autosave` status stays gated on save permission (it performs the autosave).
+2. **`PublishButton`** — the early `return null` without publish permission is gone. `canPublish` already requires the permission, and so do the schedule / per-locale submenu, so the button renders disabled.
+3. **`renderDocumentSlots`** — the custom `PublishButton` / `UnpublishButton` / `SaveDraftButton` / `SaveButton` slots were only rendered when `hasSavePermission`. They now always render, so a read-only viewer sees the APP's button (inert), not the stock fallback that (1) would otherwise show in its place.
+4. **⋯ menu** — the visibility test moved into a pure `getDotMenuState(...) → { show, inert }`. `show` keeps every stock placement rule (not `disableActions`, never in a create drawer #45, a saved collection doc or a global with drafts/localization) and adds "…or the viewer has no update permission". `inert` = shown but nothing in it is actionable (collection: no create and no delete; global: no update). An inert menu renders the stock `Popup` with `disabled` (a disabled trigger button that cannot open) and the modifier `doc-controls__popup--inert` (dots dimmed to `--theme-elevation-400`, `cursor: not-allowed`, no hover answer). A viewer with no update permission but with create (Duplicate) or delete keeps a live menu. A viewer with update but neither create nor delete still gets no menu, as stock. Spec: 11 cases.
+
+**App-supplied menu (#84).** `admin.components.edit.DocumentMenu` renders under the same `show` condition, so it now MOUNTS for a read-only viewer too. It is a pre-rendered node and receives no `inert` signal: the app owns rendering its own trigger inert (it has `useDocumentInfo().hasSavePermission` / `docPermissions`).
+
+**App-supplied buttons.** An app's custom Publish/Save that itself returns `null` without permission (the pattern the stock button used) keeps hiding — the app has to drop that early return to follow suit.
+
+**Not changed.** A document locked by another user (`readOnlyForIncomingUser`) keeps the stock treatment (Take Over button, no ⋯ menu); the trashed view is untouched.
+
+---
+
+### 92. Read-only text inputs use `readonly`, not `disabled`
+
+**Files:** `packages/ui/src/fields/Text/Input.tsx`, `packages/ui/src/fields/Textarea/Input.tsx`, `packages/ui/src/fields/Email/index.tsx`, `packages/ui/src/fields/Number/index.tsx`, `packages/ui/src/fields/Point/index.tsx`, `packages/ui/src/elements/DatePicker/DatePicker.tsx`, `packages/ui/src/elements/DatePicker/index.scss`, `packages/ui/src/scss/vars.scss`
+
+**Why.** Payload rendered a read-only Text / Textarea / Email / Number / Point / Date value as a `disabled` control. A disabled control cannot be focused and its text cannot be selected, so a viewer without update permission could read an email address, an ID or a URL but not copy it, and the greyed text (`--theme-elevation-400`) read as "switched off" rather than "not yours to edit".
+
+**Render.** The native `<input>` / `<textarea>` now takes `readOnly={…}` where it took `disabled={…}` (the same expression — `readOnly`, or `readOnly || disabled` where the field already folded in the form's `disabled`). The date picker passes `readOnly` to react-datepicker instead of `disabled` (react-datepicker keeps the calendar closed for either) and its ✕ clear button is `disabled` when read-only (it used to stay clickable) and dimmed (`opacity: 0.4`, default cursor). The value is focusable, selectable and copyable; it cannot be typed into, and the Number field's arrows/wheel do nothing (`readonly` blocks them natively).
+
+**Style.** A new `readOnlyText` mixin, applied by `formInput` to `&[readonly]`: the same fill as the existing `readOnly` mixin (`--theme-elevation-100`, so it still reads as not-editable beside editable siblings) but the value keeps its full text colour (`--theme-elevation-800`), no caret (`caret-color: transparent`), no hover answer, and the stock keyboard-focus border stays (focusing to select is a real use). Every `formInput` consumer picks it up for `[readonly]` — including the Password field, which already rendered `readOnly` when the form is disabled.
+
+**Not changed.** `hasMany` Text/Number (react-select), Select, Checkbox, Radio, Relationship and Upload stay `disabled` (none of them holds selectable text); Password's own input stays `disabled` when read-only (a password is not meant to be copied); Code/JSON (Monaco) already used `readOnly`. No spec: the fork's unit project is node-only with no DOM renderer; the change is one attribute per input.
+
+---
+
+### 93. No icon on error toasts
+
+**Files:** `packages/ui/src/providers/ToastContainer/index.tsx`, `packages/ui/src/scss/toasts.scss`
+
+**Why.** The admin Toaster painted a red circle-✕ beside every error toast. The error level is already said by the toast's red surface and its sentence; the glyph read as a second, louder "no". The consuming app's toast rule (R2): no icon on errors.
+
+**Render.** The `error` entry is removed from the Toaster's `icons` map. Sonner falls back to its OWN default glyph for any level missing from the map (`icon || icons[type] || getAsset(type)`), so the icon slot is also hidden for the error level in CSS: `.payload-toast-item.toast-error .toast-icon { display: none }` (a `display: none` flex child adds no gap). Info, success and warning keep their icons. A promise toast that settles into an error loses its icon the same way. The `Error` icon component is still exported (`ErrorIcon`) for anything else that uses it.
+
+---
+
+### 94. Localized save-failure toasts
+
+**Files:** `packages/ui/src/forms/Form/index.tsx`, `packages/ui/src/forms/Form/submitFailureMessage.ts` (new), `packages/ui/src/forms/Form/submitFailureMessage.spec.ts` (new), `packages/translations/src/clientKeys.ts`, `packages/translations/src/languages/*.ts` (all 44)
+
+**Why.** A save that failed painted the transport's raw English: a dropped connection showed the browser's `TypeError` message ("Failed to fetch" / "NetworkError when attempting to fetch resource." / "Load failed"), and a server fault showed whatever the 500 carried — `statusText` ("Internal Server Error"), Payload's "Something went wrong.", or in debug a raw exception message.
+
+**Keys.** `error:couldNotReachServer` — en "Couldn't reach the server. Check your connection and try again." / pt "Não foi possível conectar ao servidor. Verifique sua conexão e tente novamente." — and `error:couldNotSave` — en "Couldn't save. Please try again." / pt "Não foi possível salvar. Tente novamente." Both are client keys. The other 42 languages carry the English sentence (the translation objects are typed complete; translate on demand).
+
+**Rule** (pure helpers, spec'd — 15 cases):
+
+- **The submit threw** (`thrownSubmitFailureMessage`): no response had come back AND the throw is the network's (`isNetworkError`: an `AbortError`, or a `TypeError` whose message is one of the browsers' fetch sentences — a `TypeError` from a bug is not) → `couldNotReachServer`; anything else → `couldNotSave`. Never `err.message`.
+- **A failure response** (`responseSubmitFailureMessage`): status ≥ 500 → `couldNotSave`, whatever the body said; a 4xx that carries its own sentence (`json.message`, or a non-field entry of `json.errors`) keeps it — an `APIError` an app threw on purpose, a 403's "not allowed"; a response with no sentence → `couldNotSave` instead of `statusText` (the hard-coded 413 message in `errorMessages.ts` still wins where it applied).
+- **A 5xx with a `json.errors` array**: field-path errors are still dispatched into form state; the non-field entries become ONE `couldNotSave` toast instead of one raw toast each.
+- **Validation errors** (4xx with `json.errors`) are untouched: `ADD_SERVER_ERRORS` for the fields, `FieldErrorsToast` for the summary.
+
+A `handleResponse` prop still owns its own toasts.
+
+---
+
 ## Summary
 
-Recounted 2026-06-22: 62 entry headers across the catalog. Note `#46` is used **twice** (two unrelated changes — "List Status Cell Shows Changed" and "`payload.validate()` Dry-Run"), and `#2` is **DROPPED** (absorbed upstream in v3.85.0). That leaves **62 active changes**. Category counts below are a best-effort classification — several entries straddle fix/feature (a behavior correction that also adds a prop), so treat the split as indicative, not exact. _(Updated 2026-06-29: +#69 → 63 active. Updated 2026-07-02: +#70 → 64 active. Updated 2026-07-23: +#71 → 65 active. Updated 2026-07-24: +#72 → 66 active. Updated 2026-08-01: +#73 → 67 active. Updated 2026-08-24: +#74 and +#75 → 69 active. Updated 2026-08-31: +#76 → 70 active. Updated 2026-08-31: +#77 → 71 active. Updated 2026-09-01: +#78 → 72 active. Updated 2026-09-05: +#80 → 72 active per the table recount; #79 cut and reverted the same day, number retired. Updated 2026-09-06: +#81 → 73 active. Updated 2026-09-07: +#82 → 74 active. Updated 2026-09-13: +#86 → 78 active, revising #81. Updated 2026-09-16: +#87 → 79 active. Updated 2026-09-19: +#88, +#89 and +#90 → 82 active.)_
+Recounted 2026-06-22: 62 entry headers across the catalog. Note `#46` is used **twice** (two unrelated changes — "List Status Cell Shows Changed" and "`payload.validate()` Dry-Run"), and `#2` is **DROPPED** (absorbed upstream in v3.85.0). That leaves **62 active changes**. Category counts below are a best-effort classification — several entries straddle fix/feature (a behavior correction that also adds a prop), so treat the split as indicative, not exact. _(Updated 2026-06-29: +#69 → 63 active. Updated 2026-07-02: +#70 → 64 active. Updated 2026-07-23: +#71 → 65 active. Updated 2026-07-24: +#72 → 66 active. Updated 2026-08-01: +#73 → 67 active. Updated 2026-08-24: +#74 and +#75 → 69 active. Updated 2026-08-31: +#76 → 70 active. Updated 2026-08-31: +#77 → 71 active. Updated 2026-09-01: +#78 → 72 active. Updated 2026-09-05: +#80 → 72 active per the table recount; #79 cut and reverted the same day, number retired. Updated 2026-09-06: +#81 → 73 active. Updated 2026-09-07: +#82 → 74 active. Updated 2026-09-13: +#86 → 78 active, revising #81. Updated 2026-09-16: +#87 → 79 active. Updated 2026-09-19: +#88, +#89 and +#90 → 82 active. Updated 2026-09-23: +#91, +#92, +#93 and +#94 → 86 active.)_
 
 | Category           | Count  |
 | ------------------ | ------ |

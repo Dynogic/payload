@@ -107,11 +107,11 @@ export const PointFieldComponent: PointFieldClientComponent = (props) => {
             {/* disable eslint rule because the label is dynamic */}
             {/* eslint-disable-next-line jsx-a11y/control-has-associated-label */}
             <input
-              disabled={readOnly || disabled}
               id={`field-longitude-${path?.replace(/\./g, '__')}`}
               name={`${path}.longitude`}
               onChange={(e) => handleChange(e, 0)}
               placeholder={getTranslation(placeholder, i18n)}
+              readOnly={readOnly || disabled}
               step={step}
               type="number"
               value={value && typeof value[0] === 'number' ? value[0] : ''}
@@ -140,11 +140,11 @@ export const PointFieldComponent: PointFieldClientComponent = (props) => {
             {/* disable eslint rule because the label is dynamic */}
             {/* eslint-disable-next-line jsx-a11y/control-has-associated-label */}
             <input
-              disabled={readOnly || disabled}
               id={`field-latitude-${path?.replace(/\./g, '__')}`}
               name={`${path}.latitude`}
               onChange={(e) => handleChange(e, 1)}
               placeholder={getTranslation(placeholder, i18n)}
+              readOnly={readOnly || disabled}
               step={step}
               type="number"
               value={value && typeof value[1] === 'number' ? value[1] : ''}

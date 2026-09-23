@@ -98,6 +98,8 @@ export const lvTranslations: DefaultTranslationsObject = {
     accountAlreadyActivated: 'Šis konts jau ir aktivizēts.',
     autosaving: 'Radās problēma, automātiski saglabājot šo dokumentu.',
     correctInvalidFields: 'Lūdzu, izlabojiet nederīgos laukus.',
+    couldNotReachServer: "Couldn't reach the server. Check your connection and try again.",
+    couldNotSave: "Couldn't save. Please try again.",
     deletingFile: 'Radās kļūda, dzēšot failu.',
     deletingTitle:
       'Radās kļūda, dzēšot {{title}}. Lūdzu, pārbaudiet savienojumu un mēģiniet vēlreiz.',

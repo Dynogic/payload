@@ -184,6 +184,21 @@
       position: relative;
     }
 
+    // Fork #91: a read-only viewer's ⋯ menu — visible, inert. The trigger is
+    // a disabled button (Popup `disabled`); the dots dim and stop answering
+    // hover, so nothing invites a click that cannot open anything.
+    &__popup--inert {
+      .doc-controls__dots {
+        color: var(--theme-elevation-400);
+        cursor: not-allowed;
+
+        &:hover {
+          border: 1px solid var(--theme-elevation-100);
+          background-color: transparent;
+        }
+      }
+    }
+
     .popup--active {
       .doc-controls {
         &__dots {

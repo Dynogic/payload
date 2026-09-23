@@ -98,6 +98,8 @@ export const myTranslations: DefaultTranslationsObject = {
     accountAlreadyActivated: 'ဤအကောင့်ကို အသက်သွင်းပြီးဖြစ်သည်။',
     autosaving: 'ဖိုင်ကို အလိုအလျောက်သိမ်းဆည်းရာတွင် ပြဿနာတစ်ခုရှိနေသည်။',
     correctInvalidFields: 'ကျေးဇူးပြု၍ အချက်အလက်များကို ပြန်လည် စစ်ဆေးပါ။',
+    couldNotReachServer: "Couldn't reach the server. Check your connection and try again.",
+    couldNotSave: "Couldn't save. Please try again.",
     deletingFile: 'ဖိုင်ကိုဖျက်ရာတွင် အမှားအယွင်းရှိနေသည်။',
     deletingTitle:
       '{{title}} ကို ဖျက်ရာတွင် အမှားအယွင်းရှိခဲ့သည်။ သင့် အင်တာနက်လိုင်းအား စစ်ဆေးပြီး ထပ်မံကြို့စားကြည့်ပါ။',

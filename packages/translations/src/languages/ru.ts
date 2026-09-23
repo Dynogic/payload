@@ -99,6 +99,8 @@ export const ruTranslations: DefaultTranslationsObject = {
     accountAlreadyActivated: 'Этот аккаунт уже был активирован.',
     autosaving: 'При автосохранении этого документа возникла проблема.',
     correctInvalidFields: 'Пожалуйста, исправьте неправильные поля.',
+    couldNotReachServer: "Couldn't reach the server. Check your connection and try again.",
+    couldNotSave: "Couldn't save. Please try again.",
     deletingFile: 'Произошла ошибка при удалении файла.',
     deletingTitle:
       'При удалении {{title}} произошла ошибка. Пожалуйста, проверьте соединение и повторите попытку.',

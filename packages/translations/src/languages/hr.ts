@@ -99,6 +99,8 @@ export const hrTranslations: DefaultTranslationsObject = {
     accountAlreadyActivated: 'Ovaj račun je već aktiviran.',
     autosaving: 'Nastao je problem pri automatskom spremanju ovog dokumenta.',
     correctInvalidFields: 'Molimo ispravite neispravna polja.',
+    couldNotReachServer: "Couldn't reach the server. Check your connection and try again.",
+    couldNotSave: "Couldn't save. Please try again.",
     deletingFile: 'Dogodila se pogreška pri brisanju datoteke.',
     deletingTitle:
       'Dogodila se pogreška pri brisanju {{title}}. Molimo provjerite svoju internet vezu i pokušajte ponovno.',

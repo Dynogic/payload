@@ -93,6 +93,8 @@ export const zhTwTranslations: DefaultTranslationsObject = {
     accountAlreadyActivated: '此帳戶已啟用。',
     autosaving: '自動儲存文件時發生問題。',
     correctInvalidFields: '請修正無效欄位。',
+    couldNotReachServer: "Couldn't reach the server. Check your connection and try again.",
+    couldNotSave: "Couldn't save. Please try again.",
     deletingFile: '刪除檔案時發生錯誤。',
     deletingTitle: '刪除 {{title}} 時發生錯誤。請檢查網路連線後再試一次。',
     documentNotFound: '找不到 ID 為 {{id}} 的文件。可能已遭刪除、不存在，或您沒有權限存取。',
