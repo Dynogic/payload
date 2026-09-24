@@ -141,3 +141,111 @@ describe('countChildErrors', () => {
     ).toBe(2)
   })
 })
+
+/**
+ * Fork change #98 — an error on an `admin.hidden` field counts toward a tab's
+ * badge only when a component shows it: a mounted claim
+ * (`useClaimFieldPath`) or the field's static `admin.claimedByComponent`.
+ */
+describe('countChildErrors — hidden fields (#98)', () => {
+  // The Sell tab: a hidden `checkpointPolicy` beside a visible `price`.
+  const SellSegments = ['price', 'checkpointPolicy', 'rules.']
+
+  const hidden = (valid: boolean, extra: Partial<FormState[string]> = {}): FormState[string] =>
+    ({ hidden: true, initialValue: null, valid, value: null, ...extra }) as FormState[string]
+
+  it('an unclaimed hidden-field error counts nowhere', () => {
+    expect(
+      countChildErrors({
+        formState: { checkpointPolicy: hidden(false), price: field(true) },
+        parentPath: [],
+        segmentsToMatch: SellSegments,
+      }),
+    ).toBe(0)
+  })
+
+  it('counts a hidden-field error a mounted component claims', () => {
+    expect(
+      countChildErrors({
+        claimedPaths: new Set(['checkpointPolicy']),
+        formState: { checkpointPolicy: hidden(false), price: field(true) },
+        parentPath: [],
+        segmentsToMatch: SellSegments,
+      }),
+    ).toBe(1)
+  })
+
+  it('counts a statically claimed hidden-field error with no component mounted (another tab is open)', () => {
+    expect(
+      countChildErrors({
+        claimedPaths: new Set(),
+        formState: { checkpointPolicy: hidden(false, { claimedByComponent: true }) },
+        parentPath: [],
+        segmentsToMatch: SellSegments,
+      }),
+    ).toBe(1)
+  })
+
+  it('a static claim that is false for this document does not count', () => {
+    expect(
+      countChildErrors({
+        formState: { checkpointPolicy: hidden(false, { claimedByComponent: false }) },
+        parentPath: [],
+        segmentsToMatch: SellSegments,
+      }),
+    ).toBe(0)
+  })
+
+  it('a claim on ANOTHER path does not count this one', () => {
+    expect(
+      countChildErrors({
+        claimedPaths: new Set(['somethingElse']),
+        formState: { checkpointPolicy: hidden(false) },
+        parentPath: [],
+        segmentsToMatch: SellSegments,
+      }),
+    ).toBe(0)
+  })
+
+  it('a visible sibling error still counts beside an unclaimed hidden one', () => {
+    expect(
+      countChildErrors({
+        formState: { checkpointPolicy: hidden(false), price: field(false) },
+        parentPath: [],
+        segmentsToMatch: SellSegments,
+      }),
+    ).toBe(1)
+  })
+
+  it('an unclaimed hidden leaf does not resurface as its container group', () => {
+    expect(
+      countChildErrors({
+        formState: { rules: field(false), 'rules.secret': hidden(false) },
+        parentPath: [],
+        segmentsToMatch: SellSegments,
+      }),
+    ).toBe(0)
+  })
+
+  it('a claimed hidden leaf inside a group counts once', () => {
+    expect(
+      countChildErrors({
+        claimedPaths: new Set(['rules.secret']),
+        formState: { rules: field(false), 'rules.secret': hidden(false) },
+        parentPath: [],
+        segmentsToMatch: SellSegments,
+      }),
+    ).toBe(1)
+  })
+
+  it('a valid hidden field never counts, claimed or not', () => {
+    expect(
+      countChildErrors({
+        claimedPaths: new Set(['checkpointPolicy']),
+        formState: { checkpointPolicy: hidden(true, { claimedByComponent: true }) },
+        parentPath: [],
+        segmentsToMatch: SellSegments,
+      }),
+    ).toBe(0)
+  })
+})

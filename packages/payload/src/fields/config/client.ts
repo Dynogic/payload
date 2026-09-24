@@ -47,7 +47,7 @@ export type ServerOnlyFieldProperties =
 export type ServerOnlyFieldAdminProperties = keyof Pick<
   FieldBase['admin'],
   // @ts-expect-error - vestiges of when tsconfig was not strict. Feel free to improve
-  'components' | 'condition' | 'disableFormData'
+  'claimedByComponent' | 'components' | 'condition' | 'disableFormData'
 >
 
 const serverOnlyFieldProperties: Partial<ServerOnlyFieldProperties>[] = [
@@ -71,6 +71,7 @@ const serverOnlyFieldProperties: Partial<ServerOnlyFieldProperties>[] = [
 ]
 
 const serverOnlyFieldAdminProperties: Partial<ServerOnlyFieldAdminProperties>[] = [
+  'claimedByComponent',
   'condition',
   'components',
   'disableFormData',

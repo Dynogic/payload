@@ -20,12 +20,31 @@ import type { FormState } from 'payload'
  * badge still says the subtree is in error, which is what it is for, while
  * counting the parent mis-states every single-leaf fault, which is the
  * common one.
+ *
+ * Fork #98 — A HIDDEN FIELD COUNTS ONLY WHEN CLAIMED. An error on an
+ * `admin.hidden` field (form state `hidden: true`) frames no stock control,
+ * so it counts only when a component shows it: a mounted component claims
+ * the path (`useClaimFieldPath` → `claimedPaths`), or the field declares the
+ * claim statically for this document (`claimedByComponent: true`). An
+ * unclaimed hidden-field error counts nowhere (the Form toasts it). A
+ * hidden-field error still makes its CONTAINER a same-fault duplicate, so an
+ * unclaimed hidden leaf does not resurface as its group's error.
  */
+export const isClaimedHiddenError = (
+  key: string,
+  pathState: { claimedByComponent?: boolean; hidden?: boolean } | undefined,
+  claimedPaths: ReadonlySet<string> | undefined,
+): boolean =>
+  !pathState?.hidden || pathState.claimedByComponent === true || Boolean(claimedPaths?.has(key))
+
 export const countChildErrors = ({
+  claimedPaths,
   formState,
   parentPath,
   segmentsToMatch,
 }: {
+  /** Fork #98: the paths claimed by mounted components (`useClaimFieldPath`). */
+  claimedPaths?: ReadonlySet<string>
   formState: FormState
   /** The host's own path, prefixed onto every segment before matching. */
   parentPath: (number | string)[]
@@ -71,7 +90,11 @@ export const countChildErrors = ({
       return key === segmentToMatch
     })
 
-    if (matchingSegment && !hasInvalidDescendant(key)) {
+    if (
+      matchingSegment &&
+      !hasInvalidDescendant(key) &&
+      isClaimedHiddenError(key, formState[key], claimedPaths)
+    ) {
       errorCount += 1
     }
   }

@@ -179,6 +179,28 @@ export const addFieldStatePromise = async (args: AddFieldStatePromiseArgs): Prom
     fieldState.passesCondition = false
   }
 
+  // Fork #98: a hidden field's errors are off screen unless claimed — the
+  // client needs to know the field is hidden (and whether a custom component
+  // statically claims it) to toast and badge it. `hidden` is appended only if
+  // true; `claimedByComponent` is stamped `true` AND `false` whenever it is
+  // configured, like `disableFormDataSubtree`, so per-document flips merge.
+  if (
+    fieldAffectsData(field) &&
+    field.type !== 'tab' &&
+    (field.admin?.hidden === true || ('hidden' in field && field.hidden === true))
+  ) {
+    fieldState.hidden = true
+
+    if (field.admin && field.admin.claimedByComponent !== undefined) {
+      fieldState.claimedByComponent =
+        typeof field.admin.claimedByComponent === 'function'
+          ? Boolean(
+              field.admin.claimedByComponent({ blockData, data: fullData, siblingData: data }),
+            )
+          : field.admin.claimedByComponent === true
+    }
+  }
+
   // Append only if true to avoid sending '$undefined' through the network
   if (includeSchema) {
     fieldState.fieldSchema = field

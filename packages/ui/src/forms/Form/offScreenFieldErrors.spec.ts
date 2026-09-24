@@ -1,6 +1,10 @@
 import { describe, expect, it } from 'vitest'
 
-import { isFieldOnScreen, offScreenErrorMessages } from './offScreenFieldErrors.js'
+import {
+  claimedErrorPaths,
+  isFieldOnScreen,
+  offScreenErrorMessages,
+} from './offScreenFieldErrors.js'
 
 /**
  * Fork change #97 — a server path error with no field on screen toasts its
@@ -97,5 +101,79 @@ describe('offScreenErrorMessages', () => {
   it('ignores entries without a path, and a non-array', () => {
     expect(offScreenErrorMessages({ errors: [{ message: 'No path' }, null], fields })).toEqual([])
     expect(offScreenErrorMessages({ errors: undefined, fields })).toEqual([])
+  })
+})
+
+/**
+ * Fork change #98 — an `admin.hidden` field is off screen unless a mounted
+ * component claims its path.
+ */
+describe('hidden fields (#98)', () => {
+  const hiddenFields = {
+    title: { value: 'x' },
+    checkpointPolicy: { hidden: true, value: 'required' },
+    declared: { claimedByComponent: true, hidden: true, value: null },
+    hiddenAndConditioned: { hidden: true, passesCondition: false, value: null },
+  }
+  const Claimed = new Set(['checkpointPolicy'])
+  const Sentence = 'Required checkpoints cannot be on a free course'
+
+  it('an unclaimed hidden field is off screen', () => {
+    expect(isFieldOnScreen(hiddenFields, 'checkpointPolicy')).toBe(false)
+    expect(isFieldOnScreen(hiddenFields, 'checkpointPolicy', new Set())).toBe(false)
+  })
+
+  it('a claimed hidden field is on screen', () => {
+    expect(isFieldOnScreen(hiddenFields, 'checkpointPolicy', Claimed)).toBe(true)
+  })
+
+  it('a static claim alone does not put it on screen (nothing mounted shows it)', () => {
+    expect(isFieldOnScreen(hiddenFields, 'declared')).toBe(false)
+    expect(isFieldOnScreen(hiddenFields, 'declared', new Set(['declared']))).toBe(true)
+  })
+
+  it('a claim does not override a false condition', () => {
+    expect(
+      isFieldOnScreen(hiddenFields, 'hiddenAndConditioned', new Set(['hiddenAndConditioned'])),
+    ).toBe(false)
+  })
+
+  it('a claim on a visible field changes nothing', () => {
+    expect(isFieldOnScreen(hiddenFields, 'title', new Set(['title']))).toBe(true)
+  })
+
+  it('an unclaimed hidden-field error toasts its own sentence', () => {
+    expect(
+      offScreenErrorMessages({
+        errors: [{ message: Sentence, path: 'checkpointPolicy' }],
+        fields: hiddenFields,
+      }),
+    ).toEqual([Sentence])
+  })
+
+  it('a claimed hidden-field error gets no toast entry, and is reported as claimed', () => {
+    const errors = [{ message: Sentence, path: 'checkpointPolicy' }]
+    expect(offScreenErrorMessages({ claimedPaths: Claimed, errors, fields: hiddenFields })).toEqual(
+      [],
+    )
+    expect(claimedErrorPaths({ claimedPaths: Claimed, errors, fields: hiddenFields })).toEqual([
+      'checkpointPolicy',
+    ])
+  })
+
+  it('claimedErrorPaths ignores visible fields, unclaimed hidden ones and duplicates', () => {
+    expect(
+      claimedErrorPaths({
+        claimedPaths: Claimed,
+        errors: [
+          { message: 'Required', path: 'title' },
+          { message: 'x', path: 'declared' },
+          { message: Sentence, path: 'checkpointPolicy' },
+          { message: Sentence, path: 'checkpointPolicy' },
+        ],
+        fields: hiddenFields,
+      }),
+    ).toEqual(['checkpointPolicy'])
+    expect(claimedErrorPaths({ errors: undefined, fields: hiddenFields })).toEqual([])
   })
 })

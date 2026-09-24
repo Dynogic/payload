@@ -39,6 +39,7 @@ import { useTranslation } from '../../providers/Translation/index.js'
 import { useUploadHandlers } from '../../providers/UploadHandlers/index.js'
 import { abortAndIgnore, handleAbortRef } from '../../utilities/abortAndIgnore.js'
 import { requests } from '../../utilities/api.js'
+import { FieldClaimProvider, useFieldClaimRegistry } from '../useClaimFieldPath/index.js'
 import {
   BackgroundProcessingContext,
   DocumentFormContext,
@@ -54,7 +55,7 @@ import {
 import { errorMessages } from './errorMessages.js'
 import { fieldReducer } from './fieldReducer.js'
 import { initContextState } from './initContextState.js'
-import { offScreenErrorMessages } from './offScreenFieldErrors.js'
+import { claimedErrorPaths, offScreenErrorMessages } from './offScreenFieldErrors.js'
 import { responseSubmitFailureMessage, thrownSubmitFailureMessage } from './submitFailureMessage.js'
 
 const baseClass = 'form'
@@ -171,6 +172,10 @@ export const Form: React.FC<FormProps> = (props) => {
   const isFirstRenderRef = useRef(true)
 
   const fieldsReducer = useReducer(fieldReducer, {}, () => initialState)
+
+  // Fork #98: the paths mounted components claim (`useClaimFieldPath`) — a
+  // hidden field is off screen unless claimed. `claimRegistry` is stable.
+  const { claimedPaths, registry: claimRegistry } = useFieldClaimRegistry()
 
   const [formState, dispatchFields] = fieldsReducer
 
@@ -573,13 +578,30 @@ export const Form: React.FC<FormProps> = (props) => {
               nonFieldErrors.forEach((err) => {
                 // Fork #97: a path with no field on screen toasts its own
                 // message, not "The following field is invalid: <raw path>".
+                // Fork #98: a hidden field is off screen unless a mounted
+                // component claims it.
+                const claimed = claimRegistry.getClaimedPaths()
                 const offScreenMessages = offScreenErrorMessages({
+                  claimedPaths: claimed,
                   errors: err?.data?.errors,
                   fields: fieldsBeforeServerErrors,
                 })
 
                 if (offScreenMessages.length > 0) {
                   errorToast(<OffScreenErrorsToast messages={offScreenMessages} />)
+                  return
+                }
+
+                // Fork #98: a claimed hidden field is framed by its
+                // component; the stock sentence would name it by raw path.
+                if (
+                  claimedErrorPaths({
+                    claimedPaths: claimed,
+                    errors: err?.data?.errors,
+                    fields: fieldsBeforeServerErrors,
+                  }).length > 0
+                ) {
+                  errorToast(t('error:correctInvalidFields'))
                   return
                 }
 
@@ -616,6 +638,7 @@ export const Form: React.FC<FormProps> = (props) => {
       beforeSubmit,
       startRouteTransition,
       action,
+      claimRegistry,
       disableSuccessStatus,
       disableValidationOnSubmit,
       disabled,
@@ -1000,7 +1023,9 @@ export const Form: React.FC<FormProps> = (props) => {
                     <ModifiedContext value={modified}>
                       {/* eslint-disable-next-line @eslint-react/no-context-provider */}
                       <FormFieldsContext.Provider value={fieldsReducer}>
-                        {children}
+                        <FieldClaimProvider claimedPaths={claimedPaths} registry={claimRegistry}>
+                          {children}
+                        </FieldClaimProvider>
                       </FormFieldsContext.Provider>
                     </ModifiedContext>
                   </BackgroundProcessingContext>

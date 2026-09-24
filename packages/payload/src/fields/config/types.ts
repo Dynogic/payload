@@ -346,6 +346,30 @@ export type BlocksFilterOptions<TData = any> =
 export type FieldPosition = 'main' | 'sidebar'
 
 export type FieldAdmin = {
+  /**
+   * The field description will be displayed next to the field in the admin UI. Additionally,
+   * we use the field description to generate JSDoc comments for the generated TypeScript types.
+   */
+  /**
+   * Fork #98. For an `admin.hidden` field whose error a CUSTOM COMPONENT
+   * renders (the component reads it with `useField` and calls
+   * `useClaimFieldPath(path)` while mounted). Declares that claim statically,
+   * so the error counts toward the badge of the tab (or collapsible) the
+   * field lives in even while the component is NOT mounted — the merchant is
+   * on another tab when the server refuses the save. `true`, or a function of
+   * the document for a claim that only holds for some documents (the
+   * component renders on some documents only).
+   *
+   * While the component is not mounted the error is still toasted with its
+   * own message (nothing on screen shows it); once mounted, the live claim
+   * takes over and it is on screen. Has no effect on a field that is not
+   * hidden. Evaluated server-side (synchronously) at form-state build time
+   * and stamped onto form state as `claimedByComponent`. Never sent to the
+   * client config.
+   */
+  claimedByComponent?:
+    | ((args: { blockData: Data | undefined; data: Data; siblingData: Data }) => boolean)
+    | boolean
   className?: string
   components?: {
     Cell?: PayloadComponent<DefaultServerCellComponentProps, DefaultCellComponentProps>
@@ -364,10 +388,6 @@ export type FieldAdmin = {
   condition?: Condition
   /** Extension point to add your custom data. Available in server and client. */
   custom?: Record<string, any>
-  /**
-   * The field description will be displayed next to the field in the admin UI. Additionally,
-   * we use the field description to generate JSDoc comments for the generated TypeScript types.
-   */
   description?: Description
   disableBulkEdit?: boolean
   disabled?: boolean

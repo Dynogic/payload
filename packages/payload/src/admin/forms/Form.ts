@@ -41,6 +41,16 @@ export type FieldState = {
    * If this is an empty array, no blocks are allowed.
    */
   blocksFilterOptions?: string[]
+  /**
+   * Fork #98. The field's `admin.claimedByComponent`, evaluated for this
+   * document: a custom component renders this HIDDEN field's error, so the
+   * error counts toward the badge of the tab (or collapsible) the field lives
+   * in even while that component is not mounted. Stamped server-side at
+   * form-state build time, explicitly `true` or `false` whenever the option
+   * is configured (so the shallow merge tracks per-document flips); absent
+   * otherwise.
+   */
+  claimedByComponent?: boolean
   customComponents?: {
     /**
      * This is used by UI fields, as they can have arbitrary components defined if used
@@ -77,6 +87,14 @@ export type FieldState = {
    */
   fieldSchema?: Field | TabAsField
   filterOptions?: FilterOptionsResult
+  /**
+   * Fork #98. `true` when the field is `admin.hidden` (or `hidden`): no stock
+   * control renders it. Its errors are OFF SCREEN — toasted with their own
+   * message and counted in no tab badge — unless a mounted component claims
+   * the path (`useClaimFieldPath`) or the field declares
+   * `admin.claimedByComponent`. Stamped server-side; absent otherwise.
+   */
+  hidden?: boolean
   initialValue?: unknown
   /**
    * Every time a field is changed locally, this flag is set to true. Prevents form state from server from overwriting local changes.
