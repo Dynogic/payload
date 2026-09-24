@@ -41,12 +41,15 @@ export const isFieldOnScreen = (
 }
 
 /**
- * Fork #98: the path errors that land on a hidden field a mounted component
- * claims. They are on screen (the component frames them), but the stock
- * toast would name them by their raw path — so the Form says the stock
- * "Please correct invalid fields." instead whenever there are any.
+ * Fork #99 (revises #97, #98): true when the entry carries at least one path
+ * error and EVERY one of its paths is on screen (per `isFieldOnScreen`, so a
+ * claimed hidden field counts as on screen and an unclaimed one does not).
+ * Each of those fields frames itself and shows its own message, so the Form
+ * toasts the stock "Please correct invalid fields." (the same toast
+ * client-side validation uses) instead of `FieldErrorsToast`, which repeats
+ * what the frame already says and names an unlabelled path raw.
  */
-export const claimedErrorPaths = ({
+export const allErrorPathsOnScreen = ({
   claimedPaths,
   errors,
   fields,
@@ -54,35 +57,64 @@ export const claimedErrorPaths = ({
   claimedPaths?: ReadonlySet<string>
   errors: unknown
   fields: Record<string, FieldStateLike> | undefined
-}): string[] => {
+}): boolean => {
   if (!Array.isArray(errors)) {
-    return []
+    return false
   }
 
-  const paths: string[] = []
+  let sawPath = false
 
   for (const error of errors as ServerFieldError[]) {
     if (!error || typeof error.path !== 'string' || !error.path) {
       continue
     }
 
-    if (
-      fields?.[error.path]?.hidden &&
-      isFieldOnScreen(fields, error.path, claimedPaths) &&
-      !paths.includes(error.path)
-    ) {
-      paths.push(error.path)
+    sawPath = true
+
+    if (!isFieldOnScreen(fields, error.path, claimedPaths)) {
+      return false
     }
   }
 
-  return paths
+  return sawPath
+}
+
+export type ServerErrorToast =
+  | { kind: 'correctInvalidFields' }
+  | { kind: 'offScreen'; messages: string[] }
+  | { kind: 'stock' }
+
+/**
+ * Fork #99: which toast a 4xx error entry gets.
+ *
+ * - some paths off screen and they carry messages: those messages (#97);
+ * - every path on screen: "Please correct invalid fields." (#99);
+ * - otherwise (no path errors, or off-screen paths with no message of their
+ *   own): the stock `FieldErrorsToast`.
+ */
+export const serverErrorToast = (args: {
+  claimedPaths?: ReadonlySet<string>
+  errors: unknown
+  fields: Record<string, FieldStateLike> | undefined
+}): ServerErrorToast => {
+  const messages = offScreenErrorMessages(args)
+
+  if (messages.length > 0) {
+    return { kind: 'offScreen', messages }
+  }
+
+  if (allErrorPathsOnScreen(args)) {
+    return { kind: 'correctInvalidFields' }
+  }
+
+  return { kind: 'stock' }
 }
 
 /**
  * The messages of the path errors that have no field on screen, trimmed and
  * de-duplicated, in server order. Empty when every path is on screen (the
- * stock "The following field is invalid: …" toast then stays), or when the
- * off-screen entries carry no message of their own.
+ * Form then toasts "Please correct invalid fields.", #99), or when the
+ * off-screen entries carry no message of their own (stock toast).
  */
 export const offScreenErrorMessages = ({
   claimedPaths,

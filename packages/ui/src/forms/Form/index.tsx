@@ -55,7 +55,7 @@ import {
 import { errorMessages } from './errorMessages.js'
 import { fieldReducer } from './fieldReducer.js'
 import { initContextState } from './initContextState.js'
-import { claimedErrorPaths, offScreenErrorMessages } from './offScreenFieldErrors.js'
+import { serverErrorToast } from './offScreenFieldErrors.js'
 import { responseSubmitFailureMessage, thrownSubmitFailureMessage } from './submitFailureMessage.js'
 
 const baseClass = 'form'
@@ -580,27 +580,22 @@ export const Form: React.FC<FormProps> = (props) => {
                 // message, not "The following field is invalid: <raw path>".
                 // Fork #98: a hidden field is off screen unless a mounted
                 // component claims it.
-                const claimed = claimRegistry.getClaimedPaths()
-                const offScreenMessages = offScreenErrorMessages({
-                  claimedPaths: claimed,
+                // Fork #99: every path on screen → the fields frame
+                // themselves, so the toast is "Please correct invalid
+                // fields." (as client-side validation), not the stock
+                // sentence repeating them (or naming an unlabelled path raw).
+                const decision = serverErrorToast({
+                  claimedPaths: claimRegistry.getClaimedPaths(),
                   errors: err?.data?.errors,
                   fields: fieldsBeforeServerErrors,
                 })
 
-                if (offScreenMessages.length > 0) {
-                  errorToast(<OffScreenErrorsToast messages={offScreenMessages} />)
+                if (decision.kind === 'offScreen') {
+                  errorToast(<OffScreenErrorsToast messages={decision.messages} />)
                   return
                 }
 
-                // Fork #98: a claimed hidden field is framed by its
-                // component; the stock sentence would name it by raw path.
-                if (
-                  claimedErrorPaths({
-                    claimedPaths: claimed,
-                    errors: err?.data?.errors,
-                    fields: fieldsBeforeServerErrors,
-                  }).length > 0
-                ) {
+                if (decision.kind === 'correctInvalidFields') {
                   errorToast(t('error:correctInvalidFields'))
                   return
                 }

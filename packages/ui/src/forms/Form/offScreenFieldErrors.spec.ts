@@ -1,9 +1,10 @@
 import { describe, expect, it } from 'vitest'
 
 import {
-  claimedErrorPaths,
+  allErrorPathsOnScreen,
   isFieldOnScreen,
   offScreenErrorMessages,
+  serverErrorToast,
 } from './offScreenFieldErrors.js'
 
 /**
@@ -151,29 +152,119 @@ describe('hidden fields (#98)', () => {
     ).toEqual([Sentence])
   })
 
-  it('a claimed hidden-field error gets no toast entry, and is reported as claimed', () => {
+  it('a claimed hidden-field error gets no toast entry, and counts as on screen', () => {
     const errors = [{ message: Sentence, path: 'checkpointPolicy' }]
     expect(offScreenErrorMessages({ claimedPaths: Claimed, errors, fields: hiddenFields })).toEqual(
       [],
     )
-    expect(claimedErrorPaths({ claimedPaths: Claimed, errors, fields: hiddenFields })).toEqual([
-      'checkpointPolicy',
-    ])
+    expect(allErrorPathsOnScreen({ claimedPaths: Claimed, errors, fields: hiddenFields })).toBe(
+      true,
+    )
   })
+})
 
-  it('claimedErrorPaths ignores visible fields, unclaimed hidden ones and duplicates', () => {
+/**
+ * Fork change #99 — every path on screen toasts "Please correct invalid
+ * fields.", not the stock `FieldErrorsToast`.
+ */
+describe('serverErrorToast (#99)', () => {
+  const toastFields = {
+    title: { value: 'x' },
+    'items.0.product': { value: null },
+    hiddenByCondition: { passesCondition: false, value: null },
+    checkpointPolicy: { hidden: true, value: 'required' },
+  }
+  const Claimed = new Set(['checkpointPolicy'])
+
+  it('every path on a visible field → correctInvalidFields', () => {
     expect(
-      claimedErrorPaths({
-        claimedPaths: Claimed,
+      serverErrorToast({
         errors: [
           { message: 'Required', path: 'title' },
-          { message: 'x', path: 'declared' },
-          { message: Sentence, path: 'checkpointPolicy' },
-          { message: Sentence, path: 'checkpointPolicy' },
+          { message: 'Pick a product first', path: 'items.0.product' },
         ],
-        fields: hiddenFields,
+        fields: toastFields,
       }),
-    ).toEqual(['checkpointPolicy'])
-    expect(claimedErrorPaths({ errors: undefined, fields: hiddenFields })).toEqual([])
+    ).toEqual({ kind: 'correctInvalidFields' })
+  })
+
+  it('a path with no label (raw path in the stock sentence) → correctInvalidFields', () => {
+    expect(
+      serverErrorToast({
+        errors: [{ message: 'The following field is invalid: title', path: 'title' }],
+        fields: toastFields,
+      }),
+    ).toEqual({ kind: 'correctInvalidFields' })
+  })
+
+  it('a claimed hidden path counts as on screen → correctInvalidFields', () => {
+    expect(
+      serverErrorToast({
+        claimedPaths: Claimed,
+        errors: [
+          { message: 'x', path: 'checkpointPolicy' },
+          { message: 'Required', path: 'title' },
+        ],
+        fields: toastFields,
+      }),
+    ).toEqual({ kind: 'correctInvalidFields' })
+  })
+
+  it('an unclaimed hidden path is off screen → its own message', () => {
+    expect(
+      serverErrorToast({
+        errors: [
+          { message: 'Required', path: 'title' },
+          { message: 'Policy sentence', path: 'checkpointPolicy' },
+        ],
+        fields: toastFields,
+      }),
+    ).toEqual({ kind: 'offScreen', messages: ['Policy sentence'] })
+  })
+
+  it('mixed on and off screen → only the off-screen messages (#97)', () => {
+    expect(
+      serverErrorToast({
+        errors: [
+          { message: 'Required', path: 'title' },
+          { message: 'Slug already taken', path: 'slug' },
+          { message: 'Needed when shown', path: 'hiddenByCondition' },
+        ],
+        fields: toastFields,
+      }),
+    ).toEqual({ kind: 'offScreen', messages: ['Slug already taken', 'Needed when shown'] })
+  })
+
+  it('all off screen → their messages (#97)', () => {
+    expect(
+      serverErrorToast({
+        errors: [{ message: 'This offer is no longer on sale', path: 'items.0.offer' }],
+        fields: toastFields,
+      }),
+    ).toEqual({ kind: 'offScreen', messages: ['This offer is no longer on sale'] })
+  })
+
+  it('off-screen paths with no message of their own → stock', () => {
+    expect(
+      serverErrorToast({
+        errors: [{ path: 'a' }, { message: ' ', path: 'b' }],
+        fields: toastFields,
+      }),
+    ).toEqual({ kind: 'stock' })
+    // one on screen does not make it "all on screen"
+    expect(
+      serverErrorToast({
+        errors: [{ message: 'Required', path: 'title' }, { path: 'a' }],
+        fields: toastFields,
+      }),
+    ).toEqual({ kind: 'stock' })
+  })
+
+  it('no path errors at all → stock', () => {
+    expect(serverErrorToast({ errors: undefined, fields: toastFields })).toEqual({ kind: 'stock' })
+    expect(serverErrorToast({ errors: [], fields: toastFields })).toEqual({ kind: 'stock' })
+    expect(
+      serverErrorToast({ errors: [{ message: 'No path' }, null], fields: toastFields }),
+    ).toEqual({ kind: 'stock' })
   })
 })

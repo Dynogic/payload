@@ -1678,9 +1678,27 @@ We chose a static prop over "claims persist after unmount" because a sticky clai
 
 ---
 
+### 99. Every server error on screen toasts "Please correct invalid fields." (revises #97, #98)
+
+**Files:** `packages/ui/src/forms/Form/index.tsx`, `packages/ui/src/forms/Form/offScreenFieldErrors.ts`, `packages/ui/src/forms/Form/offScreenFieldErrors.spec.ts`
+
+**Why.** When a server refusal's path errors all land on fields that are on screen, each field already frames itself and shows its message in its pill. The stock `FieldErrorsToast` ("The following field is invalid: …") repeats that, and when an app hook throws `ValidationError` without a `label` it names the field by its raw path. #98 already swapped in `error:correctInvalidFields` for the case where a claimed hidden field was involved; #99 makes that the rule for every all-on-screen entry.
+
+**Rule** (pure helper `serverErrorToast`, spec'd — replaces #98's `claimedErrorPaths`). Per 4xx error entry, with "on screen" as in `isFieldOnScreen` (a condition-false or unclaimed hidden field is off screen, a claimed hidden field is on screen, #98):
+
+- some path errors off screen and they carry a message → those messages (`OffScreenErrorsToast`, #97), whether or not on-screen ones are mixed in;
+- the entry carries at least one path error and every path is on screen → `t('error:correctInvalidFields')` ("Please correct invalid fields.", the same toast client-side validation and #98's claimed case use; new helper `allErrorPathsOnScreen`);
+- otherwise (no path errors at all, or off-screen paths with no message of their own) → the stock `FieldErrorsToast`.
+
+**Spec'd.** `offScreenFieldErrors.spec.ts`: the #98 claimed case now asserts `allErrorPathsOnScreen`; new `serverErrorToast (#99)` block (8 cases: all visible → correctInvalidFields; an unlabelled raw-path sentence → correctInvalidFields; a claimed hidden path counts on screen; an unclaimed hidden path toasts its message; mixed → off-screen messages only; all off screen → their messages; message-less off-screen paths → stock, including when mixed with an on-screen one; no path errors → stock).
+
+**Not changed.** ADD_SERVER_ERRORS (the per-field frame), 5xx handling (#94), the claim registry and the tab badge (#98/#90). `BulkUpload/FormsManager` keeps the stock `FieldErrorsToast`: it has its own submit loop and never went through the #97/#98 decision, so it does not share this code path.
+
+---
+
 ## Summary
 
-Recounted 2026-06-22: 62 entry headers across the catalog. Note `#46` is used **twice** (two unrelated changes — "List Status Cell Shows Changed" and "`payload.validate()` Dry-Run"), and `#2` is **DROPPED** (absorbed upstream in v3.85.0). That leaves **62 active changes**. Category counts below are a best-effort classification — several entries straddle fix/feature (a behavior correction that also adds a prop), so treat the split as indicative, not exact. _(Updated 2026-06-29: +#69 → 63 active. Updated 2026-07-02: +#70 → 64 active. Updated 2026-07-23: +#71 → 65 active. Updated 2026-07-24: +#72 → 66 active. Updated 2026-08-01: +#73 → 67 active. Updated 2026-08-24: +#74 and +#75 → 69 active. Updated 2026-08-31: +#76 → 70 active. Updated 2026-08-31: +#77 → 71 active. Updated 2026-09-01: +#78 → 72 active. Updated 2026-09-05: +#80 → 72 active per the table recount; #79 cut and reverted the same day, number retired. Updated 2026-09-06: +#81 → 73 active. Updated 2026-09-07: +#82 → 74 active. Updated 2026-09-13: +#86 → 78 active, revising #81. Updated 2026-09-16: +#87 → 79 active. Updated 2026-09-19: +#88, +#89 and +#90 → 82 active. Updated 2026-09-23: +#91, +#92, +#93 and +#94 → 86 active. Updated 2026-09-24: +#95 (fixes #93), +#96 (revises #92) and +#97 → 89 active. Updated 2026-09-24: +#98 (revises #97 and #90) → 90 active.)_
+Recounted 2026-06-22: 62 entry headers across the catalog. Note `#46` is used **twice** (two unrelated changes — "List Status Cell Shows Changed" and "`payload.validate()` Dry-Run"), and `#2` is **DROPPED** (absorbed upstream in v3.85.0). That leaves **62 active changes**. Category counts below are a best-effort classification — several entries straddle fix/feature (a behavior correction that also adds a prop), so treat the split as indicative, not exact. _(Updated 2026-06-29: +#69 → 63 active. Updated 2026-07-02: +#70 → 64 active. Updated 2026-07-23: +#71 → 65 active. Updated 2026-07-24: +#72 → 66 active. Updated 2026-08-01: +#73 → 67 active. Updated 2026-08-24: +#74 and +#75 → 69 active. Updated 2026-08-31: +#76 → 70 active. Updated 2026-08-31: +#77 → 71 active. Updated 2026-09-01: +#78 → 72 active. Updated 2026-09-05: +#80 → 72 active per the table recount; #79 cut and reverted the same day, number retired. Updated 2026-09-06: +#81 → 73 active. Updated 2026-09-07: +#82 → 74 active. Updated 2026-09-13: +#86 → 78 active, revising #81. Updated 2026-09-16: +#87 → 79 active. Updated 2026-09-19: +#88, +#89 and +#90 → 82 active. Updated 2026-09-23: +#91, +#92, +#93 and +#94 → 86 active. Updated 2026-09-24: +#95 (fixes #93), +#96 (revises #92) and +#97 → 89 active. Updated 2026-09-24: +#98 (revises #97 and #90) → 90 active. Updated 2026-09-24: +#99 (revises #97 and #98) → 91 active.)_
 
 | Category           | Count  |
 | ------------------ | ------ |
