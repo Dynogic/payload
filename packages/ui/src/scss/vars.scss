@@ -128,21 +128,29 @@ $focus-box-shadow: 0 0 0 $style-stroke-width-m var(--theme-success-500);
   }
 }
 
-// Fork #92: a read-only TEXT input — the native `readonly` attribute, not
-// `disabled`. The same fill as `readOnly` (so it reads as not-editable next to
-// its editable siblings), but the value keeps its full text colour: it is
-// content to read, select and copy, not a greyed-out control. No caret (it
-// cannot be typed into) and no hover answer; the keyboard focus ring stays,
-// since focusing it to select the value is a real use.
+// Fork #92 / #96: a read-only TEXT input — the native `readonly` attribute,
+// not `disabled`. It renders on the NORMAL input surface (#96, revising #92's
+// grey `readOnly` fill): `--theme-input-bg`, the full-strength value colour,
+// the resting border and resting shadow — the same face as the admin's other
+// read-only controls. The value is content to read, select and copy, not a
+// greyed-out control. No caret (it cannot be typed into) and no hover answer;
+// the keyboard focus border stays, and wins over the hover lock while
+// focused, since focusing it to select the value is a real use.
 @mixin readOnlyText {
-  background: var(--theme-elevation-100);
+  background: var(--theme-input-bg);
   color: var(--theme-elevation-800);
-  box-shadow: none;
+  border-color: var(--theme-elevation-150);
+  @include shadow-sm;
   caret-color: transparent;
 
   &:hover {
     border-color: var(--theme-elevation-150);
-    box-shadow: none;
+    @include shadow-sm;
+  }
+
+  &:focus,
+  &:focus-visible {
+    border-color: var(--theme-elevation-400);
   }
 }
 

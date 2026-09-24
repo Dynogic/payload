@@ -23,7 +23,7 @@ import type {
   SubmitOptions,
 } from './types.js'
 
-import { FieldErrorsToast } from '../../elements/Toasts/fieldErrors.js'
+import { FieldErrorsToast, OffScreenErrorsToast } from '../../elements/Toasts/fieldErrors.js'
 import { useDebouncedEffect } from '../../hooks/useDebouncedEffect.js'
 import { useEffectEvent } from '../../hooks/useEffectEvent.js'
 import { useQueue } from '../../hooks/useQueue.js'
@@ -54,6 +54,7 @@ import {
 import { errorMessages } from './errorMessages.js'
 import { fieldReducer } from './fieldReducer.js'
 import { initContextState } from './initContextState.js'
+import { offScreenErrorMessages } from './offScreenFieldErrors.js'
 import { responseSubmitFailureMessage, thrownSubmitFailureMessage } from './submitFailureMessage.js'
 
 const baseClass = 'form'
@@ -552,6 +553,11 @@ export const Form: React.FC<FormProps> = (props) => {
 
             setIsValid(false)
 
+            // Fork #97: the field states BEFORE the server errors land —
+            // ADD_SERVER_ERRORS creates a state for every path, on screen or
+            // not.
+            const fieldsBeforeServerErrors = contextRef.current.fields
+
             dispatchFields({
               type: 'ADD_SERVER_ERRORS',
               errors: fieldErrors,
@@ -565,6 +571,18 @@ export const Form: React.FC<FormProps> = (props) => {
               }
             } else {
               nonFieldErrors.forEach((err) => {
+                // Fork #97: a path with no field on screen toasts its own
+                // message, not "The following field is invalid: <raw path>".
+                const offScreenMessages = offScreenErrorMessages({
+                  errors: err?.data?.errors,
+                  fields: fieldsBeforeServerErrors,
+                })
+
+                if (offScreenMessages.length > 0) {
+                  errorToast(<OffScreenErrorsToast messages={offScreenMessages} />)
+                  return
+                }
+
                 errorToast(<FieldErrorsToast errorMessage={err.message || t('error:unknown')} />)
               })
             }

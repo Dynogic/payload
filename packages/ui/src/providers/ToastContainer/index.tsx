@@ -22,13 +22,18 @@ export const ToastContainer: React.FC<{
       duration={duration ?? 4000}
       expand={expand ?? false}
       gap={8}
-      // Fork #93: NO icon on an error toast — the error level is said by the
-      // toast's red surface and its sentence; the circle-✕ read as a second,
-      // louder "no". Sonner falls back to its own default glyph for any level
-      // missing from this map, so the error level is also hidden in CSS
-      // (scss/toasts.scss → `.toast-error .toast-icon`). Other levels keep
-      // theirs.
+      // Fork #93 / #95: NO icon on an error toast — the error level is said by
+      // the toast's red surface and its sentence; the circle-✕ read as a
+      // second, louder "no". Sonner resolves the glyph as
+      // `toast.icon || icons[type] || its own default`, so leaving `error` out
+      // of this map (#93) made sonner paint ITS default ✕. An empty fragment
+      // is truthy, so sonner takes it and renders nothing inside the icon
+      // slot; the slot element itself (sonner always renders it for a typed
+      // toast) is removed from layout in scss/toasts.scss with `!important`,
+      // which is what beats sonner's unlayered `[data-icon] { display: flex }`
+      // from inside `@layer payload-default`. Other levels keep theirs.
       icons={{
+        error: <React.Fragment />,
         info: <Info />,
         success: <Success />,
         warning: <Warning />,

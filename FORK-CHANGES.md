@@ -1567,7 +1567,7 @@ The counting itself moved out of the effect into a pure `countChildErrors({ form
 
 **Render.** The native `<input>` / `<textarea>` now takes `readOnly={…}` where it took `disabled={…}` (the same expression — `readOnly`, or `readOnly || disabled` where the field already folded in the form's `disabled`). The date picker passes `readOnly` to react-datepicker instead of `disabled` (react-datepicker keeps the calendar closed for either) and its ✕ clear button is `disabled` when read-only (it used to stay clickable) and dimmed (`opacity: 0.4`, default cursor). The value is focusable, selectable and copyable; it cannot be typed into, and the Number field's arrows/wheel do nothing (`readonly` blocks them natively).
 
-**Style.** A new `readOnlyText` mixin, applied by `formInput` to `&[readonly]`: the same fill as the existing `readOnly` mixin (`--theme-elevation-100`, so it still reads as not-editable beside editable siblings) but the value keeps its full text colour (`--theme-elevation-800`), no caret (`caret-color: transparent`), no hover answer, and the stock keyboard-focus border stays (focusing to select is a real use). Every `formInput` consumer picks it up for `[readonly]` — including the Password field, which already rendered `readOnly` when the form is disabled.
+**Style** (the grey fill is REVISED by #96 — read-only text inputs are now white). A new `readOnlyText` mixin, applied by `formInput` to `&[readonly]`: the same fill as the existing `readOnly` mixin (`--theme-elevation-100`, so it still reads as not-editable beside editable siblings) but the value keeps its full text colour (`--theme-elevation-800`), no caret (`caret-color: transparent`), no hover answer, and the stock keyboard-focus border stays (focusing to select is a real use). Every `formInput` consumer picks it up for `[readonly]` — including the Password field, which already rendered `readOnly` when the form is disabled.
 
 **Not changed.** `hasMany` Text/Number (react-select), Select, Checkbox, Radio, Relationship and Upload stay `disabled` (none of them holds selectable text); Password's own input stays `disabled` when read-only (a password is not meant to be copied); Code/JSON (Monaco) already used `readOnly`. No spec: the fork's unit project is node-only with no DOM renderer; the change is one attribute per input.
 
@@ -1579,7 +1579,9 @@ The counting itself moved out of the effect into a pure `countChildErrors({ form
 
 **Why.** The admin Toaster painted a red circle-✕ beside every error toast. The error level is already said by the toast's red surface and its sentence; the glyph read as a second, louder "no". The consuming app's toast rule (R2): no icon on errors.
 
-**Render.** The `error` entry is removed from the Toaster's `icons` map. Sonner falls back to its OWN default glyph for any level missing from the map (`icon || icons[type] || getAsset(type)`), so the icon slot is also hidden for the error level in CSS: `.payload-toast-item.toast-error .toast-icon { display: none }` (a `display: none` flex child adds no gap). Info, success and warning keep their icons. A promise toast that settles into an error loses its icon the same way. The `Error` icon component is still exported (`ErrorIcon`) for anything else that uses it.
+**Render (as shipped in v3.85.0.42 — DID NOT TAKE EFFECT, fixed by #95).** The `error` entry is removed from the Toaster's `icons` map. Sonner falls back to its OWN default glyph for any level missing from the map (`icon || icons[type] || getAsset(type)`), so the icon slot is also hidden for the error level in CSS: `.payload-toast-item.toast-error .toast-icon { display: none }`. Info, success and warning keep their icons. The `Error` icon component is still exported (`ErrorIcon`) for anything else that uses it.
+
+**What went wrong.** The CSS hide never applied, so error toasts showed sonner's default ✕ instead of Payload's. Payload compiles its admin stylesheet inside `@layer payload-default`; sonner injects `styles.css` at runtime UNLAYERED. An unlayered normal declaration beats a layered one regardless of specificity, so sonner's `:where([data-sonner-toast]) :where([data-icon]) { display: flex }` won over the fork's `.toast-error .toast-icon { display: none }` — specificity never came into it. Removing the map entry only swapped Payload's glyph for sonner's. See #95.
 
 ---
 
@@ -1602,9 +1604,55 @@ A `handleResponse` prop still owns its own toasts.
 
 ---
 
+### 95. Error toasts really have no icon (fixes #93)
+
+**Files:** `packages/ui/src/providers/ToastContainer/index.tsx`, `packages/ui/src/scss/toasts.scss`
+
+**Why.** #93 did not take effect (see its _What went wrong_): the layered `display: none` lost to sonner's unlayered `display: flex`, and the missing `icons.error` made sonner paint its own default ✕.
+
+**Render.** Three layers of defence:
+
+1. **No glyph.** The Toaster's `icons.error` is an empty `<React.Fragment />`. Sonner's resolution is `toast.icon || icons[type] || defaultGlyph(type)`; an element is truthy, so sonner takes it and renders nothing — no fallback to its default. (`null` / `undefined` would fall through to the default, which is the #93 bug.)
+2. **No slot.** Sonner always renders the `[data-icon]` wrapper for a typed toast, whatever the map holds, so the wrapper is taken out of the flex row in CSS with `!important`: `.payload-toast-item.toast-error .toast-icon { display: none !important }`. An `!important` declaration inside a layer beats every unlayered normal declaration, so it wins over sonner's rule. `display: none` removes the box, so the item's `gap: 1rem` leaves no hole.
+3. **No empty box anywhere.** `.payload-toast-item .toast-icon:empty { display: none !important }` — any icon slot with nothing in it (any level, any app-supplied empty icon) takes no space.
+
+A promise toast that settles into an error loses its icon the same way. A per-toast `icon` passed to `toast.error(..., { icon })` still renders nothing visible (the slot is hidden for the error level).
+
+**Layer audit of the other fork CSS in #91/#92.** The same trap only bites where an UNLAYERED stylesheet targets the same element. #91's `.doc-controls__popup--inert .doc-controls__dots` and #92's date-picker ✕ (`&__clear-button:disabled`) and `readOnlyText` only compete with Payload's own `@layer payload-default` rules (react-datepicker's CSS is copied into the same layer in `DatePicker/library.scss`; sonner styles nothing but toasts), so specificity inside the layer decides and they apply as written — no `!important` needed. Verified against the compiled `@payloadcms/next/dist/prod/styles.css`.
+
+---
+
+### 96. Read-only text inputs render on the normal input surface (revises #92)
+
+**Files:** `packages/ui/src/scss/vars.scss`, `packages/ui/src/fields/Textarea/index.scss`
+
+**Why.** #92 kept the grey `readOnly` fill (`--theme-elevation-100`) on a read-only Text / Textarea / Email / Number / Point / Date input so it would read as not-editable beside editable siblings. The consuming app ruled the other way: a read-only value is WHITE — the same face as Payload's read-only select / relationship fields in the app and the app's own read-only controls.
+
+**Style.** The `readOnlyText` mixin (applied by `formInput` to `&[readonly]`) now sets `background: var(--theme-input-bg)`, the full-strength value colour (`--theme-elevation-800`), the resting border (`--theme-elevation-150`) and the resting `shadow-sm` — the normal input at rest. Hover changes nothing (border and shadow pinned to the resting values). The caret stays `transparent`. The focus border (`--theme-elevation-400`) is restated inside the mixin for `:focus` / `:focus-visible`, because `&[readonly]` comes after `formInput`'s `&:focus` at the same specificity and would otherwise flatten it; nested, it is one class higher and also wins over the hover lock while focused. The value stays focusable and selectable (native `readonly`, #92).
+
+**Textarea.** Upstream painted `.field-type.textarea.read-only .textarea-outer` with the grey `readOnly` mixin; with a white textarea on top the grey showed at its rounded corners. The rule is removed — the textarea carries the read-only face itself.
+
+**Layer.** All of this lives in `@layer payload-default` and competes only with Payload's own layered rules (no unlayered stylesheet targets these inputs), so no `!important` is needed; confirmed in the compiled `styles.css`.
+
+**Not changed.** `disabled` controls keep the grey `readOnly` mixin (react-select, checkbox, radio, code, Password's own input). The Password field's `[readonly]` state (form disabled) picks up the white face too, as `formInput` consumer.
+
+---
+
+### 97. A server path error with no field on screen toasts its own message
+
+**Files:** `packages/ui/src/forms/Form/index.tsx`, `packages/ui/src/forms/Form/offScreenFieldErrors.ts` (new), `packages/ui/src/forms/Form/offScreenFieldErrors.spec.ts` (new), `packages/ui/src/elements/Toasts/fieldErrors.tsx`
+
+**Why.** A `ValidationError`'s message is "The following field is invalid: <label or path>". For a field on screen that works — ADD_SERVER_ERRORS frames it and the toast names it. For a path the form does not render (a hook-validated virtual path, a field not in the form), nothing frames and the toast reads "The following field is invalid: items.0.offer" — a raw path the viewer cannot act on. Each path error also carries its own `message`, which an app writes as a localized sentence.
+
+**Rule** (pure helper `offScreenErrorMessages`, spec'd — 11 cases). For each 4xx error entry that carries `data.errors`: a path is ON SCREEN when the form state (captured before ADD_SERVER_ERRORS, which creates a state for every path) holds a field for it whose `passesCondition` is not `false`. The messages of the OFF-screen path errors — trimmed, de-duplicated, in server order — replace the stock toast: one message renders plainly, several as a list (the stock multi-error shape). When every path is on screen, or the off-screen entries carry no message, the stock `FieldErrorsToast` stays. When on- and off-screen errors mix, the toast carries the off-screen messages and the on-screen fields frame themselves as before.
+
+**Not changed.** ADD_SERVER_ERRORS (the per-field frame) is untouched; 5xx handling (#94) is untouched; `BulkUpload/FormsManager` keeps the stock toast.
+
+---
+
 ## Summary
 
-Recounted 2026-06-22: 62 entry headers across the catalog. Note `#46` is used **twice** (two unrelated changes — "List Status Cell Shows Changed" and "`payload.validate()` Dry-Run"), and `#2` is **DROPPED** (absorbed upstream in v3.85.0). That leaves **62 active changes**. Category counts below are a best-effort classification — several entries straddle fix/feature (a behavior correction that also adds a prop), so treat the split as indicative, not exact. _(Updated 2026-06-29: +#69 → 63 active. Updated 2026-07-02: +#70 → 64 active. Updated 2026-07-23: +#71 → 65 active. Updated 2026-07-24: +#72 → 66 active. Updated 2026-08-01: +#73 → 67 active. Updated 2026-08-24: +#74 and +#75 → 69 active. Updated 2026-08-31: +#76 → 70 active. Updated 2026-08-31: +#77 → 71 active. Updated 2026-09-01: +#78 → 72 active. Updated 2026-09-05: +#80 → 72 active per the table recount; #79 cut and reverted the same day, number retired. Updated 2026-09-06: +#81 → 73 active. Updated 2026-09-07: +#82 → 74 active. Updated 2026-09-13: +#86 → 78 active, revising #81. Updated 2026-09-16: +#87 → 79 active. Updated 2026-09-19: +#88, +#89 and +#90 → 82 active. Updated 2026-09-23: +#91, +#92, +#93 and +#94 → 86 active.)_
+Recounted 2026-06-22: 62 entry headers across the catalog. Note `#46` is used **twice** (two unrelated changes — "List Status Cell Shows Changed" and "`payload.validate()` Dry-Run"), and `#2` is **DROPPED** (absorbed upstream in v3.85.0). That leaves **62 active changes**. Category counts below are a best-effort classification — several entries straddle fix/feature (a behavior correction that also adds a prop), so treat the split as indicative, not exact. _(Updated 2026-06-29: +#69 → 63 active. Updated 2026-07-02: +#70 → 64 active. Updated 2026-07-23: +#71 → 65 active. Updated 2026-07-24: +#72 → 66 active. Updated 2026-08-01: +#73 → 67 active. Updated 2026-08-24: +#74 and +#75 → 69 active. Updated 2026-08-31: +#76 → 70 active. Updated 2026-08-31: +#77 → 71 active. Updated 2026-09-01: +#78 → 72 active. Updated 2026-09-05: +#80 → 72 active per the table recount; #79 cut and reverted the same day, number retired. Updated 2026-09-06: +#81 → 73 active. Updated 2026-09-07: +#82 → 74 active. Updated 2026-09-13: +#86 → 78 active, revising #81. Updated 2026-09-16: +#87 → 79 active. Updated 2026-09-19: +#88, +#89 and +#90 → 82 active. Updated 2026-09-23: +#91, +#92, +#93 and +#94 → 86 active. Updated 2026-09-24: +#95 (fixes #93), +#96 (revises #92) and +#97 → 89 active.)_
 
 | Category           | Count  |
 | ------------------ | ------ |

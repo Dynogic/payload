@@ -20,11 +20,9 @@
       min-height: calc(var(--rows) * var(--base) + var(--base) * 0.8 + 2px);
     }
 
-    &.read-only {
-      .textarea-outer {
-        @include readOnly;
-      }
-    }
+    // Fork #96: no grey fill on `.textarea-outer` when read-only — the
+    // textarea itself carries the read-only face (`readOnlyText`, the normal
+    // input surface), and a grey wrapper would show at its rounded corners.
   }
 
   html[data-theme='light'] {

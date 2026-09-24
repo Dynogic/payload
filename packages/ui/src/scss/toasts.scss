@@ -72,6 +72,13 @@
         }
       }
 
+      // Fork #95: an icon slot with nothing in it never takes space (the
+      // error level passes an empty fragment; see ToastContainer). Same
+      // `!important` reason as the error-level rule below.
+      .toast-icon:empty {
+        display: none !important;
+      }
+
       .toast-icon {
         width: base(0.8);
         height: base(0.8);
@@ -105,11 +112,17 @@
         border-color: var(--theme-error-250);
         background-color: var(--theme-error-100);
 
-        // Fork #93: no icon on the error level (sonner would otherwise paint
-        // its own default glyph in place of the one the Toaster no longer
-        // passes).
+        // Fork #93 / #95: no icon on the error level. `!important` is
+        // load-bearing: this file sits in `@layer payload-default`, and
+        // sonner injects its stylesheet UNLAYERED — an unlayered normal
+        // declaration beats a layered one whatever the specificity, so
+        // without it sonner's `:where([data-sonner-toast]) :where([data-icon])
+        // { display: flex }` wins and the 16px slot (plus the 1rem flex gap)
+        // stays. An important declaration in a layer beats every unlayered
+        // normal one. `display: none` takes the slot out of the flex row, so
+        // no gap is left either.
         .toast-icon {
-          display: none;
+          display: none !important;
         }
 
         .payload-toast-close-button {

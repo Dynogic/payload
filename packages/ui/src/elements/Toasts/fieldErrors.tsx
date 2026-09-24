@@ -78,3 +78,21 @@ export function FieldErrorsToast({ errorMessage }) {
     </div>
   )
 }
+
+/**
+ * Fork #97: the toast for server path errors with no field on screen — the
+ * errors' own messages (already sentences), one plainly, several as a list.
+ */
+export function OffScreenErrorsToast({ messages }: { messages: string[] }) {
+  if (messages.length === 1) {
+    return <div data-testid="field-error">{messages[0]}</div>
+  }
+
+  return (
+    <ul data-testid="field-errors">
+      {messages.map((message, index) => (
+        <li key={index}>{message}</li>
+      ))}
+    </ul>
+  )
+}
