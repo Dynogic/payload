@@ -268,3 +268,103 @@ describe('serverErrorToast (#99)', () => {
     ).toEqual({ kind: 'stock' })
   })
 })
+
+/**
+ * Fork change #100 — a claim covers its subtree when asked
+ * (`{ subtree: true }`), and a claimed path is on screen even when the form
+ * holds no state for it. Unclaimed paths are decided exactly as before.
+ */
+describe('subtree claims (#100)', () => {
+  // varig's curriculum: a hidden, form-omitted blocks field — its own state
+  // exists, its rows (refused by row id) have none.
+  const curriculumFields = {
+    title: { value: 'x' },
+    curriculumItems: { hidden: true, value: null },
+    conditioned: { hidden: true, passesCondition: false, value: null },
+  }
+  const Subtrees = new Set(['curriculumItems'])
+  const Paths = new Set(['curriculumItems'])
+  const RowSentence = 'This lesson has no video yet'
+
+  it('an unclaimed row path under the field is off screen (unchanged)', () => {
+    expect(isFieldOnScreen(curriculumFields, 'curriculumItems.row1.source')).toBe(false)
+  })
+
+  it('an EXACT claim on the field does not cover its rows', () => {
+    expect(isFieldOnScreen(curriculumFields, 'curriculumItems.row1.source', Paths)).toBe(false)
+    expect(isFieldOnScreen(curriculumFields, 'curriculumItems', Paths)).toBe(true)
+  })
+
+  it('a subtree claim covers the field and every path under it', () => {
+    expect(isFieldOnScreen(curriculumFields, 'curriculumItems', Paths, Subtrees)).toBe(true)
+    expect(isFieldOnScreen(curriculumFields, 'curriculumItems.row1.source', Paths, Subtrees)).toBe(
+      true,
+    )
+    expect(isFieldOnScreen(curriculumFields, 'curriculumItems.row1', Paths, Subtrees)).toBe(true)
+  })
+
+  it('a subtree claim does not cover a name-prefix sibling', () => {
+    expect(
+      isFieldOnScreen(
+        { curriculumItemsExtra: { hidden: true } },
+        'curriculumItemsExtra.x',
+        Paths,
+        Subtrees,
+      ),
+    ).toBe(false)
+  })
+
+  it('a claimed path with no form state is on screen', () => {
+    expect(isFieldOnScreen(curriculumFields, 'virtual.path', new Set(['virtual.path']))).toBe(true)
+    expect(isFieldOnScreen(undefined, 'virtual.path', new Set(['virtual.path']))).toBe(true)
+  })
+
+  it("a subtree claim does not beat the claimed field's false condition", () => {
+    expect(
+      isFieldOnScreen(
+        curriculumFields,
+        'conditioned.row1',
+        new Set(['conditioned']),
+        new Set(['conditioned']),
+      ),
+    ).toBe(false)
+  })
+
+  it('row-id errors under a subtree claim → correctInvalidFields (N13b)', () => {
+    expect(
+      serverErrorToast({
+        claimedPaths: Paths,
+        claimedSubtrees: Subtrees,
+        errors: [
+          { message: RowSentence, path: 'curriculumItems.row1.source' },
+          { message: RowSentence, path: 'curriculumItems.row7.source' },
+        ],
+        fields: curriculumFields,
+      }),
+    ).toEqual({ kind: 'correctInvalidFields' })
+  })
+
+  it('the same errors with only an exact claim still toast the sentence (unchanged)', () => {
+    expect(
+      serverErrorToast({
+        claimedPaths: Paths,
+        errors: [{ message: RowSentence, path: 'curriculumItems.row1.source' }],
+        fields: curriculumFields,
+      }),
+    ).toEqual({ kind: 'offScreen', messages: [RowSentence] })
+  })
+
+  it('an off-screen path beside covered rows still toasts its own message (#97)', () => {
+    expect(
+      serverErrorToast({
+        claimedPaths: Paths,
+        claimedSubtrees: Subtrees,
+        errors: [
+          { message: RowSentence, path: 'curriculumItems.row1.source' },
+          { message: 'Slug already taken', path: 'slug' },
+        ],
+        fields: curriculumFields,
+      }),
+    ).toEqual({ kind: 'offScreen', messages: ['Slug already taken'] })
+  })
+})

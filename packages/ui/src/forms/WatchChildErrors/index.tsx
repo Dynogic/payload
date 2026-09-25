@@ -4,7 +4,7 @@ import type React from 'react'
 
 import { useThrottledEffect } from '../../hooks/useThrottledEffect.js'
 import { useAllFormFields, useFormSubmitted } from '../Form/context.js'
-import { useClaimedFieldPaths } from '../useClaimFieldPath/index.js'
+import { useClaimedFieldPaths, useClaimedFieldSubtrees } from '../useClaimFieldPath/index.js'
 import { buildPathSegments } from './buildPathSegments.js'
 import { countChildErrors } from './countChildErrors.js'
 
@@ -27,17 +27,26 @@ export const WatchChildErrors: React.FC<TrackSubSchemaErrorCountProps> = ({
   const [formState] = useAllFormFields()
   const hasSubmitted = useFormSubmitted()
   const claimedPaths = useClaimedFieldPaths()
+  const claimedSubtrees = useClaimedFieldSubtrees()
 
   const segmentsToMatch = buildPathSegments(fields)
 
   useThrottledEffect(
     () => {
       if (hasSubmitted) {
-        setErrorCount(countChildErrors({ claimedPaths, formState, parentPath, segmentsToMatch }))
+        setErrorCount(
+          countChildErrors({
+            claimedPaths,
+            claimedSubtrees,
+            formState,
+            parentPath,
+            segmentsToMatch,
+          }),
+        )
       }
     },
     250,
-    [formState, hasSubmitted, fields, claimedPaths],
+    [formState, hasSubmitted, fields, claimedPaths, claimedSubtrees],
   )
 
   return null

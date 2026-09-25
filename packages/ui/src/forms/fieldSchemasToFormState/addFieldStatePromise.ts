@@ -182,8 +182,9 @@ export const addFieldStatePromise = async (args: AddFieldStatePromiseArgs): Prom
   // Fork #98: a hidden field's errors are off screen unless claimed — the
   // client needs to know the field is hidden (and whether a custom component
   // statically claims it) to toast and badge it. `hidden` is appended only if
-  // true; `claimedByComponent` is stamped `true` AND `false` whenever it is
-  // configured, like `disableFormDataSubtree`, so per-document flips merge.
+  // true; `claimedByComponent` (and, fork #100, `claimedSubtree`) is stamped
+  // `true` AND `false` whenever it is configured, like
+  // `disableFormDataSubtree`, so per-document flips merge.
   if (
     fieldAffectsData(field) &&
     field.type !== 'tab' &&
@@ -192,12 +193,17 @@ export const addFieldStatePromise = async (args: AddFieldStatePromiseArgs): Prom
     fieldState.hidden = true
 
     if (field.admin && field.admin.claimedByComponent !== undefined) {
+      // Fork #100: the object form `{ subtree, when? }` claims the subtree;
+      // `when` (default `true`) is the boolean / function form.
+      const config = field.admin.claimedByComponent
+      const isObject = typeof config === 'object' && config !== null
+      const when = isObject ? (config.when ?? true) : config
+
       fieldState.claimedByComponent =
-        typeof field.admin.claimedByComponent === 'function'
-          ? Boolean(
-              field.admin.claimedByComponent({ blockData, data: fullData, siblingData: data }),
-            )
-          : field.admin.claimedByComponent === true
+        typeof when === 'function'
+          ? Boolean(when({ blockData, data: fullData, siblingData: data }))
+          : when === true
+      fieldState.claimedSubtree = isObject && config.subtree === true
     }
   }
 

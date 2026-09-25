@@ -175,7 +175,7 @@ export const Form: React.FC<FormProps> = (props) => {
 
   // Fork #98: the paths mounted components claim (`useClaimFieldPath`) — a
   // hidden field is off screen unless claimed. `claimRegistry` is stable.
-  const { claimedPaths, registry: claimRegistry } = useFieldClaimRegistry()
+  const { claimedPaths, claimedSubtrees, registry: claimRegistry } = useFieldClaimRegistry()
 
   const [formState, dispatchFields] = fieldsReducer
 
@@ -586,6 +586,8 @@ export const Form: React.FC<FormProps> = (props) => {
                 // sentence repeating them (or naming an unlabelled path raw).
                 const decision = serverErrorToast({
                   claimedPaths: claimRegistry.getClaimedPaths(),
+                  // Fork #100: a subtree claim covers every path under it.
+                  claimedSubtrees: claimRegistry.getClaimedSubtrees(),
                   errors: err?.data?.errors,
                   fields: fieldsBeforeServerErrors,
                 })
@@ -1018,7 +1020,11 @@ export const Form: React.FC<FormProps> = (props) => {
                     <ModifiedContext value={modified}>
                       {/* eslint-disable-next-line @eslint-react/no-context-provider */}
                       <FormFieldsContext.Provider value={fieldsReducer}>
-                        <FieldClaimProvider claimedPaths={claimedPaths} registry={claimRegistry}>
+                        <FieldClaimProvider
+                          claimedPaths={claimedPaths}
+                          claimedSubtrees={claimedSubtrees}
+                          registry={claimRegistry}
+                        >
                           {children}
                         </FieldClaimProvider>
                       </FormFieldsContext.Provider>

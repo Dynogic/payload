@@ -249,3 +249,131 @@ describe('countChildErrors — hidden fields (#98)', () => {
     ).toBe(0)
   })
 })
+
+/**
+ * Fork change #100 — subtree claims, and faults UNDER a bare (blocks)
+ * segment.
+ */
+describe('countChildErrors — subtree claims (#100)', () => {
+  // The Sell tab: the hidden, form-omitted `curriculumItems` blocks field
+  // (bare segment) beside a visible `price`.
+  const CurriculumSegments = ['price', 'curriculumItems']
+
+  const hidden = (valid: boolean, extra: Partial<FormState[string]> = {}): FormState[string] =>
+    ({ hidden: true, initialValue: null, valid, value: null, ...extra }) as FormState[string]
+
+  // What ADD_SERVER_ERRORS leaves: the field flagged, and a bare state per
+  // refused row path.
+  const refused = (extra: Partial<FormState[string]> = {}): FormState => ({
+    curriculumItems: hidden(false, extra),
+    'curriculumItems.row1.source': field(false),
+    'curriculumItems.row7.source': field(false),
+    price: field(true),
+  })
+
+  it('unclaimed row faults under a hidden blocks field count nowhere (unchanged)', () => {
+    expect(
+      countChildErrors({
+        formState: refused(),
+        parentPath: [],
+        segmentsToMatch: CurriculumSegments,
+      }),
+    ).toBe(0)
+  })
+
+  it('an EXACT claim on the field does not count its rows', () => {
+    expect(
+      countChildErrors({
+        claimedPaths: new Set(['curriculumItems']),
+        formState: refused(),
+        parentPath: [],
+        segmentsToMatch: CurriculumSegments,
+      }),
+    ).toBe(0)
+  })
+
+  it('a live subtree claim counts each row fault toward the tab owning the field', () => {
+    expect(
+      countChildErrors({
+        claimedPaths: new Set(['curriculumItems']),
+        claimedSubtrees: new Set(['curriculumItems']),
+        formState: refused(),
+        parentPath: [],
+        segmentsToMatch: CurriculumSegments,
+      }),
+    ).toBe(2)
+  })
+
+  it('a static subtree claim counts them with nothing mounted (another tab is open)', () => {
+    expect(
+      countChildErrors({
+        formState: refused({ claimedByComponent: true, claimedSubtree: true }),
+        parentPath: [],
+        segmentsToMatch: CurriculumSegments,
+      }),
+    ).toBe(2)
+  })
+
+  it('a static subtree claim false for this document does not count', () => {
+    expect(
+      countChildErrors({
+        formState: refused({ claimedByComponent: false, claimedSubtree: true }),
+        parentPath: [],
+        segmentsToMatch: CurriculumSegments,
+      }),
+    ).toBe(0)
+  })
+
+  it('a static EXACT claim counts the field-level fault only, not its rows', () => {
+    expect(
+      countChildErrors({
+        formState: refused({ claimedByComponent: true, claimedSubtree: false }),
+        parentPath: [],
+        segmentsToMatch: CurriculumSegments,
+      }),
+    ).toBe(0)
+    expect(
+      countChildErrors({
+        formState: { curriculumItems: hidden(false, { claimedByComponent: true }) },
+        parentPath: [],
+        segmentsToMatch: CurriculumSegments,
+      }),
+    ).toBe(1)
+  })
+
+  it('a subtree claim on the field counts its own fault (the row cap) once', () => {
+    expect(
+      countChildErrors({
+        claimedSubtrees: new Set(['curriculumItems']),
+        formState: { curriculumItems: hidden(false) },
+        parentPath: [],
+        segmentsToMatch: CurriculumSegments,
+      }),
+    ).toBe(1)
+  })
+
+  it('a subtree claim does not reach a name-prefix sibling', () => {
+    expect(
+      countChildErrors({
+        claimedSubtrees: new Set(['curriculumItems']),
+        formState: { curriculumItemsX: hidden(false) },
+        parentPath: [],
+        segmentsToMatch: ['curriculumItemsX'],
+      }),
+    ).toBe(0)
+  })
+
+  it('a VISIBLE blocks field: a server row fault counts once, not zero', () => {
+    expect(
+      countChildErrors({
+        formState: {
+          layout: field(false),
+          'layout.0.id': field(true),
+          'layout.0.text': field(false),
+        },
+        parentPath: [],
+        segmentsToMatch: ['layout'],
+      }),
+    ).toBe(1)
+  })
+})

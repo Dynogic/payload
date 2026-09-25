@@ -271,7 +271,11 @@ export { RowLabel, type RowLabelProps } from '../../forms/RowLabel/index.js'
 export { RowLabelProvider, useRowLabel } from '../../forms/RowLabel/Context/index.js'
 
 export { FormSubmit } from '../../forms/Submit/index.js'
-export { useClaimedFieldPaths, useClaimFieldPath } from '../../forms/useClaimFieldPath/index.js'
+export {
+  useClaimedFieldPaths,
+  useClaimedFieldSubtrees,
+  useClaimFieldPath,
+} from '../../forms/useClaimFieldPath/index.js'
 export { WatchChildErrors } from '../../forms/WatchChildErrors/index.js'
 export { FieldContext, useField } from '../../forms/useField/index.js'
 export type { FieldType, Options } from '../../forms/useField/types.js'

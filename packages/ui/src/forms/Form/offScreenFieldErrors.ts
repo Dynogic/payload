@@ -12,6 +12,8 @@
  * the toast says that instead.
  */
 
+import { coveringSubtreeClaim } from '../useClaimFieldPath/claimRegistry.js'
+
 type FieldStateLike =
   | { claimedByComponent?: boolean; hidden?: boolean; passesCondition?: boolean }
   | undefined
@@ -27,17 +29,40 @@ export type ServerFieldError = { message?: unknown; path?: unknown }
  * (`useClaimFieldPath` → `claimedPaths`). A static `claimedByComponent`
  * declaration does NOT put it on screen — it only badges the tab; while the
  * claiming component is unmounted nothing shows the error, so it toasts.
+ *
+ * Fork #100: a CLAIMED path is on screen even when the form holds no state
+ * for it (the claiming component shows it, whatever the form holds), and a
+ * subtree claim on P (`claimedSubtrees`) claims every `P.<anything>`. A
+ * claim still does not beat a false condition — the path's own, or, for a
+ * subtree claim, the claimed field's. An UNCLAIMED path is decided exactly
+ * as before.
  */
 export const isFieldOnScreen = (
   fields: Record<string, FieldStateLike> | undefined,
   path: string,
   claimedPaths?: ReadonlySet<string>,
+  claimedSubtrees?: ReadonlySet<string>,
 ): boolean => {
   const field = fields?.[path]
-  if (!field || field.passesCondition === false) {
+
+  if (field?.passesCondition === false) {
     return false
   }
-  return !field.hidden || Boolean(claimedPaths?.has(path))
+
+  if (claimedPaths?.has(path)) {
+    return true
+  }
+
+  const subtree = coveringSubtreeClaim(path, claimedSubtrees)
+  if (subtree !== undefined && fields?.[subtree]?.passesCondition !== false) {
+    return true
+  }
+
+  if (!field) {
+    return false
+  }
+
+  return !field.hidden
 }
 
 /**
@@ -51,10 +76,13 @@ export const isFieldOnScreen = (
  */
 export const allErrorPathsOnScreen = ({
   claimedPaths,
+  claimedSubtrees,
   errors,
   fields,
 }: {
   claimedPaths?: ReadonlySet<string>
+  /** Fork #100: the paths claimed as subtrees. */
+  claimedSubtrees?: ReadonlySet<string>
   errors: unknown
   fields: Record<string, FieldStateLike> | undefined
 }): boolean => {
@@ -71,7 +99,7 @@ export const allErrorPathsOnScreen = ({
 
     sawPath = true
 
-    if (!isFieldOnScreen(fields, error.path, claimedPaths)) {
+    if (!isFieldOnScreen(fields, error.path, claimedPaths, claimedSubtrees)) {
       return false
     }
   }
@@ -94,6 +122,8 @@ export type ServerErrorToast =
  */
 export const serverErrorToast = (args: {
   claimedPaths?: ReadonlySet<string>
+  /** Fork #100: the paths claimed as subtrees. */
+  claimedSubtrees?: ReadonlySet<string>
   errors: unknown
   fields: Record<string, FieldStateLike> | undefined
 }): ServerErrorToast => {
@@ -118,11 +148,14 @@ export const serverErrorToast = (args: {
  */
 export const offScreenErrorMessages = ({
   claimedPaths,
+  claimedSubtrees,
   errors,
   fields,
 }: {
   /** Fork #98: the paths claimed by mounted components. */
   claimedPaths?: ReadonlySet<string>
+  /** Fork #100: the paths claimed as subtrees. */
+  claimedSubtrees?: ReadonlySet<string>
   errors: unknown
   fields: Record<string, FieldStateLike> | undefined
 }): string[] => {
@@ -137,7 +170,7 @@ export const offScreenErrorMessages = ({
       continue
     }
 
-    if (isFieldOnScreen(fields, error.path, claimedPaths)) {
+    if (isFieldOnScreen(fields, error.path, claimedPaths, claimedSubtrees)) {
       continue
     }
 

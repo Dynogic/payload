@@ -51,6 +51,13 @@ export type FieldState = {
    * otherwise.
    */
   claimedByComponent?: boolean
+  /**
+   * Fork #100. `true` when the field's `admin.claimedByComponent` is the
+   * subtree form (`{ subtree: true }`): the static claim covers every path
+   * under the field, not only its own. Stamped beside `claimedByComponent`,
+   * explicitly `true` or `false`, whenever that option is configured.
+   */
+  claimedSubtree?: boolean
   customComponents?: {
     /**
      * This is used by UI fields, as they can have arbitrary components defined if used
