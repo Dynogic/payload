@@ -1717,9 +1717,47 @@ We chose a static prop over "claims persist after unmount" because a sticky clai
 
 ---
 
+### 101. A document drawer with unsaved edits asks before Esc or a backdrop click closes it
+
+**File:** `packages/ui/src/elements/DocumentDrawer/DrawerHeader/index.tsx`
+
+**Why.** The document drawer's ✕ already asked (`handleOnClose` → the leave-without-saving confirm when the form is modified), but it was the only guarded exit. Esc reached faceless-ui's `document` keydown listener (`CLOSE_LATEST_MODAL`, unconditional), and a click on the dimmed backdrop hit `Drawer`'s full-bleed `.drawer__close` button (`onClick={() => closeModal(slug)}`). Both closed a drawer holding unsaved edits without a word, and the edits were gone. varig hit it with its unsaved-changes bar on Files: the ✎ on an attached file opens the Files document in a drawer, and the bar promises the edits are held until Save or Discard.
+
+**Rule.** `DocumentDrawerHeader` (it sits inside the drawer's Form, so it knows `useFormModified`) finds its `.drawer` element from a ref on its Gutter and attaches two native listeners while mounted:
+
+- **Esc**: a bubble `keydown` listener on the drawer element, which runs before faceless-ui's listener on `document`. While the form is modified it stops propagation, so the drawer stays open, and opens the same leave-without-saving confirm the ✕ opens. An Esc something inside already consumed (`defaultPrevented`, e.g. a select closing its menu) is still kept from faceless-ui but asks nothing. An overlay above the drawer (a Radix dialog portaled into it, the leave confirm itself) stops Esc in its own capture listener, so it never arrives here.
+- **Backdrop**: a capture `click` listener on `:scope > .drawer__close`, which runs before React's delegated `onClick`, so the close never dispatches; it opens the confirm instead.
+
+A pristine form changes nothing: both paths close exactly as before. The modified flag is read through a ref so the listeners attach once per drawer.
+
+**Not changed.** `Drawer` itself, faceless-ui, the ✕ path, and plain (non-document) drawers, which have no form to guard. `closeOnBlur` stays `false`.
+
+**Consumer (varig).** `src/components/admin/save-with-preflight.client.jsx` (the unsaved-changes bar) in the Files drawer opened from `src/components/admin/upload-field.jsx`.
+
+---
+
+### 102. A tab can carry an icon, drawn by an app-registered renderer
+
+**Files:** `packages/payload/src/fields/config/types.ts` (`TabBase.icon`), `packages/ui/src/providers/TabIconRenderer/index.tsx` (new), `packages/ui/src/exports/client/index.ts`, `packages/ui/src/fields/Tabs/Tab/index.tsx`, `packages/ui/src/fields/Tabs/Tab/index.scss`
+
+**Why.** varig wanted a sparkle before the Settings document's **AI** tab label. A tab's label is text only (`getTranslation(tab.label)`), and a React node cannot ride the tab config, which crosses the client-config boundary as data.
+
+**Rule.**
+
+- **`icon?: string` on a tab** (beside #78's `slug`). A plain name, so `createClientField` copies it through the tab loop's default branch untouched and `ClientTab` picks it up from `NamedTab` / `UnnamedTab`.
+- **The app draws it.** `TabIconRendererProvider` / `useTabIconRenderer` (exported from `@payloadcms/ui/client`), the same shape as #82's `ConfirmRendererProvider`: the app registers `(icon: string) => ReactNode | undefined` in `admin.components.providers`. `TabComponent` renders the returned node in a `.tabs-field__tab-button__icon` span before the label.
+- **The glyph rides the label.** The span is centred on the label's line, sits 6px before the word (the button's 10px `gap` pulled in), and inherits the button's opacity, so it dims and brightens with the tab.
+- **Nothing registered, nothing drawn.** No `icon`, no renderer, or a renderer that returns `undefined` for the name: the tab renders exactly as before.
+
+**Not changed.** Tab labels, descriptions, `slug` / `?tab=` (#78), error pills, drawer `hideTabs`.
+
+**Consumer (varig).** `src/components/admin/tab-icon-renderer-provider.client.tsx` (lucide names → icons), registered in `src/payload.config.ts` `admin.components.providers`; the storefronts collection's `ai` tab sets `icon: 'Sparkles'`.
+
+---
+
 ## Summary
 
-Recounted 2026-06-22: 62 entry headers across the catalog. Note `#46` is used **twice** (two unrelated changes — "List Status Cell Shows Changed" and "`payload.validate()` Dry-Run"), and `#2` is **DROPPED** (absorbed upstream in v3.85.0). That leaves **62 active changes**. Category counts below are a best-effort classification — several entries straddle fix/feature (a behavior correction that also adds a prop), so treat the split as indicative, not exact. _(Updated 2026-06-29: +#69 → 63 active. Updated 2026-07-02: +#70 → 64 active. Updated 2026-07-23: +#71 → 65 active. Updated 2026-07-24: +#72 → 66 active. Updated 2026-08-01: +#73 → 67 active. Updated 2026-08-24: +#74 and +#75 → 69 active. Updated 2026-08-31: +#76 → 70 active. Updated 2026-08-31: +#77 → 71 active. Updated 2026-09-01: +#78 → 72 active. Updated 2026-09-05: +#80 → 72 active per the table recount; #79 cut and reverted the same day, number retired. Updated 2026-09-06: +#81 → 73 active. Updated 2026-09-07: +#82 → 74 active. Updated 2026-09-13: +#86 → 78 active, revising #81. Updated 2026-09-16: +#87 → 79 active. Updated 2026-09-19: +#88, +#89 and +#90 → 82 active. Updated 2026-09-23: +#91, +#92, +#93 and +#94 → 86 active. Updated 2026-09-24: +#95 (fixes #93), +#96 (revises #92) and +#97 → 89 active. Updated 2026-09-24: +#98 (revises #97 and #90) → 90 active. Updated 2026-09-24: +#99 (revises #97 and #98) → 91 active. Updated 2026-09-24: +#100 (revises #98, #99 and #90) → 92 active.)_
+Recounted 2026-06-22: 62 entry headers across the catalog. Note `#46` is used **twice** (two unrelated changes — "List Status Cell Shows Changed" and "`payload.validate()` Dry-Run"), and `#2` is **DROPPED** (absorbed upstream in v3.85.0). That leaves **62 active changes**. Category counts below are a best-effort classification — several entries straddle fix/feature (a behavior correction that also adds a prop), so treat the split as indicative, not exact. _(Updated 2026-06-29: +#69 → 63 active. Updated 2026-07-02: +#70 → 64 active. Updated 2026-07-23: +#71 → 65 active. Updated 2026-07-24: +#72 → 66 active. Updated 2026-08-01: +#73 → 67 active. Updated 2026-08-24: +#74 and +#75 → 69 active. Updated 2026-08-31: +#76 → 70 active. Updated 2026-08-31: +#77 → 71 active. Updated 2026-09-01: +#78 → 72 active. Updated 2026-09-05: +#80 → 72 active per the table recount; #79 cut and reverted the same day, number retired. Updated 2026-09-06: +#81 → 73 active. Updated 2026-09-07: +#82 → 74 active. Updated 2026-09-13: +#86 → 78 active, revising #81. Updated 2026-09-16: +#87 → 79 active. Updated 2026-09-19: +#88, +#89 and +#90 → 82 active. Updated 2026-09-23: +#91, +#92, +#93 and +#94 → 86 active. Updated 2026-09-24: +#95 (fixes #93), +#96 (revises #92) and +#97 → 89 active. Updated 2026-09-24: +#98 (revises #97 and #90) → 90 active. Updated 2026-09-24: +#99 (revises #97 and #98) → 91 active. Updated 2026-09-24: +#100 (revises #98, #99 and #90) → 92 active. Updated 2026-09-26: +#101 and +#102 → 94 active.)_
 
 | Category           | Count  |
 | ------------------ | ------ |

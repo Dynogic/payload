@@ -978,6 +978,13 @@ type TabBase = {
    */
   description?: LabelFunction | StaticDescription
   fields: Field[]
+  /**
+   * FORK (#102): a glyph drawn before the tab's label. A plain name (it
+   * crosses the client-config boundary as-is); what it draws is up to the
+   * app's `TabIconRendererProvider`. Without a renderer the tab shows its
+   * label only.
+   */
+  icon?: string
   // TODO: Deprecate this in favor of a schemaPath property on every field
   id?: string
   interfaceName?: string

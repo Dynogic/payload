@@ -8,6 +8,7 @@ import React, { useState } from 'react'
 
 import { ErrorPill } from '../../../elements/ErrorPill/index.js'
 import { WatchChildErrors } from '../../../forms/WatchChildErrors/index.js'
+import { useTabIconRenderer } from '../../../providers/TabIconRenderer/index.js'
 import { useTranslation } from '../../../providers/Translation/index.js'
 import './index.scss'
 
@@ -29,6 +30,10 @@ export const TabComponent: React.FC<TabProps> = ({
   tab,
 }) => {
   const { i18n } = useTranslation()
+  const renderTabIcon = useTabIconRenderer()
+  // Fork #102: the app draws the tab's named glyph, if it registered a
+  // renderer and knows the name; otherwise nothing renders.
+  const icon = tab.icon && renderTabIcon ? renderTabIcon(tab.icon) : undefined
   const [errorCount, setErrorCount] = useState(undefined)
 
   const path = [
@@ -54,6 +59,7 @@ export const TabComponent: React.FC<TabProps> = ({
         onClick={setIsActive}
         type="button"
       >
+        {icon ? <span className={`${baseClass}__icon`}>{icon}</span> : null}
         {tab.label ? getTranslation(tab.label, i18n) : tabHasName(tab) ? tab.name : ''}
         {fieldHasErrors && <ErrorPill count={errorCount} i18n={i18n} />}
       </button>

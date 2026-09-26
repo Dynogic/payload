@@ -356,6 +356,11 @@ export {
   useConfirmRenderer,
 } from '../../providers/ConfirmRenderer/index.js'
 export {
+  type TabIconRenderer,
+  TabIconRendererProvider,
+  useTabIconRenderer,
+} from '../../providers/TabIconRenderer/index.js'
+export {
   EntityVisibilityProvider,
   useEntityVisibility,
 } from '../../providers/EntityVisibility/index.js'
