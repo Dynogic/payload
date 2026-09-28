@@ -1755,9 +1755,23 @@ A pristine form changes nothing: both paths close exactly as before. The modifie
 
 ---
 
+### 103. A bare group spaces like an ordinary field (no top-level double margin)
+
+**File:** `packages/ui/src/forms/RenderFields/index.scss`
+
+**Why.** #66's `.group-field--bare { margin: 0 }` (specificity 0,1,0) lost to RenderFields' top-level rule `.render-fields:not(.render-fields--margins-small) > .field-type.group-field`, which gives groups `margin-top` / `margin-bottom: calc(var(--spacing-field) * 2)` (0,4,0). Every bare group sitting directly in a document or tab (not inside a row or another group, whose RenderFields are `margins="small"`) kept the 40px chrome spacing it was meant to shed. varig measured it on the storefront's Advanced tab: a house section eyebrow sat 40px above the bare `comments` group's first field instead of the normal 20px.
+
+**Rule.** The top-level double-margin selector reads `&.group-field:not(.group-field--bare)`. A bare group falls back to the base `.render-fields > .field-type` spacing, like any field: `margin-top` 0 (from #66), `margin-bottom: var(--spacing-field)`, and 0 on `:last-of-type`. Plain `margin: 0` would have been wrong: fields space themselves with `margin-bottom`, so a bare group with none would glue the next field to it.
+
+**Not changed.** Chrome groups (still double-margined at the top level), blocks / array / collapsible / rich text, #66's padding / border / horizontal margin zeroing.
+
+**Consumer (varig).** Every `admin: { bare: true }` group (e.g. the storefront's `comments`, a curation's `rule`, the offer's installments / card groups).
+
+---
+
 ## Summary
 
-Recounted 2026-06-22: 62 entry headers across the catalog. Note `#46` is used **twice** (two unrelated changes — "List Status Cell Shows Changed" and "`payload.validate()` Dry-Run"), and `#2` is **DROPPED** (absorbed upstream in v3.85.0). That leaves **62 active changes**. Category counts below are a best-effort classification — several entries straddle fix/feature (a behavior correction that also adds a prop), so treat the split as indicative, not exact. _(Updated 2026-06-29: +#69 → 63 active. Updated 2026-07-02: +#70 → 64 active. Updated 2026-07-23: +#71 → 65 active. Updated 2026-07-24: +#72 → 66 active. Updated 2026-08-01: +#73 → 67 active. Updated 2026-08-24: +#74 and +#75 → 69 active. Updated 2026-08-31: +#76 → 70 active. Updated 2026-08-31: +#77 → 71 active. Updated 2026-09-01: +#78 → 72 active. Updated 2026-09-05: +#80 → 72 active per the table recount; #79 cut and reverted the same day, number retired. Updated 2026-09-06: +#81 → 73 active. Updated 2026-09-07: +#82 → 74 active. Updated 2026-09-13: +#86 → 78 active, revising #81. Updated 2026-09-16: +#87 → 79 active. Updated 2026-09-19: +#88, +#89 and +#90 → 82 active. Updated 2026-09-23: +#91, +#92, +#93 and +#94 → 86 active. Updated 2026-09-24: +#95 (fixes #93), +#96 (revises #92) and +#97 → 89 active. Updated 2026-09-24: +#98 (revises #97 and #90) → 90 active. Updated 2026-09-24: +#99 (revises #97 and #98) → 91 active. Updated 2026-09-24: +#100 (revises #98, #99 and #90) → 92 active. Updated 2026-09-26: +#101 and +#102 → 94 active.)_
+Recounted 2026-06-22: 62 entry headers across the catalog. Note `#46` is used **twice** (two unrelated changes — "List Status Cell Shows Changed" and "`payload.validate()` Dry-Run"), and `#2` is **DROPPED** (absorbed upstream in v3.85.0). That leaves **62 active changes**. Category counts below are a best-effort classification — several entries straddle fix/feature (a behavior correction that also adds a prop), so treat the split as indicative, not exact. _(Updated 2026-06-29: +#69 → 63 active. Updated 2026-07-02: +#70 → 64 active. Updated 2026-07-23: +#71 → 65 active. Updated 2026-07-24: +#72 → 66 active. Updated 2026-08-01: +#73 → 67 active. Updated 2026-08-24: +#74 and +#75 → 69 active. Updated 2026-08-31: +#76 → 70 active. Updated 2026-08-31: +#77 → 71 active. Updated 2026-09-01: +#78 → 72 active. Updated 2026-09-05: +#80 → 72 active per the table recount; #79 cut and reverted the same day, number retired. Updated 2026-09-06: +#81 → 73 active. Updated 2026-09-07: +#82 → 74 active. Updated 2026-09-13: +#86 → 78 active, revising #81. Updated 2026-09-16: +#87 → 79 active. Updated 2026-09-19: +#88, +#89 and +#90 → 82 active. Updated 2026-09-23: +#91, +#92, +#93 and +#94 → 86 active. Updated 2026-09-24: +#95 (fixes #93), +#96 (revises #92) and +#97 → 89 active. Updated 2026-09-24: +#98 (revises #97 and #90) → 90 active. Updated 2026-09-24: +#99 (revises #97 and #98) → 91 active. Updated 2026-09-24: +#100 (revises #98, #99 and #90) → 92 active. Updated 2026-09-26: +#101 and +#102 → 94 active. Updated 2026-09-28: +#103 (fixes #66) → 95 active.)_
 
 | Category           | Count  |
 | ------------------ | ------ |

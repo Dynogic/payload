@@ -37,9 +37,10 @@
     }
 
     // at the top-level, add extra margins for the following field types
+    // (fork #103: not a bare group, which spaces like an ordinary field)
     &:not(.render-fields--margins-small) {
       & > .field-type {
-        &.group-field,
+        &.group-field:not(.group-field--bare),
         &.blocks-field,
         &.array-field,
         &.collapsible-field,
