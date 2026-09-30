@@ -49,8 +49,25 @@ const StepNav: React.FC<{
             const StepLabel = getTranslation(item.label, i18n)
             const isLast = stepNav.length === i + 1
 
+            // FORK (#104): a step with an `onClick` is a button (wherever it
+            // sits in the trail) and never a link; the last one keeps its
+            // `__last` class so it reads exactly like the plain last step.
+            const Action = item.onClick ? (
+              <button
+                className={[`${baseClass}__action`, isLast && `${baseClass}__last`]
+                  .filter(Boolean)
+                  .join(' ')}
+                key={i}
+                onClick={item.onClick}
+                type="button"
+              >
+                <span>{StepLabel}</span>
+              </button>
+            ) : null
+
             const Step = isLast ? (
-              item.url ? (
+              (Action ??
+              (item.url ? (
                 <Link className={`${baseClass}__last`} href={item.url} key={i} prefetch={false}>
                   <span>{StepLabel}</span>
                 </Link>
@@ -58,16 +75,17 @@ const StepNav: React.FC<{
                 <span className={`${baseClass}__last`} key={i}>
                   {StepLabel}
                 </span>
-              )
+              )))
             ) : (
               <Fragment key={i}>
-                {item.url ? (
-                  <Link href={item.url} prefetch={false}>
+                {Action ??
+                  (item.url ? (
+                    <Link href={item.url} prefetch={false}>
+                      <span key={i}>{StepLabel}</span>
+                    </Link>
+                  ) : (
                     <span key={i}>{StepLabel}</span>
-                  </Link>
-                ) : (
-                  <span key={i}>{StepLabel}</span>
-                )}
+                  ))}
                 <span>/</span>
               </Fragment>
             )

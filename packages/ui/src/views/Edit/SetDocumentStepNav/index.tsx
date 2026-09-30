@@ -38,7 +38,7 @@ export const SetDocumentStepNav: React.FC<{
   const view: string | undefined = props?.view || undefined
 
   const { isEditing, isInitializing } = useDocumentInfo()
-  const { title } = useDocumentTitle()
+  const { title, titleStepOnClick } = useDocumentTitle()
 
   const { isEntityVisible } = useEntityVisibility()
   const isVisible = isEntityVisible({ collectionSlug, globalSlug })
@@ -85,20 +85,25 @@ export const SetDocumentStepNav: React.FC<{
           })
         }
 
-        // Document label (no URL since this is the current page)
+        // Document label (no URL since this is the current page). FORK
+        // (#104): the app's `setTitleStepOnClick` handler, if any, makes it
+        // act.
         if (isEditing) {
           nav.push({
             label: (useAsTitle && useAsTitle !== 'id' && title) || `${id}`,
+            onClick: titleStepOnClick,
           })
         } else {
           nav.push({
             label: t('general:createNew'),
+            onClick: titleStepOnClick,
           })
         }
       } else if (globalSlug) {
         // Global label (no URL since this is the current page)
         nav.push({
           label: title,
+          onClick: titleStepOnClick,
         })
       }
 
@@ -124,6 +129,7 @@ export const SetDocumentStepNav: React.FC<{
     t,
     i18n,
     title,
+    titleStepOnClick,
     collectionSlug,
     globalSlug,
     serverURL,

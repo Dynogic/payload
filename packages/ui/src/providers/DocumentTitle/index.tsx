@@ -1,6 +1,6 @@
 import type { ClientCollectionConfig, ClientGlobalConfig } from 'payload'
 
-import { createContext, use, useEffect, useState } from 'react'
+import { createContext, use, useCallback, useEffect, useState } from 'react'
 
 import { formatDocTitle } from '../../utilities/formatDocTitle/index.js'
 import { useConfig } from '../Config/index.js'
@@ -32,7 +32,34 @@ type IDocumentTitleContext = {
    * ```
    */
   setTitleOverride: React.Dispatch<React.SetStateAction<null | string>>
+  /**
+   * FORK (#104): make the document's own breadcrumb step (the one
+   * `SetDocumentStepNav` pushes for the title) ACT: it renders as a button
+   * that calls this (`StepNavItem.onClick`). Pass `null` to clear it and the
+   * step is plain text again. Pass a STABLE function (`useCallback`): a new
+   * identity rebuilds the trail.
+   *
+   * It lives on the document, not on the step nav, because the step nav is
+   * one per admin page while every document (a drawer's too) has its own
+   * provider: a document in a drawer can set it freely and the page's
+   * trail never sees it, since `SetDocumentStepNav` mounts only outside
+   * drawers. Unmounting the document drops it with the provider.
+   *
+   * @example
+   * ```tsx
+   * const { setTitleStepOnClick } = useDocumentTitle()
+   * const openRename = useCallback(() => setOpen(true), [])
+   * useEffect(() => {
+   *   if (!untitled) return undefined
+   *   setTitleStepOnClick(openRename)
+   *   return () => setTitleStepOnClick(null)
+   * }, [untitled, openRename, setTitleStepOnClick])
+   * ```
+   */
+  setTitleStepOnClick: (onClick: (() => void) | null) => void
   title: string
+  /** FORK (#104): the handler set through `setTitleStepOnClick`, if any. */
+  titleStepOnClick?: () => void
 }
 
 const DocumentTitleContext = createContext({} as IDocumentTitleContext)
@@ -55,6 +82,14 @@ export const DocumentTitleProvider: React.FC<{
   // FORK (#73): the app-supplied title layer. `null` (the default) means no
   // override, so every collection that never calls the setter is unchanged.
   const [titleOverride, setTitleOverride] = useState<null | string>(null)
+
+  // FORK (#104): the title step's click handler. Held behind an updater so a
+  // function is STORED, never called as a state updater.
+  const [titleStepOnClick, setTitleStepOnClickState] = useState<(() => void) | null>(null)
+  const setTitleStepOnClick = useCallback(
+    (onClick: (() => void) | null) => setTitleStepOnClickState(() => onClick),
+    [],
+  )
 
   const [title, setDocumentTitle] = useState(() =>
     formatDocTitle({
@@ -82,7 +117,13 @@ export const DocumentTitleProvider: React.FC<{
 
   return (
     <DocumentTitleContext
-      value={{ setDocumentTitle, setTitleOverride, title: titleOverride ?? title }}
+      value={{
+        setDocumentTitle,
+        setTitleOverride,
+        setTitleStepOnClick,
+        title: titleOverride ?? title,
+        titleStepOnClick: titleStepOnClick ?? undefined,
+      }}
     >
       {children}
     </DocumentTitleContext>

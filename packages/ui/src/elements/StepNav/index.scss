@@ -58,6 +58,52 @@
       }
     }
 
+    // FORK (#104): a step that acts (`StepNavItem.onClick`) is a button that
+    // looks like the step it replaces: no chrome, the trail's own type and
+    // ink (the last step keeps its normal weight), the underline every
+    // clickable step wears on hover / focus-visible, and the home link's
+    // inset focus ring (a pseudo element, because the header clips an
+    // outline).
+    &__action {
+      appearance: none;
+      position: relative;
+      margin: 0;
+      padding: 0;
+      border: 0;
+      border-radius: var(--style-radius-s);
+      background: none;
+      color: inherit;
+      font: inherit;
+      text-align: inherit;
+      cursor: pointer;
+
+      // Mid-trail it is a clickable step like the links beside it.
+      &:not(.step-nav__last) {
+        font-weight: 600;
+      }
+
+      &:hover,
+      &:focus-visible {
+        text-decoration: underline;
+      }
+
+      &:focus-visible {
+        outline: none;
+
+        &::after {
+          content: '';
+          border: var(--accessibility-outline);
+          border-radius: inherit;
+          position: absolute;
+          top: 0;
+          right: 0;
+          bottom: 0;
+          left: 0;
+          pointer-events: none;
+        }
+      }
+    }
+
     span {
       max-width: base(16);
       text-overflow: ellipsis;
