@@ -24,9 +24,11 @@
     }
   }
 
+  // The CLOSED nav's column (fork #106): `--nav-closed-width`, 0 unless an
+  // app sets it (an icon rail). The open column stays `--nav-width`.
   @media (min-width: 1441px) {
     .template-default {
-      grid-template-columns: 0 auto;
+      grid-template-columns: var(--nav-closed-width, 0px) auto;
 
       &--nav-open {
         grid-template-columns: var(--nav-width) auto;
@@ -47,7 +49,7 @@
       }
 
       &--nav-hydrated {
-        grid-template-columns: 0 auto;
+        grid-template-columns: var(--nav-closed-width, 0px) auto;
 
         .nav {
           display: unset;

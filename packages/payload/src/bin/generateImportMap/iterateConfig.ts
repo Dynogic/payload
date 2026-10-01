@@ -56,6 +56,7 @@ export function iterateConfig({
 
   addToImportMap(config.admin?.components?.accountMenu)
   addToImportMap(config.admin?.components?.Nav)
+  addToImportMap(config.admin?.components?.navToggler)
   addToImportMap(config.admin?.components?.header)
   addToImportMap(config.admin?.components?.logout?.Button)
   addToImportMap(config.admin?.components?.settingsMenu)

@@ -939,6 +939,13 @@ export type Config = {
        */
       Nav?: CustomComponent
       /**
+       * Replace the nav toggler (the button above the nav that opens and
+       * closes it) with a custom component, rendered in its place. Use
+       * `useNavToggle()` from `@payloadcms/ui` to open / close the nav the
+       * way the built-in toggler does (fork #105).
+       */
+      navToggler?: CustomComponent
+      /**
        * Wrap the admin dashboard in custom context providers
        */
       providers?: PayloadComponent<{ children?: React.ReactNode }, { children?: React.ReactNode }>[]

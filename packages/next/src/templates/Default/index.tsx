@@ -129,9 +129,18 @@ export const DefaultTemplate: React.FC<DefaultTemplateProps> = ({
           <div style={{ position: 'relative' }}>
             <div className={`${baseClass}__nav-toggler-wrapper`} id="nav-toggler">
               <div className={`${baseClass}__nav-toggler-container`} id="nav-toggler">
-                <NavToggler className={`${baseClass}__nav-toggler`}>
-                  <NavHamburger />
-                </NavToggler>
+                {components?.navToggler ? (
+                  RenderServerComponent({
+                    clientProps,
+                    Component: components.navToggler,
+                    importMap: payload.importMap,
+                    serverProps,
+                  })
+                ) : (
+                  <NavToggler className={`${baseClass}__nav-toggler`}>
+                    <NavHamburger />
+                  </NavToggler>
+                )}
               </div>
             </div>
             <Wrapper baseClass={baseClass} className={className}>

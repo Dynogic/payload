@@ -1785,11 +1785,38 @@ A pristine form changes nothing: both paths close exactly as before. The modifie
 
 **Consumer (varig).** `src/components/admin/document-identity.client.tsx`: while the name is blank, the viewer may rename and is not read-only, `setTitleStepOnClick(openFromCrumb)`, which opens the Name / Link popover and scrolls it into view once laid out; cleared with `null` otherwise and on unmount.
 
+### 105. The nav toggler can be replaced (`admin.components.navToggler`), and `useNavToggle()` opens / closes the nav as the user did it
+
+**Files:** `packages/ui/src/elements/Nav/useNavToggle.ts` (new), `packages/ui/src/elements/Nav/NavToggler/index.tsx`, `packages/ui/src/exports/client/index.ts`, `packages/next/src/templates/Default/index.tsx`, `packages/payload/src/config/types.ts`, `packages/payload/src/bin/generateImportMap/iterateConfig.ts`
+
+**Why.** varig moved the nav's close button INTO the nav, right of its logo (2026-10-01, the Shopify shape: one panel glyph to close it there, the same glyph to open it from the header when it is closed). Payload's toggler is rendered by the Default template in a sticky wrapper ABOVE the nav and cannot be swapped, so the open nav showed two buttons, Payload's sitting over the logo. Hiding it by CSS fails: the wrapper is a SIBLING of the element carrying `--nav-open`, not inside it. And an app's own button could only call `useNav().setNavOpen`, which flips the state but skips what the built-in toggler also does on desktop: save the open / closed choice as the `nav` preference, so a close made with it did not survive a reload.
+
+**Rule.**
+
+- **`useNavToggle()`** (exported from `@payloadcms/ui`) returns `(open?: boolean) => Promise<void>`: sets the nav state (toggles with no argument) and, above the large breakpoint, saves `PREFERENCE_KEYS.NAV` as `{ open }`, the exact handler `NavToggler` had inline. `NavToggler` now calls it, so the two cannot drift. `setNavOpen` stays the raw setter for code that opens / closes the nav for layout reasons and must NOT write the preference.
+- **`admin.components.navToggler?: CustomComponent`** (typed in `config/types.ts`, registered in the import map). When set, the Default template renders it in place of `<NavToggler><NavHamburger /></NavToggler>`, inside the same sticky `template-default__nav-toggler-wrapper` / `-container`, with the template's `clientProps` / `serverProps`. Unset, the template is unchanged.
+
+**Not changed.** The nav context, the preference shape, the mobile auto-close, the Nav slot, the toggler's own look when no custom one is configured.
+
+**Consumer (varig).** `src/components/admin/navigation/nav-open-button.client.tsx` is the slot: the panel glyph button, drawn only while the nav is CLOSED (`useNavToggle()(true)`). The close button in the nav's brand row (`navigation/hamburger/index.tsx`) calls `useNavToggle()(false)`.
+
+### 106. A closed nav can keep a column: `--nav-closed-width`
+
+**Files:** `packages/next/src/templates/Default/Wrapper/index.scss`
+
+**Why.** varig collapses its nav to an icon rail on desktop (2026-10-01, the Shopify shape) instead of hiding it. The Default template's grid gave a closed nav a hard `0` column (`grid-template-columns: 0 auto`, both above and below the 1440 breakpoint once hydrated), so a rail had nowhere to stand: the content would slide under it.
+
+**Rule.** The closed column is `var(--nav-closed-width, 0px)` in both places. Unset, it is 0 and nothing changes. An app sets the variable (on `:root`, per breakpoint) to keep a narrow column for a closed nav; the open column stays `var(--nav-width)`, and the open / closed transition animates between the two as before. The pre-hydration `1fr auto` + `.nav { display: none }` is untouched.
+
+**Not changed.** The nav state, the toggler, the overlay, the open width.
+
+**Consumer (varig).** `src/components/admin/navigation/index.scss` sets `--nav-closed-width: 64px`, and `0px` at the small break (phones get no rail: closed is hidden, opened from the floating button); the nav draws the rail while closed (`navigation/nav-shell.client.tsx`).
+
 ---
 
 ## Summary
 
-Recounted 2026-06-22: 62 entry headers across the catalog. Note `#46` is used **twice** (two unrelated changes — "List Status Cell Shows Changed" and "`payload.validate()` Dry-Run"), and `#2` is **DROPPED** (absorbed upstream in v3.85.0). That leaves **62 active changes**. Category counts below are a best-effort classification — several entries straddle fix/feature (a behavior correction that also adds a prop), so treat the split as indicative, not exact. _(Updated 2026-06-29: +#69 → 63 active. Updated 2026-07-02: +#70 → 64 active. Updated 2026-07-23: +#71 → 65 active. Updated 2026-07-24: +#72 → 66 active. Updated 2026-08-01: +#73 → 67 active. Updated 2026-08-24: +#74 and +#75 → 69 active. Updated 2026-08-31: +#76 → 70 active. Updated 2026-08-31: +#77 → 71 active. Updated 2026-09-01: +#78 → 72 active. Updated 2026-09-05: +#80 → 72 active per the table recount; #79 cut and reverted the same day, number retired. Updated 2026-09-06: +#81 → 73 active. Updated 2026-09-07: +#82 → 74 active. Updated 2026-09-13: +#86 → 78 active, revising #81. Updated 2026-09-16: +#87 → 79 active. Updated 2026-09-19: +#88, +#89 and +#90 → 82 active. Updated 2026-09-23: +#91, +#92, +#93 and +#94 → 86 active. Updated 2026-09-24: +#95 (fixes #93), +#96 (revises #92) and +#97 → 89 active. Updated 2026-09-24: +#98 (revises #97 and #90) → 90 active. Updated 2026-09-24: +#99 (revises #97 and #98) → 91 active. Updated 2026-09-24: +#100 (revises #98, #99 and #90) → 92 active. Updated 2026-09-26: +#101 and +#102 → 94 active. Updated 2026-09-28: +#103 (fixes #66) → 95 active. Updated 2026-09-30: +#104 → 96 active.)_
+Recounted 2026-06-22: 62 entry headers across the catalog. Note `#46` is used **twice** (two unrelated changes — "List Status Cell Shows Changed" and "`payload.validate()` Dry-Run"), and `#2` is **DROPPED** (absorbed upstream in v3.85.0). That leaves **62 active changes**. Category counts below are a best-effort classification — several entries straddle fix/feature (a behavior correction that also adds a prop), so treat the split as indicative, not exact. _(Updated 2026-06-29: +#69 → 63 active. Updated 2026-07-02: +#70 → 64 active. Updated 2026-07-23: +#71 → 65 active. Updated 2026-07-24: +#72 → 66 active. Updated 2026-08-01: +#73 → 67 active. Updated 2026-08-24: +#74 and +#75 → 69 active. Updated 2026-08-31: +#76 → 70 active. Updated 2026-08-31: +#77 → 71 active. Updated 2026-09-01: +#78 → 72 active. Updated 2026-09-05: +#80 → 72 active per the table recount; #79 cut and reverted the same day, number retired. Updated 2026-09-06: +#81 → 73 active. Updated 2026-09-07: +#82 → 74 active. Updated 2026-09-13: +#86 → 78 active, revising #81. Updated 2026-09-16: +#87 → 79 active. Updated 2026-09-19: +#88, +#89 and +#90 → 82 active. Updated 2026-09-23: +#91, +#92, +#93 and +#94 → 86 active. Updated 2026-09-24: +#95 (fixes #93), +#96 (revises #92) and +#97 → 89 active. Updated 2026-09-24: +#98 (revises #97 and #90) → 90 active. Updated 2026-09-24: +#99 (revises #97 and #98) → 91 active. Updated 2026-09-24: +#100 (revises #98, #99 and #90) → 92 active. Updated 2026-09-26: +#101 and +#102 → 94 active. Updated 2026-09-28: +#103 (fixes #66) → 95 active. Updated 2026-09-30: +#104 → 96 active. Updated 2026-10-01: +#105 and +#106 → 98 active.)_
 
 | Category           | Count  |
 | ------------------ | ------ |
