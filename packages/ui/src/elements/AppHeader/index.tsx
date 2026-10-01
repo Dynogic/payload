@@ -22,8 +22,19 @@ type Props = {
   CustomAccountMenu?: React.ReactNode
   CustomAvatar?: React.ReactNode
   CustomIcon?: React.ReactNode
+  /**
+   * The app replaced the nav toggler (`admin.components.navToggler`, fork
+   * #105 / #107): the header's own phone-width toggler goes too, or a phone
+   * would show Payload's hamburger beside the app's.
+   */
+  hideMobileNavToggler?: boolean
 }
-export function AppHeader({ CustomAccountMenu, CustomAvatar, CustomIcon }: Props) {
+export function AppHeader({
+  CustomAccountMenu,
+  CustomAvatar,
+  CustomIcon,
+  hideMobileNavToggler,
+}: Props) {
   const { t } = useTranslation()
 
   const { Actions } = useActions()
@@ -68,9 +79,11 @@ export function AppHeader({ CustomAccountMenu, CustomAvatar, CustomIcon }: Props
       <div className={`${baseClass}__bg`} />
       <div className={`${baseClass}__content`}>
         <div className={`${baseClass}__wrapper`}>
-          <NavToggler className={`${baseClass}__mobile-nav-toggler`} tabIndex={-1}>
-            <Hamburger />
-          </NavToggler>
+          {!hideMobileNavToggler && (
+            <NavToggler className={`${baseClass}__mobile-nav-toggler`} tabIndex={-1}>
+              <Hamburger />
+            </NavToggler>
+          )}
           <div className={`${baseClass}__controls-wrapper`}>
             <div className={`${baseClass}__step-nav-wrapper`}>
               <StepNav className={`${baseClass}__step-nav`} CustomIcon={CustomIcon} />

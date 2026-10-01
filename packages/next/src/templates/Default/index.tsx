@@ -174,6 +174,7 @@ export const DefaultTemplate: React.FC<DefaultTemplateProps> = ({
                         })
                       : undefined
                   }
+                  hideMobileNavToggler={Boolean(components?.navToggler)}
                 />
                 {children}
               </div>

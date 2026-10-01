@@ -1812,11 +1812,26 @@ A pristine form changes nothing: both paths close exactly as before. The modifie
 
 **Consumer (varig).** `src/components/admin/navigation/index.scss` sets `--nav-closed-width: 64px`, and `0px` at the small break (phones get no rail: closed is hidden, opened from the floating button); the nav draws the rail while closed (`navigation/nav-shell.client.tsx`).
 
+### 107. A replaced toggler replaces the header's phone toggler too; the open nav's column can be set (`--nav-open-column`) (revises #105, #106)
+
+**Files:** `packages/ui/src/elements/AppHeader/index.tsx`, `packages/next/src/templates/Default/index.tsx`, `packages/next/src/templates/Default/Wrapper/index.scss`
+
+**Why.** #105 let an app replace the nav toggler above the nav, but Payload draws a SECOND toggler: `AppHeader`'s `app-header__mobile-nav-toggler`, shown only at the small break. With `navToggler` configured a phone still showed Payload's hamburger beside the breadcrumb (varig, 2026-10-01). And on a phone the open nav could only push the page aside at full width: Payload sets `--nav-width: 100vw` at the small break and the grid reserves that column, so a drawer floating over a dimmed page (the Shopify shape) had nowhere to go.
+
+**Rule.**
+
+- **`AppHeader` takes `hideMobileNavToggler?: boolean`**; when true it renders no mobile toggler. The Default template passes `Boolean(components?.navToggler)`, so a configured `navToggler` replaces BOTH of Payload's togglers. Unset, the header is unchanged.
+- **The open column is `var(--nav-open-column, var(--nav-width))`** in both places #106 touched. Unset, it is `--nav-width` as before. An app sets it to `0px` (per breakpoint) for a nav that floats over the content.
+
+**Not changed.** The toggler's behaviour (#105's `useNavToggle`), the closed column (#106), the nav state.
+
+**Consumer (varig).** `src/components/admin/navigation/index.scss`: at the small break `--nav-open-column: 0px` and the open nav is a fixed drawer (`min(85vw, 320px)`) over a backdrop that closes it (`navigation/wrapper`).
+
 ---
 
 ## Summary
 
-Recounted 2026-06-22: 62 entry headers across the catalog. Note `#46` is used **twice** (two unrelated changes — "List Status Cell Shows Changed" and "`payload.validate()` Dry-Run"), and `#2` is **DROPPED** (absorbed upstream in v3.85.0). That leaves **62 active changes**. Category counts below are a best-effort classification — several entries straddle fix/feature (a behavior correction that also adds a prop), so treat the split as indicative, not exact. _(Updated 2026-06-29: +#69 → 63 active. Updated 2026-07-02: +#70 → 64 active. Updated 2026-07-23: +#71 → 65 active. Updated 2026-07-24: +#72 → 66 active. Updated 2026-08-01: +#73 → 67 active. Updated 2026-08-24: +#74 and +#75 → 69 active. Updated 2026-08-31: +#76 → 70 active. Updated 2026-08-31: +#77 → 71 active. Updated 2026-09-01: +#78 → 72 active. Updated 2026-09-05: +#80 → 72 active per the table recount; #79 cut and reverted the same day, number retired. Updated 2026-09-06: +#81 → 73 active. Updated 2026-09-07: +#82 → 74 active. Updated 2026-09-13: +#86 → 78 active, revising #81. Updated 2026-09-16: +#87 → 79 active. Updated 2026-09-19: +#88, +#89 and +#90 → 82 active. Updated 2026-09-23: +#91, +#92, +#93 and +#94 → 86 active. Updated 2026-09-24: +#95 (fixes #93), +#96 (revises #92) and +#97 → 89 active. Updated 2026-09-24: +#98 (revises #97 and #90) → 90 active. Updated 2026-09-24: +#99 (revises #97 and #98) → 91 active. Updated 2026-09-24: +#100 (revises #98, #99 and #90) → 92 active. Updated 2026-09-26: +#101 and +#102 → 94 active. Updated 2026-09-28: +#103 (fixes #66) → 95 active. Updated 2026-09-30: +#104 → 96 active. Updated 2026-10-01: +#105 and +#106 → 98 active.)_
+Recounted 2026-06-22: 62 entry headers across the catalog. Note `#46` is used **twice** (two unrelated changes — "List Status Cell Shows Changed" and "`payload.validate()` Dry-Run"), and `#2` is **DROPPED** (absorbed upstream in v3.85.0). That leaves **62 active changes**. Category counts below are a best-effort classification — several entries straddle fix/feature (a behavior correction that also adds a prop), so treat the split as indicative, not exact. _(Updated 2026-06-29: +#69 → 63 active. Updated 2026-07-02: +#70 → 64 active. Updated 2026-07-23: +#71 → 65 active. Updated 2026-07-24: +#72 → 66 active. Updated 2026-08-01: +#73 → 67 active. Updated 2026-08-24: +#74 and +#75 → 69 active. Updated 2026-08-31: +#76 → 70 active. Updated 2026-08-31: +#77 → 71 active. Updated 2026-09-01: +#78 → 72 active. Updated 2026-09-05: +#80 → 72 active per the table recount; #79 cut and reverted the same day, number retired. Updated 2026-09-06: +#81 → 73 active. Updated 2026-09-07: +#82 → 74 active. Updated 2026-09-13: +#86 → 78 active, revising #81. Updated 2026-09-16: +#87 → 79 active. Updated 2026-09-19: +#88, +#89 and +#90 → 82 active. Updated 2026-09-23: +#91, +#92, +#93 and +#94 → 86 active. Updated 2026-09-24: +#95 (fixes #93), +#96 (revises #92) and +#97 → 89 active. Updated 2026-09-24: +#98 (revises #97 and #90) → 90 active. Updated 2026-09-24: +#99 (revises #97 and #98) → 91 active. Updated 2026-09-24: +#100 (revises #98, #99 and #90) → 92 active. Updated 2026-09-26: +#101 and +#102 → 94 active. Updated 2026-09-28: +#103 (fixes #66) → 95 active. Updated 2026-09-30: +#104 → 96 active. Updated 2026-10-01: +#105 and +#106 → 98 active; +#107 (revises #105, #106) → 99 active.)_
 
 | Category           | Count  |
 | ------------------ | ------ |
