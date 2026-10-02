@@ -625,6 +625,55 @@ export const blocks: BlocksFieldValidation = async (
   return true
 }
 
+/**
+ * Fork #113: the IDs a relationship / upload value references, keyed
+ * `<collection>:<id>` (a polymorphic `{ relationTo, value }` keys by its own
+ * collection; a plain ID by the field's single `relationTo`). Populated docs
+ * contribute their `id`.
+ */
+const collectRelationshipIDs = ({
+  relationTo,
+  value,
+}: {
+  relationTo: CollectionSlug | CollectionSlug[]
+  value: unknown
+}): Set<string> => {
+  const ids = new Set<string>()
+  if (value === null || value === undefined) {
+    return ids
+  }
+  const entries = Array.isArray(value) ? value : [value]
+  const add = (collection: string | undefined, id: unknown) => {
+    if (!collection) {
+      return
+    }
+    if (typeof id === 'string' || typeof id === 'number') {
+      ids.add(`${collection}:${String(id)}`)
+    } else if (id && typeof id === 'object' && 'id' in id) {
+      const docID = (id as { id: unknown }).id
+      if (typeof docID === 'string' || typeof docID === 'number') {
+        ids.add(`${collection}:${String(docID)}`)
+      }
+    } else if (id && typeof id === 'object' && ObjectId.isValid(id as unknown as string)) {
+      ids.add(`${collection}:${new ObjectId(id as unknown as string).toHexString()}`)
+    }
+  }
+  for (const entry of entries) {
+    if (Array.isArray(relationTo)) {
+      if (entry && typeof entry === 'object' && 'relationTo' in entry) {
+        const { relationTo: entryCollection, value: entryValue } = entry as {
+          relationTo?: string
+          value?: unknown
+        }
+        add(entryCollection, entryValue)
+      }
+    } else {
+      add(relationTo, entry)
+    }
+  }
+  return ids
+}
+
 const validateFilterOptions: Validate<
   unknown,
   unknown,
@@ -638,6 +687,7 @@ const validateFilterOptions: Validate<
     data,
     filterOptions,
     overrideAccess,
+    previousValue,
     relationTo,
     req,
     req: { t, user },
@@ -652,6 +702,14 @@ const validateFilterOptions: Validate<
     const falseCollections: CollectionSlug[] = []
     const collections = !Array.isArray(relationTo) ? [relationTo] : relationTo
     const values = Array.isArray(value) ? value : [value]
+
+    // Fork #113: a reference the document ALREADY held is not a new link. The
+    // user's read access (upstream 3.90, "respect relationship filter option
+    // access") decides only the references this write ADDS; an unchanged one
+    // is still checked against filterOptions, but without the user's access,
+    // so someone who may edit the document but not read a related collection
+    // can save it without the save failing on a reference they did not touch.
+    const previousIDs = collectRelationshipIDs({ relationTo, value: previousValue })
 
     for (const collection of collections) {
       try {
@@ -702,18 +760,36 @@ const validateFilterOptions: Validate<
             falseCollections.push(collection)
           }
 
-          const result = await req.payloadDataLoader.find({
-            collection,
-            depth: 0,
-            disableErrors: true,
-            limit: 0,
-            overrideAccess: overrideAccess ?? false,
-            pagination: false,
-            req,
-            where: findWhere,
-          })
+          const override = overrideAccess ?? false
+          const unchangedIDs = override
+            ? []
+            : valueIDs.filter((valueID) => previousIDs.has(`${collection}:${String(valueID)}`))
+          const addedIDs = valueIDs.filter((valueID) => !unchangedIDs.includes(valueID))
 
-          options[collection] = result.docs.map((doc) => doc.id)
+          const findIDs = async (ids: (number | string)[], withOverride: boolean) => {
+            if (ids.length === 0) {
+              return []
+            }
+            const where: Where = {
+              and: [{ id: { in: ids } }, ...(findWhere.and ?? []).slice(1)],
+            }
+            const result = await req.payloadDataLoader.find({
+              collection,
+              depth: 0,
+              disableErrors: true,
+              limit: 0,
+              overrideAccess: withOverride,
+              pagination: false,
+              req,
+              where,
+            })
+            return result.docs.map((doc) => doc.id)
+          }
+
+          options[collection] = [
+            ...(await findIDs(addedIDs, override)),
+            ...(await findIDs(unchangedIDs, true)),
+          ]
         } else {
           options[collection] = []
         }

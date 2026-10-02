@@ -358,6 +358,57 @@ describe('Field Validations', () => {
       const allowed = await relationship(val, maxOptions)
       expect(allowed).toStrictEqual(true)
     })
+
+    describe('filterOptions access (fork #113)', () => {
+      // The user can read only `readable`; with overrideAccess the loader sees everything.
+      const makeOptions = (extra: Record<string, unknown> = {}) => {
+        const calls: { ids: unknown; overrideAccess: unknown }[] = []
+        const find = vitest.fn(async ({ overrideAccess, where }) => {
+          const ids = (where.and[0].id.in as string[]).map(String)
+          calls.push({ ids, overrideAccess })
+          return {
+            docs: ids.filter((id) => overrideAccess || id === 'readable').map((id) => ({ id })),
+          }
+        })
+        return {
+          calls,
+          options: {
+            ...relationshipOptions,
+            filterOptions: { name: { exists: true } },
+            hasMany: true,
+            req: { ...relationshipOptions.req, payloadDataLoader: { find }, user: { id: 'u' } },
+            ...extra,
+          },
+        }
+      }
+
+      it('refuses a NEW reference the user cannot read', async () => {
+        const { options: opts } = makeOptions({ previousValue: [] })
+        const result = await relationship(['hidden'], opts as any)
+        expect(result).not.toBe(true)
+      })
+
+      it('accepts an UNCHANGED reference the user cannot read, still checked by filterOptions', async () => {
+        const { calls, options: opts } = makeOptions({ previousValue: ['hidden'] })
+        const result = await relationship(['hidden', 'readable'], opts as any)
+        expect(result).toBe(true)
+        expect(calls).toEqual([
+          { ids: ['readable'], overrideAccess: false },
+          { ids: ['hidden'], overrideAccess: true },
+        ])
+      })
+
+      it('accepts an unchanged populated reference', async () => {
+        const { options: opts } = makeOptions({ previousValue: [{ id: 'hidden', name: 'x' }] })
+        expect(await relationship(['hidden'], opts as any)).toBe(true)
+      })
+
+      it('overrideAccess: true looks every ID up without the user', async () => {
+        const { calls, options: opts } = makeOptions({ overrideAccess: true, previousValue: [] })
+        expect(await relationship(['hidden'], opts as any)).toBe(true)
+        expect(calls).toEqual([{ ids: ['hidden'], overrideAccess: true }])
+      })
+    })
   })
 
   describe('select', () => {
