@@ -1,3 +1,4 @@
+import { cloudStoragePlugin } from '@payloadcms/plugin-cloud-storage'
 import { fileURLToPath } from 'node:url'
 import path from 'path'
 const filename = fileURLToPath(import.meta.url)
@@ -15,13 +16,22 @@ import DraftsNoReadVersions from './collections/DraftsNoReadVersions.js'
 import DraftWithChangeHook from './collections/DraftsWithChangeHook.js'
 import DraftsWithCustomUnpublish from './collections/DraftsWithCustomUnpublish.js'
 import DraftWithMax from './collections/DraftsWithMax.js'
+import { DraftsWithUpload } from './collections/DraftsWithUpload.js'
+import {
+  DraftsWithUploadCloudStorage,
+  mockCloudStorageAdapter,
+} from './collections/DraftsWithUploadCloudStorage.js'
 import DraftsWithValidate from './collections/DraftsWithValidate.js'
 import ErrorOnUnpublish from './collections/ErrorOnUnpublish.js'
 import LocalizedPosts from './collections/Localized.js'
 import { Media } from './collections/Media.js'
 import { Media2 } from './collections/Media2.js'
 import Posts from './collections/Posts.js'
+import RestoreAccess from './collections/RestoreAccess.js'
+import RestoreAccessLocalized from './collections/RestoreAccessLocalized.js'
+import { SecondaryAdminUsers } from './collections/SecondaryAdminUsers.js'
 import { TextCollection } from './collections/Text.js'
+import { Users } from './collections/Users.js'
 import VersionPosts from './collections/Versions.js'
 import AutosaveGlobal from './globals/Autosave.js'
 import AutosaveWithDraftButtonGlobal from './globals/AutosaveWithDraftButton.js'
@@ -31,9 +41,11 @@ import DraftUnlimitedGlobal from './globals/DraftUnlimited.js'
 import DraftWithMaxGlobal from './globals/DraftWithMax.js'
 import LocalizedGlobal from './globals/LocalizedGlobal.js'
 import { MaxVersions } from './globals/MaxVersions.js'
+import RestoreAccessGlobal, { RestoreAccessNoVersionsGlobal } from './globals/RestoreAccess.js'
 import SimpleDraftGlobal from './globals/SimpleDraft.js'
 import { seed } from './seed.js'
 import { BASE_PATH } from './shared.js'
+import { draftWithUploadCloudStorageCollectionSlug } from './slugs.js'
 process.env.NEXT_BASE_PATH = BASE_PATH
 export default buildConfigWithDefaults({
   admin: {
@@ -42,6 +54,9 @@ export default buildConfigWithDefaults({
     },
     // The autosave test uses this format in order to compare timestamps in the UI
     dateFormat: 'MMMM do yyyy, h:mm:ss a',
+  },
+  experimental: {
+    localizeStatus: true,
   },
   collections: [
     DisablePublish,
@@ -62,8 +77,14 @@ export default buildConfigWithDefaults({
     CustomIDs,
     Diff,
     TextCollection,
+    DraftsWithUpload,
+    DraftsWithUploadCloudStorage,
     Media,
     Media2,
+    RestoreAccess,
+    RestoreAccessLocalized,
+    Users,
+    SecondaryAdminUsers,
   ],
   globals: [
     AutosaveGlobal,
@@ -75,6 +96,8 @@ export default buildConfigWithDefaults({
     MaxVersions,
     DraftUnlimitedGlobal,
     SimpleDraftGlobal,
+    RestoreAccessGlobal,
+    RestoreAccessNoVersionsGlobal,
   ],
   indexSortableFields: true,
   localization: {
@@ -107,6 +130,15 @@ export default buildConfigWithDefaults({
       await seed(payload)
     }
   },
+  plugins: [
+    cloudStoragePlugin({
+      collections: {
+        [draftWithUploadCloudStorageCollectionSlug]: {
+          adapter: mockCloudStorageAdapter,
+        },
+      },
+    }),
+  ],
   typescript: {
     outputFile: path.resolve(dirname, 'payload-types.ts'),
   },

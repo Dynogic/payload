@@ -119,6 +119,20 @@ describe('admin.disableFormData option', () => {
     expect(data).not.toHaveProperty('items')
   })
 
+  it('omits a condition-hidden field too (the short-circuit branch, re-ported in #112)', async () => {
+    const fields = buildFields(slPredicate)
+    const items = fields[2] as Extract<Field, { type: 'blocks' }>
+    items.admin = { ...items.admin, condition: () => false }
+
+    const state = await getFormState(fields, slData)
+
+    expect(state.items.passesCondition).toBe(false)
+    expect(state.items.disableFormDataSubtree).toBe(true)
+
+    const { data } = reduceFieldsToValuesWithValidation(state, true)
+    expect(data).not.toHaveProperty('items')
+  })
+
   it('leaves form state untouched when the option is not configured', async () => {
     const state = await getFormState(buildFields(), slData)
 

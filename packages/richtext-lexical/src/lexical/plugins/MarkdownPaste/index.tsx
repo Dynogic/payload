@@ -11,6 +11,7 @@ import {
   KEY_DOWN_COMMAND,
   type LexicalNode,
   PASTE_COMMAND,
+  type PasteCommandType,
 } from 'lexical'
 import * as React from 'react'
 
@@ -75,14 +76,17 @@ export const MarkdownPastePlugin: React.FC = () => {
 
     const unregisterPaste = editor.registerCommand(
       PASTE_COMMAND,
-      (event: ClipboardEvent) => {
+      (event: PasteCommandType) => {
         // Check if we should skip markdown processing (Cmd+Shift+V was pressed)
         if (skipMarkdownOnNextPaste) {
           skipMarkdownOnNextPaste = false
           return false // Let default paste handling take over
         }
 
-        const clipboardData = event.clipboardData
+        // Lexical 0.50 widened PASTE_COMMAND to ClipboardEvent | InputEvent |
+        // KeyboardEvent; only a ClipboardEvent carries clipboardData, and the
+        // others fall through to the default paste handling as before.
+        const clipboardData = 'clipboardData' in event ? event.clipboardData : null
 
         // Skip if HTML present - let browser handle rich paste via importDOM
         if (clipboardData?.types?.includes('text/html')) {

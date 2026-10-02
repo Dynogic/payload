@@ -1,8 +1,8 @@
 'use client'
 
-import { $isNodeSelection } from 'lexical'
+import type { CollectionSlug } from 'payload'
 
-import type { ExclusiveUploadFeatureProps } from '../server/index.js'
+import { $isNodeSelection } from 'lexical'
 
 import { UploadIcon } from '../../../lexical/ui/icons/Upload/index.js'
 import { createClientFeature } from '../../../utilities/createClientFeature.js'
@@ -18,8 +18,9 @@ export type UploadFeaturePropsClient = {
       hasExtraFields: boolean
     }
   }
+  enabledCollectionSlugs: CollectionSlug[]
   filterOptions?: Record<string, any>
-} & ExclusiveUploadFeatureProps
+}
 
 export const UploadFeatureClient = createClientFeature<UploadFeaturePropsClient>({
   nodes: [UploadNode],

@@ -121,6 +121,7 @@ export const buildFormState = async (
     skipClientConfigAuth,
     skipValidation,
     updateLastEdited,
+    user,
   } = args
 
   const selectMode = select ? getSelectMode(select) : undefined
@@ -225,7 +226,7 @@ export const buildFormState = async (
     previousFormState: formState,
     readOnly,
     renderAllFields,
-    renderFieldFn: renderField,
+    renderFieldFn: (renderFieldArgs) => renderField({ ...renderFieldArgs, user }),
     req,
     schemaPath,
     select,

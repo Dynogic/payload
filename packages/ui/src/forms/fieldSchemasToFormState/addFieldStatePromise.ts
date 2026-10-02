@@ -212,6 +212,43 @@ export const addFieldStatePromise = async (args: AddFieldStatePromiseArgs): Prom
     fieldState.fieldSchema = field
   }
 
+  // Short-circuit hidden fields to prevent recursing and rendering. Two exclusions:
+  // - `tab`: visibility is keyed by `field.id` (not `path`); the tab branch owns that write.
+  // - presentational containers (row, collapsible, unnamed group): they hold no value, so
+  //   returning here drops their nested fields' values. They fall through to the
+  //   `fieldHasSubFields` branch, which recurses to preserve child values without rendering.
+  const isPresentationalWithSubFields =
+    fieldHasSubFields(field as Field) && !fieldAffectsData(field as Field)
+
+  if (passesCondition === false && field.type !== 'tab' && !isPresentationalWithSubFields) {
+    if (fieldAffectsData(field) && data?.[field.name] !== undefined) {
+      fieldState.value = data[field.name]
+      fieldState.initialValue = data[field.name]
+    }
+
+    // Fork #75 (re-ported over upstream 3.90's hidden-field short-circuit): a
+    // condition-hidden field still submits its value, now as the WHOLE value
+    // at its own path, so the `admin.disableFormData` marker must be stamped
+    // here too or an out-of-band-written field is clobbered on save.
+    if (
+      fieldAffectsData(field) &&
+      !fieldIsHiddenOrDisabled(field) &&
+      field.admin &&
+      field.admin.disableFormData !== undefined
+    ) {
+      fieldState.disableFormDataSubtree =
+        typeof field.admin.disableFormData === 'function'
+          ? Boolean(field.admin.disableFormData({ blockData, data: fullData, siblingData: data }))
+          : field.admin.disableFormData === true
+    }
+
+    if (!filter || filter(args)) {
+      state[path] = fieldState
+    }
+
+    return
+  }
+
   if (fieldAffectsData(field) && !fieldIsHiddenOrDisabled(field) && field.type !== 'tab') {
     fieldPermissions =
       parentPermissions === true
@@ -851,6 +888,9 @@ export const addFieldStatePromise = async (args: AddFieldStatePromiseArgs): Prom
         disableFormData: true,
       }
 
+      // Presentational containers are hidden client-side via `withCondition`, which reads
+      // `passesCondition` from their own state entry. Must be set here since these fields
+      // are excluded from the short-circuit above (which would otherwise carry the flag).
       if (passesCondition === false) {
         state[path].passesCondition = false
       }
@@ -893,18 +933,10 @@ export const addFieldStatePromise = async (args: AddFieldStatePromiseArgs): Prom
     })
   } else if (field.type === 'tab') {
     const isNamedTab = tabHasName(field)
-    let tabSelect: SelectType | undefined
-
-    const tabField: TabAsField = {
-      ...field,
-      type: 'tab',
-    }
-
-    let childPermissions: SanitizedFieldsPermissions = undefined
 
     if (isNamedTab) {
       const shouldContinue = stripUnselectedFields({
-        field: tabField,
+        field: { ...field, type: 'tab' },
         select,
         selectMode,
         siblingDoc: data?.[field.name] || {},
@@ -913,16 +945,39 @@ export const addFieldStatePromise = async (args: AddFieldStatePromiseArgs): Prom
       if (!shouldContinue) {
         return
       }
+    }
 
+    // Tab visibility on the client is keyed by `field.id`, not `path` (like all other fields).
+    if (field?.id) {
+      // Fork #1: include the parent path in the state key, so tabs inside array
+      // rows (and the Tabs renderer's `${path}.${tab.id}` lookup, fork #60) key
+      // per row instead of colliding on the bare id.
+      const stateKey = parentPath ? `${parentPath}.${field.id}` : field.id
+
+      state[stateKey] = {
+        passesCondition,
+      }
+
+      // Flag newly added tab entries so the client accepts them during merge.
+      // Otherwise, tabs revealed after a hidden ancestor becomes visible would never make it into client form state.
+      if (!renderAllFields && !previousFormState?.[stateKey]) {
+        state[stateKey].addedByServer = true
+      }
+    }
+
+    if (!passesCondition) {
+      return
+    }
+
+    let childPermissions: SanitizedFieldsPermissions
+    let tabSelect: SelectType | undefined
+
+    if (isNamedTab) {
       if (parentPermissions === true) {
         childPermissions = true
       } else {
         const tabPermissions = parentPermissions?.[field.name]
-        if (tabPermissions === true) {
-          childPermissions = true
-        } else {
-          childPermissions = tabPermissions?.fields
-        }
+        childPermissions = tabPermissions === true ? true : tabPermissions?.fields
       }
 
       if (typeof select?.[field.name] === 'object') {
@@ -931,29 +986,6 @@ export const addFieldStatePromise = async (args: AddFieldStatePromiseArgs): Prom
     } else {
       childPermissions = parentPermissions
       tabSelect = select
-    }
-
-    const pathSegments = path ? path.split('.') : []
-
-    // If passesCondition is false then this should always result to false
-    // If the tab has no admin.condition provided then fallback to passesCondition and let that decide the result
-    let tabPassesCondition = passesCondition
-
-    if (passesCondition && typeof field.admin?.condition === 'function') {
-      tabPassesCondition = field.admin.condition(fullData, data, {
-        blockData,
-        operation,
-        path: pathSegments,
-        user: req.user,
-      })
-    }
-
-    if (field?.id) {
-      // For array items, include the parent path in the state key
-      const stateKey = parentPath ? `${parentPath}.${field.id}` : field.id
-      state[stateKey] = {
-        passesCondition: tabPassesCondition,
-      }
     }
 
     return iterateFields({
@@ -974,7 +1006,7 @@ export const addFieldStatePromise = async (args: AddFieldStatePromiseArgs): Prom
       omitParents,
       operation,
       parentIndexPath: indexPath,
-      parentPassesCondition: tabPassesCondition,
+      parentPassesCondition: passesCondition,
       parentPath: path,
       parentSchemaPath: schemaPath,
       permissions: childPermissions,
@@ -991,6 +1023,12 @@ export const addFieldStatePromise = async (args: AddFieldStatePromiseArgs): Prom
       state,
     })
   } else if (field.type === 'tabs') {
+    if (!filter || filter(args)) {
+      state[path] = {
+        disableFormData: true,
+      }
+    }
+
     return iterateFields({
       id,
       addErrorPathToParent: addErrorPathToParentArg,
@@ -1014,6 +1052,7 @@ export const addFieldStatePromise = async (args: AddFieldStatePromiseArgs): Prom
       permissions: parentPermissions,
       preferences,
       previousFormState,
+      readOnly,
       renderAllFields,
       renderFieldFn,
       req,

@@ -48,6 +48,7 @@ export const renderField: RenderFieldMethod = ({
   req,
   schemaPath,
   siblingData,
+  user,
 }) => {
   // Fields with beforeInput/afterInput/headerActions need custom components created, so they require render
   const hasBeforeOrAfterInput =
@@ -115,7 +116,7 @@ export const renderField: RenderFieldMethod = ({
     preferences,
     req,
     siblingData,
-    user: req.user,
+    user,
     value: 'name' in fieldConfig && data?.[fieldConfig.name],
   }
 
