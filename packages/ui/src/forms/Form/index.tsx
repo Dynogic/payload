@@ -762,6 +762,19 @@ export const Form: React.FC<FormProps> = (props) => {
         skipValidation: true,
       })
 
+      // Fork #109: an ABORTED reset (a second `reset` aborts the first's
+      // getFormState through `abortResetFormRef`) or a FAILED one resolves
+      // `{ state: null }` (ServerFunctions' getFormState). Replacing the form
+      // with that crashed the fieldReducer's REPLACE_STATE
+      // (`Object.entries(null)`) and took the document view down; the form
+      // is left untouched instead; the newer reset, if any, applies its own.
+      if (!newState) {
+        if (abortResetFormRef.current === controller) {
+          abortResetFormRef.current = null
+        }
+        return
+      }
+
       contextRef.current = { ...initContextState } as FormContextType
       setModified(false)
       dispatchFields({ type: 'REPLACE_STATE', state: newState })
