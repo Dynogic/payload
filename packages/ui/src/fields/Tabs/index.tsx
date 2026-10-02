@@ -169,6 +169,19 @@ const TabsFieldComponent: TabsFieldClientComponent = (props) => {
       } else {
         params.delete(TabSearchParam)
       }
+      // FORK (#110): the app's params ride THIS write. Listeners to
+      // `payload-tab-will-change` get the outgoing `params` synchronously and
+      // may edit them in place (drop the params the new tab does not own), so
+      // a tab switch is ONE history write. A second replaceState right after
+      // this one (the app pruning on `payload-tab-change`) dispatched two
+      // back-to-back router RESTOREs, and the second discarding the first
+      // while in flight let Next's action queue start a queued server action
+      // from the pre-switch state: its late commit wrote the old URL back.
+      window.dispatchEvent(
+        new CustomEvent('payload-tab-will-change', {
+          detail: { slug: selectedSlug, params },
+        }),
+      )
       const qs = params.toString()
       const nextUrl = `${window.location.pathname}${qs ? `?${qs}` : ''}${window.location.hash}`
       const currentUrl = `${window.location.pathname}${window.location.search}${window.location.hash}`
