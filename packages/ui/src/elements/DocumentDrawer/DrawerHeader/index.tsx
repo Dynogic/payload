@@ -9,6 +9,7 @@ import { useFormModified } from '../../../forms/Form/index.js'
 import { XIcon } from '../../../icons/X/index.js'
 import { useDocumentInfo } from '../../../providers/DocumentInfo/index.js'
 import { useDocumentTitle } from '../../../providers/DocumentTitle/index.js'
+import { useDrawerFrame } from '../../../providers/DrawerRenderer/index.js'
 import { useTranslation } from '../../../providers/Translation/index.js'
 import { IDLabel } from '../../IDLabel/index.js'
 import { LeaveWithoutSavingModal } from '../../LeaveWithoutSaving/index.js'
@@ -18,6 +19,57 @@ import './index.scss'
 const leaveWithoutSavingModalSlug = 'leave-without-saving-doc-drawer'
 
 export const DocumentDrawerHeader: React.FC<{
+  AfterHeader?: React.ReactNode
+  drawerSlug: string
+  showDocumentID?: boolean
+}> = (props) => {
+  const { appRendered } = useDrawerFrame()
+
+  // Fork #111: in an app-rendered frame the header band is gone (the
+  // controls bar carries the title, the frame carries the ✕); what stays is
+  // the guard on the frame's exits and the confirm it opens.
+  if (appRendered) {
+    return <DocumentDrawerCloseGuard drawerSlug={props.drawerSlug} />
+  }
+
+  return <StockDocumentDrawerHeader {...props} />
+}
+
+/**
+ * Fork #111: the unsaved-edits guard for an app-rendered drawer. It sits
+ * inside the drawer's Form (it knows `useFormModified`) and registers itself
+ * with the frame: the renderer's ✕, Escape and scrim click all go through
+ * `requestClose`, which asks this guard first. A modified form opens the
+ * leave-without-saving confirm and stays open; a pristine one closes.
+ *
+ * The confirm's slug is per drawer, so stacked drawers never open two
+ * confirms for one Escape.
+ */
+const DocumentDrawerCloseGuard: React.FC<{ drawerSlug: string }> = ({ drawerSlug }) => {
+  const { closeModal, openModal } = useModal()
+  const { setCloseGuard } = useDrawerFrame()
+  const isModified = useFormModified()
+  const modifiedRef = useRef(isModified)
+  modifiedRef.current = isModified
+  const confirmSlug = `${leaveWithoutSavingModalSlug}_${drawerSlug}`
+
+  useEffect(() => {
+    setCloseGuard(() => {
+      if (!modifiedRef.current) {
+        return false
+      }
+      openModal(confirmSlug)
+      return true
+    })
+    return () => setCloseGuard(null)
+  }, [confirmSlug, openModal, setCloseGuard])
+
+  return (
+    <LeaveWithoutSavingModal modalSlug={confirmSlug} onConfirm={() => closeModal(drawerSlug)} />
+  )
+}
+
+const StockDocumentDrawerHeader: React.FC<{
   AfterHeader?: React.ReactNode
   drawerSlug: string
   showDocumentID?: boolean

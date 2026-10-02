@@ -362,6 +362,15 @@ export {
   useTabIconRenderer,
 } from '../../providers/TabIconRenderer/index.js'
 export {
+  type DrawerFrame,
+  DrawerFrameProvider,
+  type DrawerRenderer,
+  type DrawerRendererProps,
+  DrawerRendererProvider,
+  useDrawerFrame,
+  useDrawerRenderer,
+} from '../../providers/DrawerRenderer/index.js'
+export {
   EntityVisibilityProvider,
   useEntityVisibility,
 } from '../../providers/EntityVisibility/index.js'

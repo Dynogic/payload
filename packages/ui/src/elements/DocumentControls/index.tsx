@@ -16,6 +16,7 @@ import type { DocumentDrawerContextType } from '../DocumentDrawer/Provider.js'
 import { useFormInitializing, useFormProcessing } from '../../forms/Form/context.js'
 import { useConfig } from '../../providers/Config/index.js'
 import { useDocumentInfo } from '../../providers/DocumentInfo/index.js'
+import { useDrawerFrame } from '../../providers/DrawerRenderer/index.js'
 import { useEditDepth } from '../../providers/EditDepth/index.js'
 import { useLivePreviewContext } from '../../providers/LivePreview/context.js'
 import { useTranslation } from '../../providers/Translation/index.js'
@@ -57,7 +58,7 @@ export const DocumentControls: React.FC<{
     readonly SaveButton?: React.ReactNode
     readonly SaveDraftButton?: React.ReactNode
     readonly Status?: React.ReactNode
-    /** Fork #80: replaces `RenderTitle` (edit + create view; skipped in drawers). */
+    /** Fork #80: replaces `RenderTitle` (edit + create view; skipped in stock drawers, shown in app-rendered ones, #111). */
     readonly Title?: React.ReactNode
     readonly UnpublishButton?: React.ReactNode
   }
@@ -226,8 +227,16 @@ export const DocumentControls: React.FC<{
   // drawer header already carries the title (#43). When it renders, the
   // "Creating new <Label>" meta line yields to it the same way `showTitle`
   // does.
-  const hasCustomTitle = Boolean(CustomTitle) && !isInDrawer
-  const titleShown = hasCustomTitle || Boolean(showTitle)
+  //
+  // Fork #111: an APP-RENDERED drawer has no header band (the app's frame
+  // carries only a ✕), so the title moves into this bar exactly as on the
+  // full page: the Title slot when the collection has one, else RenderTitle
+  // whether or not `showTitleInControls` is set (the band always showed it).
+  const { appRendered } = useDrawerFrame()
+  const titleInDrawerBar = Boolean(isInDrawer && appRendered)
+  const hasCustomTitle = Boolean(CustomTitle) && (!isInDrawer || titleInDrawerBar)
+  const showRenderTitle = !hasCustomTitle && ((showTitle && !isInDrawer) || titleInDrawerBar)
+  const titleShown = hasCustomTitle || Boolean(showTitle) || titleInDrawerBar
 
   // Autosave runs full-page, in a 'default' drawer, and in a 'createEdit'
   // EDIT drawer — all cases where the doc has (or the server minted) an id,
@@ -250,8 +259,7 @@ export const DocumentControls: React.FC<{
         <div className={`${baseClass}__content`}>
           {hasCustomTitle
             ? CustomTitle
-            : showTitle &&
-              !isInDrawer && <RenderTitle className={`${baseClass}__title`} element="h1" />}
+            : showRenderTitle && <RenderTitle className={`${baseClass}__title`} element="h1" />}
           {showLockedMetaIcon || showFolderMetaIcon ? (
             <div className={`${baseClass}__meta-icons`}>
               {showLockedMetaIcon && (
