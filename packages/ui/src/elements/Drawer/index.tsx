@@ -1,10 +1,23 @@
 'use client'
 import { Modal, useModal } from '@faceless-ui/modal'
-import React, { createContext, use, useCallback, useLayoutEffect, useState } from 'react'
+import React, {
+  createContext,
+  use,
+  useCallback,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react'
 
 import type { Props, TogglerProps } from './types.js'
 
 import { XIcon } from '../../icons/X/index.js'
+import {
+  type DrawerFrame,
+  DrawerFrameProvider,
+  useDrawerRenderer,
+} from '../../providers/DrawerRenderer/index.js'
 import { useTranslation } from '../../providers/Translation/index.js'
 import { Gutter } from '../Gutter/index.js'
 import './index.scss'
@@ -65,6 +78,51 @@ export const Drawer: React.FC<Props> = ({
   useLayoutEffect(() => {
     setAnimateIn(isOpen)
   }, [isOpen])
+
+  // Fork #111: an app-registered renderer draws the frame. The content's
+  // close guard (a document drawer's unsaved-edits check) registers through
+  // the frame context and is asked by `requestClose`, which the renderer
+  // wires to its own exits (✕, Escape, scrim). No renderer, or a renderer
+  // that returns `undefined`: the stock drawer below, unchanged.
+  const renderer = useDrawerRenderer()
+  const closeGuardRef = useRef<(() => boolean) | null>(null)
+  const close = useCallback(() => closeModal(slug), [closeModal, slug])
+  const requestClose = useCallback(() => {
+    if (closeGuardRef.current?.()) {
+      return
+    }
+    closeModal(slug)
+  }, [closeModal, slug])
+  const appFrame = useMemo<DrawerFrame>(
+    () => ({
+      appRendered: true,
+      setCloseGuard: (guard) => {
+        closeGuardRef.current = guard
+      },
+    }),
+    [],
+  )
+  const rendered = renderer?.({
+    slug,
+    children,
+    className,
+    close,
+    depth: drawerDepth,
+    gutter,
+    Header,
+    hoverTitle,
+    isOpen,
+    requestClose,
+    title,
+  })
+
+  if (rendered !== undefined) {
+    return (
+      <DrawerDepthProvider>
+        <DrawerFrameProvider value={appFrame}>{rendered}</DrawerFrameProvider>
+      </DrawerDepthProvider>
+    )
+  }
 
   if (isOpen) {
     // IMPORTANT: do not render the drawer until it is explicitly open, this is to avoid large html trees especially when nesting drawers
@@ -137,11 +195,20 @@ export const Drawer: React.FC<Props> = ({
 
 export const DrawerDepthContext = createContext(1)
 
+// Fork #111: every drawer level starts with no app frame, so a stock drawer
+// nested inside an app-rendered one does not inherit its frame; the
+// app-rendered path provides its own frame inside this provider.
+const stockFrame: DrawerFrame = { appRendered: false, setCloseGuard: () => undefined }
+
 export const DrawerDepthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const parentDepth = useDrawerDepth()
   const depth = parentDepth + 1
 
-  return <DrawerDepthContext value={depth}>{children}</DrawerDepthContext>
+  return (
+    <DrawerDepthContext value={depth}>
+      <DrawerFrameProvider value={stockFrame}>{children}</DrawerFrameProvider>
+    </DrawerDepthContext>
+  )
 }
 
 export const useDrawerDepth = (): number => use(DrawerDepthContext)
