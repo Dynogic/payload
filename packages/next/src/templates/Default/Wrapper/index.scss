@@ -43,16 +43,24 @@
       grid-template-columns: var(--nav-open-column, var(--nav-width)) auto;
     }
 
+    // Below the breakpoint the client always starts the nav CLOSED, so the
+    // server render reserves the closed column too (fork #108): the nav
+    // itself stays hidden until hydration, and the content is placed in the
+    // second column explicitly (a hidden nav takes no cell, so auto
+    // placement would put the content in the rail's). Unset, the closed
+    // column is 0 and the content fills the row exactly as `1fr auto` did.
     .template-default {
-      grid-template-columns: 1fr auto;
+      grid-template-columns: var(--nav-closed-width, 0px) auto;
 
       .nav {
         display: none;
       }
 
-      &--nav-hydrated {
-        grid-template-columns: var(--nav-closed-width, 0px) auto;
+      &:not(.template-default--nav-hydrated) > .template-default__wrap {
+        grid-column: 2;
+      }
 
+      &--nav-hydrated {
         .nav {
           display: unset;
         }
