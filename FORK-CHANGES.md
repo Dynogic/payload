@@ -1910,6 +1910,8 @@ _Re-homed by #111 for app-rendered drawers: there the frame's exits go through `
 
 ### 113. A reference the document already held is validated without the user's access (revises upstream 3.90's filterOptions access)
 
+**Ruled 2026-10-02: KEEP.** The human reviewed the loosening against upstream's stricter rule and kept it: a reference a save ADDS is still checked against the user's read access; one the document already held is checked against `filterOptions` only. Without it, a collaborator without Files read cannot save a product that already holds a file.
+
 **Files:** `packages/payload/src/fields/validations.ts` (+ `validations.spec.ts`)
 
 **Why.** Upstream 3.90.0 ("fix: respect relationship filter option access") made `validateFilterOptions` look the referenced IDs up with the acting user's access (`overrideAccess ?? false`) instead of with none. That closes a real hole (linking a document you cannot read by guessing its ID), but it re-checks EVERY reference on every save, including the ones the document already held. In varig a collaborator may edit products without any files bit (`docs/permissions-model.md`: removing or keeping a held file is the host document's write, never a files bit), and a media product holds its file in an upload field with `filterOptions`. On 3.90 such a collaborator could not save the product at all ("The following field is invalid: File"), and the publish preflight (`payload.validate()`, #46/#88) refused it, so the cascade dialog showed nothing. Caught by varig's `offer-name-follow` and `publish` security suites on the v3.90.2 upgrade.
