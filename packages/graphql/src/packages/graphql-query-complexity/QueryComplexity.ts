@@ -1,6 +1,4 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-
-/* eslint-disable @typescript-eslint/no-unsafe-enum-comparison */
 /**
  * Created by Ivo Meißner on 28.07.17.
  */
@@ -22,7 +20,10 @@ import type {
 } from 'graphql'
 
 import {
+  getArgumentValues,
+  getDirectiveValues,
   getNamedType,
+  getVariableValues,
   GraphQLError,
   GraphQLInterfaceType,
   GraphQLObjectType,
@@ -34,11 +35,6 @@ import {
   visit,
   visitWithTypeInfo,
 } from 'graphql'
-import {
-  getArgumentValues,
-  getDirectiveValues,
-  getVariableValues,
-} from 'graphql/execution/values.js'
 
 export type ComplexityEstimatorArgs = {
   args: { [key: string]: any }
@@ -131,7 +127,12 @@ export class QueryComplexity {
   options: QueryComplexityOptions
   requestContext?: Record<string, any>
   skipDirectiveDef: GraphQLDirective
-  variableValues: Record<string, any>
+  /**
+   * What `getVariableValues` produced, in the shape the installed graphql's `getArgumentValues` /
+   * `getDirectiveValues` take back: a plain coerced map on graphql 16, a `VariableValues`
+   * (`{ sources, coerced }`) on graphql 17. Passed through untouched (fork #114).
+   */
+  variableValues: any
 
   constructor(context: ValidationContext, options: QueryComplexityOptions) {
     if (!(typeof options.maximumComplexity === 'number' && options.maximumComplexity > 0)) {
@@ -380,18 +381,21 @@ export class QueryComplexity {
 
     // Get variable values from variables that are passed from options, merged
     // with default values defined in the operation
-    const { coerced, errors } = getVariableValues(
+    const result: any = getVariableValues(
       this.context.getSchema(),
       // We have to create a new array here because input argument is not readonly in graphql ~14.6.0
       operation.variableDefinitions ? [...operation.variableDefinitions] : [],
       this.options.variables ?? {},
     )
+    const errors: GraphQLError[] | undefined = result.errors
     if (errors && errors.length) {
       // We have input validation errors, report errors and abort
       errors.forEach((error) => this.context.reportError(error))
       return
     }
-    this.variableValues = coerced
+    // graphql 17 returns `{ variableValues: { sources, coerced } }` and its value helpers take that
+    // object; graphql 16 returns `{ coerced }` and its helpers take the plain map (fork #114).
+    this.variableValues = 'variableValues' in result ? result.variableValues : result.coerced
 
     switch (operation.operation) {
       case 'mutation':

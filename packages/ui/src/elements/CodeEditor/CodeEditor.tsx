@@ -7,6 +7,7 @@ import type { Props } from './types.js'
 import { useTheme } from '../../providers/Theme/index.js'
 import { ShimmerEffect } from '../ShimmerEffect/index.js'
 import { defaultGlobalEditorOptions, defaultOptions } from './constants.js'
+import { isMonacoLoaded, loadMonaco } from './loadMonaco.js'
 import './index.scss'
 
 const Editor = 'default' in EditorImport ? EditorImport.default : EditorImport
@@ -36,6 +37,31 @@ const CodeEditor: React.FC<Props> = (props) => {
   const [dynamicHeight, setDynamicHeight] = useState(MIN_HEIGHT)
   const { theme } = useTheme()
 
+  // Fork #115: the editor mounts only once the installed monaco-editor has been handed to the
+  // loader, so `@monaco-editor/react` never fetches monaco from its CDN.
+  const [monacoLoaded, setMonacoLoaded] = useState(isMonacoLoaded)
+
+  React.useEffect(() => {
+    if (monacoLoaded) {
+      return
+    }
+    let cancelled = false
+    loadMonaco().then(
+      () => {
+        if (!cancelled) {
+          setMonacoLoaded(true)
+        }
+      },
+      (error: unknown) => {
+        // eslint-disable-next-line no-console
+        console.error('Could not load monaco-editor for the code editor', error)
+      },
+    )
+    return () => {
+      cancelled = true
+    }
+  }, [monacoLoaded])
+
   const classes = [
     baseClass,
     className,
@@ -55,6 +81,10 @@ const CodeEditor: React.FC<Props> = (props) => {
       prevCalculatedHeightAt.current = recalculatedHeightAt
     }
   }, [value, MIN_HEIGHT, paddingFromProps, recalculatedHeightAt])
+
+  if (!monacoLoaded) {
+    return <ShimmerEffect height={dynamicHeight} />
+  }
 
   return (
     <Editor

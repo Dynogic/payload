@@ -146,7 +146,7 @@
     "copyfiles": "2.4.1",
     "cross-env": "7.0.3",
     "esbuild": "0.27.1",
-    "graphql-http": "^1.22.0",
+    "graphql-http": "^1.23.1",
     "react-datepicker": "7.6.0",
     "rimraf": "6.0.1",
     "rollup": "4.59.0",
@@ -154,7 +154,7 @@
     "sharp": "0.32.6"
   },
   "peerDependencies": {
-    "graphql": "^16.8.1"
+    "graphql": "^16.8.1 || ^17.0.0"
   },
   "engines": {
     "node": "^18.20.2 || >=20.9.0"

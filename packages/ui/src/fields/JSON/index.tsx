@@ -84,10 +84,14 @@ const JSONFieldComponent: JSONFieldClientComponent = (props) => {
         return
       }
 
-      monaco.languages.json.jsonDefaults.setDiagnosticsOptions({
+      // monaco-editor 0.55 moved the language namespaces to the top level (`monaco.json`) and 0.56
+      // dropped the `monaco.languages.json` alias (fork #115: the app's installed monaco is used).
+      const { jsonDefaults } = (monaco as any).json ?? (monaco.languages as any).json
+
+      jsonDefaults.setDiagnosticsOptions({
         enableSchemaRequest: true,
         schemas: [
-          ...(monaco.languages.json.jsonDefaults.diagnosticsOptions.schemas || []),
+          ...(jsonDefaults.diagnosticsOptions.schemas || []),
           jsonSchema,
         ],
         validate: true,

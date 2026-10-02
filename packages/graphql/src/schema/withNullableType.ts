@@ -1,4 +1,4 @@
-import type { GraphQLType } from 'graphql'
+import type { GraphQLNullableType, GraphQLType } from 'graphql'
 import type { FieldAffectingData } from 'payload'
 
 import { GraphQLNonNull } from 'graphql'
@@ -27,7 +27,7 @@ export const withNullableType = ({
     !hasReadAccessControl &&
     !isTimestamp
   ) {
-    return new GraphQLNonNull(type)
+    return new GraphQLNonNull(type as GraphQLNullableType)
   }
 
   return type

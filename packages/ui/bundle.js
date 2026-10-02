@@ -75,6 +75,9 @@ async function build() {
   await esbuild.build({
     entryPoints: ['src/exports/client/index.ts'],
     bundle: true,
+    // Only the CSS output is kept; ESM so the CodeEditor's `import.meta.url` worker URLs (fork #115)
+    // raise no empty-import-meta warnings.
+    format: 'esm',
     minify: true,
     outdir: 'dist-styles',
     packages: 'external',
@@ -140,6 +143,11 @@ function require(m) {
       // inputs lose every focus attempt. External = one shared instance with
       // whatever the consuming app imports. See FORK-CHANGES.md #55.
       'focus-trap',
+      // Must stay external (fork #115): the code editor runs on the consuming app's installed
+      // monaco-editor, which its bundler builds (CSS imports, and the workers the
+      // `new Worker(new URL('monaco-editor/...', import.meta.url))` calls name).
+      'monaco-editor',
+      'monaco-editor/*',
     ],
     //packages: 'external',
     minify: true,

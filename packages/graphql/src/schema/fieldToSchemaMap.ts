@@ -1,4 +1,9 @@
-import type { GraphQLArgumentConfig, GraphQLFieldConfig, GraphQLOutputType } from 'graphql'
+import type {
+  GraphQLArgumentConfig,
+  GraphQLFieldConfig,
+  GraphQLNullableType,
+  GraphQLOutputType,
+} from 'graphql'
 import type {
   ArrayField,
   BlocksField,
@@ -145,7 +150,7 @@ export const fieldToSchemaMap: FieldToSchemaMap = {
     }
 
     const arrayType = new GraphQLList(
-      new GraphQLNonNull(graphqlResult.types.arrayTypes[interfaceName]),
+      new GraphQLNonNull(graphqlResult.types.arrayTypes[interfaceName] as GraphQLNullableType),
     )
 
     return {
@@ -652,7 +657,9 @@ export const fieldToSchemaMap: FieldToSchemaMap = {
 
     const relationship: GraphQLFieldConfig<any, Context, any> = {
       type: withNullableType({
-        type: hasManyValues ? new GraphQLList(new GraphQLNonNull(type)) : type,
+        type: hasManyValues
+          ? new GraphQLList(new GraphQLNonNull(type as GraphQLNullableType))
+          : type,
         field,
         // can be null if the related doc is deleted even if the field is required, unless hasMany
         forceNullable: !field.hasMany,
@@ -1071,7 +1078,9 @@ export const fieldToSchemaMap: FieldToSchemaMap = {
 
     const relationship: GraphQLFieldConfig<any, Context, any> = {
       type: withNullableType({
-        type: hasManyValues ? new GraphQLList(new GraphQLNonNull(type)) : type,
+        type: hasManyValues
+          ? new GraphQLList(new GraphQLNonNull(type as GraphQLNullableType))
+          : type,
         field,
         // can be null if the related doc is deleted even if the field is required, unless hasMany
         forceNullable: !field.hasMany,

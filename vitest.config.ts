@@ -13,7 +13,9 @@ const hasFigma = fs.existsSync(figmaPath)
 // the actual path from packages/graphql where it's a direct dependency.
 // https://github.com/vitest-dev/vitest/issues/4605
 const _require = createRequire(path.resolve(ROOT_DIR, 'packages/graphql/package.json'))
-const graphqlDir = path.dirname(_require.resolve('graphql/package.json'))
+// graphql 17's `exports` has no `./package.json` entry, so resolve the package's own entry
+// (index.js at the package root) instead (fork #114).
+const graphqlDir = path.dirname(_require.resolve('graphql'))
 
 console.log('[Dev Setup] Checking for local Figma plugin at:', figmaPath)
 if (hasFigma) {
@@ -68,9 +70,14 @@ export default defineConfig({
           // this, @payloadcms/figma (used by PAYLOAD_DATABASE=content-api) is
           // externalized, and its static `import ... from 'payload'` falls to
           // Node's loader, which cannot read payload's .ts source exports.
+          //
+          // graphql-http and graphql-scalars are inlined too (fork #114): externalized, they import
+          // graphql 17's ESM build (index.mjs) while the alias above hands Payload's source the CJS
+          // build (index.js), and graphql-http's validate() then rejects Payload's schema as coming
+          // "from another module or realm". Inlined, they go through the same alias.
           server: {
             deps: {
-              inline: [/@payloadcms\/figma/],
+              inline: [/@payloadcms\/figma/, /graphql-http/, /graphql-scalars/],
             },
           },
         },

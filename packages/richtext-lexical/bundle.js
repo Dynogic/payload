@@ -30,6 +30,9 @@ async function build() {
   await esbuild.build({
     entryPoints: ['src/exports/cssEntry.ts'],
     bundle: true,
+    // Only the CSS output is kept; ESM so @payloadcms/ui's CodeEditor `import.meta.url` worker URLs
+    // (fork #115) raise no empty-import-meta warnings.
+    format: 'esm',
     minify: true,
     outdir: `${directoryArg}/bundled_scss`,
     loader: { '.svg': 'dataurl' },

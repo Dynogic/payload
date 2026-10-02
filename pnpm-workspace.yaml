@@ -33,7 +33,7 @@ overrides:
   copyfiles: 'catalog:'
   cross-env: 'catalog:'
   dotenv: 'catalog:'
-  graphql: '16.8.1'
+  graphql: '17.0.2'
   'mcp-handler>@modelcontextprotocol/sdk': '1.30.0'
   react: 'catalog:'
   react-dom: 'catalog:'

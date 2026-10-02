@@ -118,7 +118,7 @@
     "busboy": "^1.6.0",
     "dequal": "2.0.3",
     "file-type": "21.3.4",
-    "graphql-http": "^1.22.0",
+    "graphql-http": "^1.23.1",
     "graphql-playground-html": "1.6.30",
     "http-status": "2.1.0",
     "path-to-regexp": "6.3.0",
@@ -144,7 +144,7 @@
     "swc-plugin-transform-remove-imports": "8.3.0"
   },
   "peerDependencies": {
-    "graphql": "^16.8.1",
+    "graphql": "^16.8.1 || ^17.0.0",
     "next": ">=15.2.9 <15.3.0 || >=15.3.9 <15.4.0 || >=15.4.11 <15.5.0 || >=16.3.3 <17.0.0",
     "payload": "workspace:*"
   },

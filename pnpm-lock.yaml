@@ -11,7 +11,7 @@ overrides:
   copyfiles: 2.4.1
   cross-env: 7.0.3
   dotenv: 16.4.7
-  graphql: 16.8.1
+  graphql: 17.0.2
   mcp-handler>@modelcontextprotocol/sdk: 1.30.0
   react: 19.2.6
   react-dom: 19.2.6
@@ -670,11 +670,11 @@ importers:
   packages/graphql:
     dependencies:
       graphql:
-        specifier: 16.8.1
-        version: 16.8.1
+        specifier: 17.0.2
+        version: 17.0.2
       graphql-scalars:
-        specifier: 1.22.2
-        version: 1.22.2(graphql@16.8.1)
+        specifier: 2.0.0
+        version: 2.0.0(graphql@17.0.2)
       pluralize:
         specifier: 8.0.0
         version: 8.0.0
@@ -692,8 +692,8 @@ importers:
         specifier: ^0.0.33
         version: 0.0.33
       graphql-http:
-        specifier: ^1.22.0
-        version: 1.22.4(graphql@16.8.1)
+        specifier: ^1.23.1
+        version: 1.23.1(graphql@17.0.2)
       payload:
         specifier: workspace:*
         version: link:../payload
@@ -788,11 +788,11 @@ importers:
         specifier: 21.3.4
         version: 21.3.4
       graphql:
-        specifier: 16.8.1
-        version: 16.8.1
+        specifier: 17.0.2
+        version: 17.0.2
       graphql-http:
-        specifier: ^1.22.0
-        version: 1.22.4(graphql@16.8.1)
+        specifier: ^1.23.1
+        version: 1.23.1(graphql@17.0.2)
       graphql-playground-html:
         specifier: 1.6.30
         version: 1.6.30
@@ -903,8 +903,8 @@ importers:
         specifier: 4.8.1
         version: 4.8.1
       graphql:
-        specifier: 16.8.1
-        version: 16.8.1
+        specifier: 17.0.2
+        version: 17.0.2
       http-status:
         specifier: 2.1.0
         version: 2.1.0
@@ -968,7 +968,7 @@ importers:
         version: 0.2.6(cjs-module-lexer@1.4.3)(esbuild@0.27.1)
       '@monaco-editor/react':
         specifier: 4.7.0
-        version: 4.7.0(monaco-editor@0.55.1)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
+        version: 4.7.0(monaco-editor@0.57.0)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
       '@payloadcms/eslint-config':
         specifier: workspace:*
         version: link:../eslint-config
@@ -1003,8 +1003,8 @@ importers:
         specifier: 0.27.1
         version: 0.27.1
       graphql-http:
-        specifier: ^1.22.0
-        version: 1.22.4(graphql@16.8.1)
+        specifier: ^1.23.1
+        version: 1.23.1(graphql@17.0.2)
       react-datepicker:
         specifier: 7.6.0
         version: 7.6.0(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
@@ -1742,7 +1742,7 @@ importers:
         version: 3.0.1(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
       '@monaco-editor/react':
         specifier: 4.7.0
-        version: 4.7.0(monaco-editor@0.55.1)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
+        version: 4.7.0(monaco-editor@0.57.0)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
       '@payloadcms/translations':
         specifier: workspace:*
         version: link:../translations
@@ -1840,6 +1840,9 @@ importers:
       esbuild-sass-plugin:
         specifier: 3.3.1
         version: 3.3.1(esbuild@0.27.1)(sass-embedded@1.100.0)
+      monaco-editor:
+        specifier: 0.57.0
+        version: 0.57.0
       payload:
         specifier: workspace:*
         version: link:../payload
@@ -1865,8 +1868,8 @@ importers:
         specifier: 16.4.7
         version: 16.4.7
       graphql:
-        specifier: 16.8.1
-        version: 16.8.1
+        specifier: 17.0.2
+        version: 17.0.2
       next:
         specifier: 16.3.3
         version: 16.3.3(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.58.2)(@types/node@22.19.9)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(sass@1.100.0)
@@ -2010,8 +2013,8 @@ importers:
         specifier: ^1.3.0
         version: 1.7.2(next@16.3.3(@opentelemetry/api@1.9.1)(@playwright/test@1.58.2)(@types/node@22.19.9)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(sass@1.100.0))
       graphql:
-        specifier: 16.8.1
-        version: 16.8.1
+        specifier: 17.0.2
+        version: 17.0.2
       jsonwebtoken:
         specifier: 9.0.1
         version: 9.0.1
@@ -2203,8 +2206,8 @@ importers:
         specifier: ^1.3.0
         version: 1.7.2(next@16.3.3(@opentelemetry/api@1.9.1)(@playwright/test@1.58.2)(@types/node@22.19.9)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(sass@1.100.0))
       graphql:
-        specifier: 16.8.1
-        version: 16.8.1
+        specifier: 17.0.2
+        version: 17.0.2
       lucide-react:
         specifier: 0.563.0
         version: 0.563.0(react@19.2.6)
@@ -9916,8 +9919,8 @@ packages:
   dom-helpers@5.2.1:
     resolution: {integrity: sha512-nRCa7CK3VTrM2NmGkIy4cbK7IZlgBE/PYMn55rrXefr5xXDP0LdtfPnblFDoVdcAfslJ7or6iqAUnx0CCGIWQA==}
 
-  dompurify@3.2.7:
-    resolution: {integrity: sha512-WhL/YuveyGXJaerVlMYGWhvQswa7myDG17P7Vu65EWC05o8vfeNbvNf4d/BOvH99+ZW+LlQsc1GDKMa1vNK6dw==}
+  dompurify@3.4.15:
+    resolution: {integrity: sha512-EUBjM+B+lkDE41iE82DDSCfkoPGfXx8IxFxPMjNzm/Uk4xDet77rTN9wqlxlVg71kK7XGuUMv6wUxJUwwv+Xyw==}
 
   dot-prop@9.0.0:
     resolution: {integrity: sha512-1gxPBJpI/pcjQhKgIU91II6Wkay+dLcN3M6rf2uwP8hRur3HtQXjVrdAK3sjC0piaEuxzMwjXChcETiJl47lAQ==}
@@ -11177,24 +11180,24 @@ packages:
   graphemer@1.4.0:
     resolution: {integrity: sha512-EtKwoO6kxCL9WO5xipiHTZlSzBm7WLT627TqC/uVRd0HKmq8NXyebnNYxDoBi7wt8eTWrUrKXCOVaFq9x1kgag==}
 
-  graphql-http@1.22.4:
-    resolution: {integrity: sha512-OC3ucK988teMf+Ak/O+ZJ0N2ukcgrEurypp8ePyJFWq83VzwRAmHxxr+XxrMpxO/FIwI4a7m/Fzv3tWGJv0wPA==}
+  graphql-http@1.23.1:
+    resolution: {integrity: sha512-h6AcykL7+xp22QvOnK0fu1eHk9AZG1ngF71rk0ZGuGupnjm1yqXRFrZ/eMv4Q1FTCWILJ5o6hVAxzt3S8/wPHQ==}
     engines: {node: '>=12'}
     peerDependencies:
-      graphql: 16.8.1
+      graphql: 17.0.2
 
   graphql-playground-html@1.6.30:
     resolution: {integrity: sha512-tpCujhsJMva4aqE8ULnF7/l3xw4sNRZcSHu+R00VV+W0mfp+Q20Plvcrp+5UXD+2yS6oyCXncA+zoQJQqhGCEw==}
 
-  graphql-scalars@1.22.2:
-    resolution: {integrity: sha512-my9FB4GtghqXqi/lWSVAOPiTzTnnEzdOXCsAC2bb5V7EFNQjVjwy3cSSbUvgYOtDuDibd+ZsCDhz+4eykYOlhQ==}
+  graphql-scalars@2.0.0:
+    resolution: {integrity: sha512-tCd2ddcxlbz5rG7xsfDbjvIssR9c/5EauDYt272pxfxpUNBjFMpnDwukuA3rm1O/9michQDxFfPPAeoQjZtJVQ==}
     engines: {node: '>=10'}
     peerDependencies:
-      graphql: 16.8.1
+      graphql: 17.0.2
 
-  graphql@16.8.1:
-    resolution: {integrity: sha512-59LZHPdGZVh695Ud9lRzPBVTtlX9ZCV150Er2W43ro37wVof0ctenSaskPPjN7lVTIN8mSZt8PHUNKZuNQUuxw==}
-    engines: {node: ^12.22.0 || ^14.16.0 || ^16.0.0 || >=17.0.0}
+  graphql@17.0.2:
+    resolution: {integrity: sha512-FRWbddMxfkjiB7z+aQDWIR+E34xo9I8c9mtK2RPv8PmMzKRvrdsreHL/Ui/TmwHJfhHChEtsFPyMHKI+xuarQQ==}
+    engines: {node: ^22.0.0 || ^24.0.0 || ^25.0.0 || >=26.0.0}
 
   gtoken@7.1.0:
     resolution: {integrity: sha512-pCcEwRi+TKpMlxAQObHDQ56KawURgyAf6jtIY046fJ5tIv3zDe/LEIubckAO8fj6JnAxLdmWkUfNyulQ2iKdEw==}
@@ -12364,8 +12367,8 @@ packages:
   module-details-from-path@1.0.4:
     resolution: {integrity: sha512-EGWKgxALGMgzvxYF1UyGTy0HXX/2vHLkw6+NvDKW2jypWbHpjQuj4UMcqQWXHERJhVGKikolT06G3bcKe4fi7w==}
 
-  monaco-editor@0.55.1:
-    resolution: {integrity: sha512-jz4x+TJNFHwHtwuV9vA9rMujcZRb0CEilTEwG2rRSpe/A7Jdkuj8xPKttCgOh+v/lkHy7HsZ64oj+q3xoAFl9A==}
+  monaco-editor@0.57.0:
+    resolution: {integrity: sha512-5BkI9KGoqrNvBGUe15/QlZq3OooZ8WLg1AxTpaqHRCP3HNpzPPZKE2EDz8M7c+VRmCeUw1Brp4cx/PWm3kI/5A==}
 
   mongodb-connection-string-url@3.0.2:
     resolution: {integrity: sha512-rMO7CGo/9BFwyZABcKAWL8UJwH/Kc2x0g72uhDWzG48URRax5TCIcJ7Rc3RZqffZzO/Gwff/jyKwCU9TN8gehA==}
@@ -18816,10 +18819,10 @@ snapshots:
     dependencies:
       state-local: 1.0.7
 
-  '@monaco-editor/react@4.7.0(monaco-editor@0.55.1)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)':
+  '@monaco-editor/react@4.7.0(monaco-editor@0.57.0)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)':
     dependencies:
       '@monaco-editor/loader': 1.7.0
-      monaco-editor: 0.55.1
+      monaco-editor: 0.57.0
       react: 19.2.6
       react-dom: 19.2.6(react@19.2.6)
 
@@ -23376,7 +23379,7 @@ snapshots:
       '@babel/runtime': 7.29.7
       csstype: 3.1.3
 
-  dompurify@3.2.7:
+  dompurify@3.4.15:
     optionalDependencies:
       '@types/trusted-types': 2.0.7
 
@@ -25062,20 +25065,20 @@ snapshots:
 
   graphemer@1.4.0: {}
 
-  graphql-http@1.22.4(graphql@16.8.1):
+  graphql-http@1.23.1(graphql@17.0.2):
     dependencies:
-      graphql: 16.8.1
+      graphql: 17.0.2
 
   graphql-playground-html@1.6.30:
     dependencies:
       xss: 1.0.15
 
-  graphql-scalars@1.22.2(graphql@16.8.1):
+  graphql-scalars@2.0.0(graphql@17.0.2):
     dependencies:
-      graphql: 16.8.1
+      graphql: 17.0.2
       tslib: 2.8.1
 
-  graphql@16.8.1: {}
+  graphql@17.0.2: {}
 
   gtoken@7.1.0:
     dependencies:
@@ -26334,9 +26337,9 @@ snapshots:
 
   module-details-from-path@1.0.4: {}
 
-  monaco-editor@0.55.1:
+  monaco-editor@0.57.0:
     dependencies:
-      dompurify: 3.2.7
+      dompurify: 3.4.15
       marked: 14.0.0
 
   mongodb-connection-string-url@3.0.2:

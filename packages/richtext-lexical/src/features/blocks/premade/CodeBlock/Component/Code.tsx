@@ -130,24 +130,27 @@ export const CodeComponent: React.FC<AdditionalCodeComponentProps & CodeFieldCli
             inherit: true,
             rules: [],
           })
-          monaco.languages.typescript.typescriptDefaults.setCompilerOptions({
+          // monaco-editor 0.55 moved the language namespaces to the top level (`monaco.typescript`)
+          // and 0.56 dropped the `monaco.languages.typescript` alias (fork #115: the app's installed
+          // monaco is used).
+          const ts = (monaco as any).typescript ?? (monaco.languages as any).typescript
+
+          ts.typescriptDefaults.setCompilerOptions({
             allowNonTsExtensions: true,
             // Set module resolution to NodeJs to enable autocompletion
             allowJs: true,
             allowSyntheticDefaultImports: true,
             esModuleInterop: true,
-            jsx: monaco.languages.typescript.JsxEmit.React,
-            moduleResolution: monaco.languages.typescript.ModuleResolutionKind.NodeJs,
+            jsx: ts.JsxEmit.React,
+            moduleResolution: ts.ModuleResolutionKind.NodeJs,
             noEmit: true,
             paths: typescript?.paths,
             reactNamespace: 'React',
-            target: monaco.languages.typescript.ScriptTarget[
-              typescript?.target ?? ('ESNext' as any)
-            ] as any,
+            target: ts.ScriptTarget[typescript?.target ?? 'ESNext'],
             typeRoots: typescript?.typeRoots ?? ['node_modules/@types'],
           })
 
-          monaco.languages.typescript.typescriptDefaults.setDiagnosticsOptions({
+          ts.typescriptDefaults.setDiagnosticsOptions({
             noSemanticValidation: typescript?.enableSemanticValidation ? false : true,
             noSyntaxValidation: false,
           })
@@ -162,7 +165,7 @@ export const CodeComponent: React.FC<AdditionalCodeComponentProps & CodeFieldCli
                 typescript.fetchTypes.map(async (type) => {
                   const types = await fetch(type.url)
                   const typesText = await types.text()
-                  monaco.languages.typescript.typescriptDefaults.addExtraLib(
+                  ts.typescriptDefaults.addExtraLib(
                     typesText,
                     type.filePath,
                   )
