@@ -48,6 +48,7 @@ export default defineConfig({
           include: ['packages/**/*.spec.ts'],
           name: 'unit',
           environment: 'node',
+          execArgv: ['--expose-gc'],
         },
       },
       {
