@@ -125,6 +125,18 @@ export type FieldState = {
    * The result of running `field.filterOptions` on select fields.
    */
   selectFilterOptions?: Option[]
+  /**
+   * Fork #120. A server error this field still owes the user: stamped by
+   * `ADD_SERVER_ERRORS` with the message and the value the field held when it
+   * arrived. While it stands, server merges and value-preserving updates keep
+   * the field invalid with that message; it goes when the value changes, when
+   * the server validates the document again, or with the state. Client-only:
+   * the server never writes it.
+   */
+  serverError?: {
+    message: string
+    value: unknown
+  }
   valid?: boolean
   validate?: Validate
   value?: unknown

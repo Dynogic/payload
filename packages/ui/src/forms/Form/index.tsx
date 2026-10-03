@@ -57,6 +57,7 @@ import { errorMessages } from './errorMessages.js'
 import { fieldReducer } from './fieldReducer.js'
 import { initContextState } from './initContextState.js'
 import { serverErrorToast } from './offScreenFieldErrors.js'
+import { hasStandingServerErrors } from './standingServerErrors.js'
 import { responseSubmitFailureMessage, thrownSubmitFailureMessage } from './submitFailureMessage.js'
 
 const baseClass = 'form'
@@ -425,6 +426,14 @@ export const Form: React.FC<FormProps> = (props) => {
       // a response is not the network's fault.
       let responseReceived = false
 
+      // Fork #120: whether the server validates this submit. A draft it does
+      // not validate cannot answer a standing server error, so its answer
+      // keeps them; a validated submit's answer (an acceptance, or a new set
+      // of field errors) replaces them.
+      const serverValidates = !(
+        (overrides as Record<string, unknown>)?.['_status'] === 'draft' && !validateDrafts
+      )
+
       try {
         const formData = await contextRef.current.createFormData(overrides, {
           data,
@@ -470,6 +479,10 @@ export const Form: React.FC<FormProps> = (props) => {
         }
 
         if (res.status < 400) {
+          if (serverValidates) {
+            dispatchFields({ type: 'CLEAR_SERVER_ERRORS' })
+          }
+
           if (typeof onSuccess === 'function') {
             const newFormState = await onSuccess(json, {
               context,
@@ -486,7 +499,8 @@ export const Form: React.FC<FormProps> = (props) => {
             }
           }
 
-          setSubmitted(false)
+          // Fork #120: an error still standing stays visible.
+          setSubmitted(!serverValidates && hasStandingServerErrors(contextRef.current.fields))
           setProcessing(false)
           setUploadProgress(null)
           if (toastId) {
@@ -515,7 +529,8 @@ export const Form: React.FC<FormProps> = (props) => {
             setModified(true)
 
             if (!validateDrafts) {
-              setSubmitted(false)
+              // Fork #120: an error still standing stays visible.
+              setSubmitted(hasStandingServerErrors(contextRef.current.fields))
             }
           }
 
@@ -563,6 +578,12 @@ export const Form: React.FC<FormProps> = (props) => {
             // ADD_SERVER_ERRORS creates a state for every path, on screen or
             // not.
             const fieldsBeforeServerErrors = contextRef.current.fields
+
+            // Fork #120: a validated refusal is the server's whole answer; it
+            // replaces the errors that stood before it.
+            if (serverValidates && fieldErrors.length > 0) {
+              dispatchFields({ type: 'CLEAR_SERVER_ERRORS' })
+            }
 
             dispatchFields({
               type: 'ADD_SERVER_ERRORS',

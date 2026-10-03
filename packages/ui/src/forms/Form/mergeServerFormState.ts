@@ -3,6 +3,8 @@ import type { FormState } from 'payload'
 
 import { dequal } from 'dequal/lite' // lite: no need for Map and Set support
 
+import { holdStandingServerErrors } from './standingServerErrors.js'
+
 /**
  * If true, will accept all values from the server, overriding any current values in local state.
  * Can also provide an options object for more granular control.
@@ -232,7 +234,13 @@ export const mergeServerFormState = ({
     delete newState[path].addedByServer
   }
 
+  // Fork #120: the server's `valid` above says nothing about an error it
+  // raised on an earlier submit and did not re-judge (an autosave is a draft
+  // it does not validate; the onChange request validates as a draft too). A
+  // field whose standing error the user has not answered keeps it.
+  const heldState = holdStandingServerErrors(newState)
+
   // Return the original object reference if the state is unchanged
   // This will avoid unnecessary re-renders and dependency updates
-  return dequal(newState, currentState) ? currentState : newState
+  return dequal(heldState, currentState) ? currentState : heldState
 }

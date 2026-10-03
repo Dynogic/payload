@@ -232,6 +232,15 @@ export type ADD_SERVER_ERRORS = {
   type: 'ADD_SERVER_ERRORS'
 }
 
+/**
+ * Fork #120. Drop every standing server error (`FieldState.serverError`):
+ * the server has validated the whole document again, so its new answer (an
+ * acceptance, or a new set of errors) replaces the old one.
+ */
+export type CLEAR_SERVER_ERRORS = {
+  type: 'CLEAR_SERVER_ERRORS'
+}
+
 export type SET_ROW_COLLAPSED = {
   path: string
   type: 'SET_ROW_COLLAPSED'
@@ -247,6 +256,7 @@ export type SET_ALL_ROWS_COLLAPSED = {
 export type FieldAction =
   | ADD_ROW
   | ADD_SERVER_ERRORS
+  | CLEAR_SERVER_ERRORS
   | DUPLICATE_ROW
   | MERGE_SERVER_STATE
   | MODIFY_CONDITION

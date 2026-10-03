@@ -9,6 +9,12 @@ import type { FieldAction } from './types.js'
 
 import { mergeServerFormState } from './mergeServerFormState.js'
 import { flattenRows, separateRows } from './rows.js'
+import {
+  clearServerErrors,
+  holdStandingServerErrors,
+  serverErrorAnswered,
+  stampServerError,
+} from './standingServerErrors.js'
 
 const ObjectId = 'default' in ObjectIdImport ? ObjectIdImport.default : ObjectIdImport
 
@@ -81,6 +87,8 @@ export function fieldReducer(state: FormState, action: FieldAction): FormState {
             value: null,
           }),
           errorMessage: message,
+          // Fork #120: the error stands until the user acts on this field.
+          serverError: stampServerError(newState[fieldPath], message),
           valid: false,
         }
 
@@ -129,6 +137,12 @@ export function fieldReducer(state: FormState, action: FieldAction): FormState {
       }, {})
 
       return newState
+    }
+
+    // Fork #120: the server validated the document again; its new answer
+    // replaces every standing error.
+    case 'CLEAR_SERVER_ERRORS': {
+      return clearServerErrors(state)
     }
 
     /**
@@ -396,7 +410,7 @@ export function fieldReducer(state: FormState, action: FieldAction): FormState {
     }
 
     case 'UPDATE': {
-      const newField = Object.entries(action).reduce(
+      let newField = Object.entries(action).reduce(
         (field, [key, value]) => {
           if (
             [
@@ -420,6 +434,18 @@ export function fieldReducer(state: FormState, action: FieldAction): FormState {
         },
         state?.[action.path] || ({} as FormField),
       )
+
+      // Fork #120: a standing server error goes when the VALUE changes (the
+      // user acted on it); an update that keeps the value (a client
+      // validation pass, a re-render) keeps the field invalid with it.
+      if (newField.serverError) {
+        if ('value' in action && serverErrorAnswered(newField.serverError, action.value)) {
+          const { serverError: _serverError, ...answered } = newField
+          newField = answered
+        } else {
+          newField = holdStandingServerErrors({ [action.path]: newField })[action.path]
+        }
+      }
 
       const newState = {
         ...state,
