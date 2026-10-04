@@ -100,6 +100,9 @@ const TabsFieldComponent: TabsFieldClientComponent = (props) => {
   const [local, setLocal] = useState<{ index: number; wrote?: null | string } | null>(null)
 
   const activeTabIndex = resolveActiveTabIndex({
+    // FORK (#121): a drawer opened with `initialTab` starts there, on the
+    // first render (no click, no first frame on another tab).
+    initialSlug: inDrawer ? (drawerContext?.initialTab ?? null) : null,
     localIndex: local?.index ?? null,
     pendingLocal: local?.wrote !== undefined && local.wrote !== tabParam,
     slugParam: tabParam,

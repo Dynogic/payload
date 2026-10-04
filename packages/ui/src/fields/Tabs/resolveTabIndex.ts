@@ -43,18 +43,23 @@ export function firstVisibleIndex(tabStates: readonly TabIndexState[]): number {
  *   1. the `tab` param, resolved condition-aware (`indexOfSlug`);
  *   2. else the local click state (slug-less tabs never touch the URL),
  *      provided that tab is still visible;
- *   3. else the first visible tab.
+ *   3. else the initial slug a document drawer was opened with (#121),
+ *      resolved condition-aware like the param;
+ *   4. else the first visible tab.
  *
  * `localIndex` is also preferred over the param while a click's own URL
  * write is still in flight (`pendingLocal`) so the switch is never gated on
  * the router's async search-param sync.
  */
 export function resolveActiveTabIndex({
+  initialSlug,
   localIndex,
   pendingLocal = false,
   slugParam,
   tabStates,
 }: {
+  /** FORK (#121): a drawer's `initialTab` — below a click, above the default. */
+  initialSlug?: null | string
   localIndex: null | number
   pendingLocal?: boolean
   slugParam: null | string | undefined
@@ -67,5 +72,10 @@ export function resolveActiveTabIndex({
     return localVisible
   }
 
-  return indexOfSlug(tabStates, slugParam) ?? localVisible ?? firstVisibleIndex(tabStates)
+  return (
+    indexOfSlug(tabStates, slugParam) ??
+    localVisible ??
+    indexOfSlug(tabStates, initialSlug) ??
+    firstVisibleIndex(tabStates)
+  )
 }

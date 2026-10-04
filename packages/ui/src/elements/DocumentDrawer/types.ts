@@ -48,6 +48,14 @@ export type DocumentDrawerProps = {
    * @deprecated
    */
   readonly initialState?: FormState
+  /**
+   * FORK (#121): the `slug` of the field-level tab this drawer opens on (e.g.
+   * 'sell'). Inside a drawer a Tabs field keeps its tab locally and never reads
+   * `?tab=` (#59, #78), so without it every drawer opened on the first visible
+   * tab. Only the initial tab: a click still moves it, and a slug that names no
+   * visible tab falls back to the first visible one.
+   */
+  readonly initialTab?: string
   readonly overrideEntityVisibility?: boolean
   readonly redirectAfterCreate?: boolean
   readonly redirectAfterDelete?: boolean

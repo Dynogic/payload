@@ -23,6 +23,7 @@ export const DocumentDrawerContent: React.FC<DocumentDrawerProps> = ({
   filterOptions,
   hideTabs,
   initialData,
+  initialTab,
   onDelete: onDeleteFromProps,
   onDuplicate: onDuplicateFromProps,
   onSave: onSaveFromProps,
@@ -129,7 +130,15 @@ export const DocumentDrawerContent: React.FC<DocumentDrawerProps> = ({
         }
       }
     },
-    [onSaveFromProps, collectionConfig, isCreateDrawer, closeModal, drawerSlug, saveMode, getDocumentView],
+    [
+      onSaveFromProps,
+      collectionConfig,
+      isCreateDrawer,
+      closeModal,
+      drawerSlug,
+      saveMode,
+      getDocumentView,
+    ],
   )
 
   const onDuplicate = useCallback<DocumentDrawerProps['onDuplicate']>(
@@ -192,6 +201,7 @@ export const DocumentDrawerContent: React.FC<DocumentDrawerProps> = ({
       drawerSlug={drawerSlug}
       filterOptions={filterOptions}
       hideTabs={hideTabs}
+      initialTab={initialTab}
       isCreateDrawer={isCreateDrawer}
       onDelete={onDelete}
       onDuplicate={onDuplicate}

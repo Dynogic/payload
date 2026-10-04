@@ -15,6 +15,8 @@ export type DocumentDrawerContextProps = {
   readonly drawerSlug: string
   readonly filterOptions?: FilterOptionsResult
   readonly hideTabs?: string[]
+  /** FORK (#121): the tab slug the drawer opens on (DocumentDrawerProps.initialTab). */
+  readonly initialTab?: string
   readonly isCreateDrawer?: boolean
   readonly onDelete?: (args: {
     collectionConfig?: ClientCollectionConfig

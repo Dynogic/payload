@@ -101,3 +101,51 @@ describe('resolveActiveTabIndex', () => {
     ).toBe(2)
   })
 })
+
+describe('resolveActiveTabIndex — a drawer opened with initialTab (#121)', () => {
+  it('opens on the initial slug when nothing else is set', () => {
+    expect(
+      resolveActiveTabIndex({
+        initialSlug: 'sell',
+        localIndex: null,
+        slugParam: null,
+        tabStates: productTabs,
+      }),
+    ).toBe(4)
+  })
+
+  it('a click moves off it', () => {
+    expect(
+      resolveActiveTabIndex({
+        initialSlug: 'sell',
+        localIndex: 2,
+        slugParam: null,
+        tabStates: productTabs,
+      }),
+    ).toBe(2)
+  })
+
+  it('an initial slug that names no visible tab falls back to the first visible tab', () => {
+    for (const initialSlug of ['nope', null, undefined]) {
+      expect(
+        resolveActiveTabIndex({
+          initialSlug,
+          localIndex: null,
+          slugParam: null,
+          tabStates: productTabs,
+        }),
+      ).toBe(1)
+    }
+  })
+
+  it('the URL param still wins where one is read (a full page)', () => {
+    expect(
+      resolveActiveTabIndex({
+        initialSlug: 'sell',
+        localIndex: null,
+        slugParam: 'page',
+        tabStates: productTabs,
+      }),
+    ).toBe(2)
+  })
+})

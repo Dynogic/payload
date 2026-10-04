@@ -112,7 +112,11 @@
         padding: 0;
       }
 
-      &--gutter {
+      // FORK (#122): a bare group keeps no gutter on a phone either. This
+      // rule comes after `&--bare` at equal specificity, so without the
+      // `:not` a bare group nested in a group stepped 16px right below the
+      // break (its gutter padding back, its border still gone).
+      &--gutter:not(.group-field--bare) {
         padding-left: var(--gutter-h);
       }
     }

@@ -30,6 +30,7 @@ import { useTranslation } from '../../providers/Translation/index.js'
 import { formatTimeToNow } from '../../utilities/formatDocTitle/formatDateTitle.js'
 import { reduceFieldsToValuesWithValidation } from '../../utilities/reduceFieldsToValuesWithValidation.js'
 import { LeaveWithoutSaving } from '../LeaveWithoutSaving/index.js'
+import { submitDraftWithVersionMark } from './markDraftVersion.js'
 import './index.scss'
 
 const baseClass = 'autosave'
@@ -149,28 +150,34 @@ export const Autosave: React.FC<Props> = ({ id, collection, global: globalDoc })
           const skipSubmission = submitted && !valid && validateOnDraft
 
           if (!skipSubmission && modified && url) {
-            const result = await submit<any, OnSaveContext>({
-              acceptValues: {
-                overrideLocalChanges: false,
+            // FORK (#123): the new draft version is marked before the
+            // request (markDraftVersion.ts), so the counters never lag the
+            // form's `modified` reset.
+            await submitDraftWithVersionMark(
+              {
+                mostRecentVersionIsAutosaved,
+                setMostRecentVersionIsAutosaved,
+                setUnpublishedVersionCount,
               },
-              action: url,
-              context: {
-                getDocPermissions: false,
-                incrementVersionCount: !mostRecentVersionIsAutosaved,
-              },
-              disableFormWhileProcessing: false,
-              disableSuccessStatus: true,
-              method,
-              overrides: {
-                _status: 'draft',
-              },
-              skipValidation: !validateOnDraft,
-            })
-
-            if (result && result?.res?.ok && !mostRecentVersionIsAutosaved) {
-              setMostRecentVersionIsAutosaved(true)
-              setUnpublishedVersionCount((prev) => prev + 1)
-            }
+              () =>
+                submit<any, OnSaveContext>({
+                  acceptValues: {
+                    overrideLocalChanges: false,
+                  },
+                  action: url,
+                  context: {
+                    getDocPermissions: false,
+                    incrementVersionCount: !mostRecentVersionIsAutosaved,
+                  },
+                  disableFormWhileProcessing: false,
+                  disableSuccessStatus: true,
+                  method,
+                  overrides: {
+                    _status: 'draft',
+                  },
+                  skipValidation: !validateOnDraft,
+                }),
+            )
 
             const newDate = new Date()
 
