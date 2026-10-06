@@ -95,10 +95,20 @@
       min-width: 0;
     }
 
+    // FORK (#124): the band scrolls its own trail, never the page. Upstream
+    // hides this wrapper's scrollbar and draws a fade at the trail's end, but
+    // never said `overflow`, and as a flex item it could not shrink below its
+    // content: a long trail on a phone (390px, three crumbs ~394px in a 358px
+    // band) widened the whole page and it scrolled sideways.
     &__step-nav-wrapper {
       flex-grow: 0;
       display: flex;
       width: 100%;
+      min-width: 0;
+      overflow-x: auto;
+      overflow-y: hidden;
+      overscroll-behavior-x: contain;
+      scrollbar-width: none;
 
       &::-webkit-scrollbar {
         display: none;
