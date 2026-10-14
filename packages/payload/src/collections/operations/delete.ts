@@ -34,6 +34,7 @@ import { deleteCollectionVersions } from '../../versions/deleteCollectionVersion
 import { deleteScheduledPublishJobs } from '../../versions/deleteScheduledPublishJobs.js'
 import { buildAfterOperation } from './utilities/buildAfterOperation.js'
 import { buildBeforeOperation } from './utilities/buildBeforeOperation.js'
+import { readDeletedDoc, unreadDeletedDoc } from './utilities/readDeletedDoc.js'
 
 export type Arguments = {
   collection: Collection
@@ -189,40 +190,53 @@ export const deleteOperation = async <
     // /////////////////////////////////////
 
     const runAfterDeleteWork = async (doc: Doc): Promise<ResultDoc> => {
-      let result = await afterRead({
-        collection: collectionConfig,
-        context: req.context,
-        depth: depth!,
+      // The document is gone: a read that throws no longer takes the afterDelete hooks down with
+      // it (fork change #125). They run on the stored document, and the answer withholds it.
+      const readBack = await readDeletedDoc({
+        collectionConfig,
         doc,
-        // @ts-expect-error - vestiges of when tsconfig was not strict. Feel free to improve
-        draft: undefined,
-        fallbackLocale: fallbackLocale!,
-        global: null,
-        locale: locale!,
-        overrideAccess: overrideAccess!,
-        populate,
+        read: async () => {
+          let result = await afterRead({
+            collection: collectionConfig,
+            context: req.context,
+            depth: depth!,
+            doc,
+            // @ts-expect-error - vestiges of when tsconfig was not strict. Feel free to improve
+            draft: undefined,
+            fallbackLocale: fallbackLocale!,
+            global: null,
+            locale: locale!,
+            overrideAccess: overrideAccess!,
+            populate,
+            req,
+            select,
+            showHiddenFields: showHiddenFields!,
+          })
+
+          // Add collection property for auth collections
+          if (collectionConfig.auth) {
+            result = { ...result, collection: collectionConfig.slug }
+          }
+
+          if (collectionConfig.hooks?.afterRead?.length) {
+            for (const hook of collectionConfig.hooks.afterRead) {
+              result =
+                (await hook({
+                  collection: collectionConfig,
+                  context: req.context,
+                  doc: result || doc,
+                  overrideAccess,
+                  req,
+                })) || result
+            }
+          }
+
+          return result
+        },
         req,
-        select,
-        showHiddenFields: showHiddenFields!,
       })
 
-      // Add collection property for auth collections
-      if (collectionConfig.auth) {
-        result = { ...result, collection: collectionConfig.slug }
-      }
-
-      if (collectionConfig.hooks?.afterRead?.length) {
-        for (const hook of collectionConfig.hooks.afterRead) {
-          result =
-            (await hook({
-              collection: collectionConfig,
-              context: req.context,
-              doc: result || doc,
-              overrideAccess,
-              req,
-            })) || result
-        }
-      }
+      let result = readBack.doc
 
       if (collectionConfig.hooks?.afterDelete?.length) {
         for (const hook of collectionConfig.hooks.afterDelete) {
@@ -235,6 +249,10 @@ export const deleteOperation = async <
               req,
             })) || result
         }
+      }
+
+      if (readBack.readFailed) {
+        result = unreadDeletedDoc(result, collectionConfig)
       }
 
       return result as ResultDoc
