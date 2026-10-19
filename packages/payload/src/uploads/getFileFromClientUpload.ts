@@ -45,6 +45,7 @@ export async function getFileFromClientUpload({
 
   const contentRequirement = file.clientUploadContext
     ? getFileContentRequirement({
+        filename: file.filename,
         hasSizeEdits: requestHasSizeEdits(req),
         mimeType: file.mimeType,
         uploadConfig,
