@@ -14,7 +14,7 @@ import { executeAccess } from '../../auth/executeAccess.js'
 import { combineQueries } from '../../database/combineQueries.js'
 import { validateQueryPaths } from '../../database/queryValidation/validateQueryPaths.js'
 import { sanitizeWhereQuery } from '../../database/sanitizeWhereQuery.js'
-import { APIError, Locked } from '../../errors/index.js'
+import { APIError, Locked, NotFound } from '../../errors/index.js'
 import { afterRead } from '../../fields/hooks/afterRead/index.js'
 import { deleteUserPreferences } from '../../preferences/deleteUserPreferences.js'
 import { deleteAssociatedFiles } from '../../uploads/deleteAssociatedFiles.js'
@@ -295,16 +295,23 @@ export const deleteOperation = async <
           })
         }
 
-        await payload.db.deleteOne({
+        const deleted = await payload.db.deleteOne({
           collection: collectionConfig.slug,
           req,
-          returning: false,
+          select: { id: true },
           where: {
             id: {
               equals: doc.id,
             },
           },
         })
+
+        // Found above, gone now: another writer deleted it in between. Reported as the NotFound a
+        // delete of a missing id raises, with no afterDelete hooks run for a delete that was not
+        // this one (fork change #127).
+        if (!deleted) {
+          throw new NotFound(req.t)
+        }
 
         const result = await runAfterDeleteWork(doc)
 

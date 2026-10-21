@@ -191,6 +191,14 @@ export const deleteByIDOperation = async <TSlug extends CollectionSlug, TSelect 
       where: { id: { equals: id } },
     })
 
+    // The row was there when it was read above and is gone now: another writer deleted it in
+    // between. That delete is the one that happened (and ran its own hooks), so this one answers
+    // exactly as a delete of a missing id does, and no read or afterDelete hook runs on nothing
+    // (fork change #127). The catch below rolls back what this operation wrote under a transaction.
+    if (!result) {
+      throw new NotFound(req.t)
+    }
+
     // /////////////////////////////////////
     // Add collection property for auth collections
     // /////////////////////////////////////
