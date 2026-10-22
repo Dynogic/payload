@@ -1,6 +1,7 @@
 'use client'
 
 import { useModal } from '@faceless-ui/modal'
+import { hasDraftsEnabled } from 'payload/shared'
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { toast } from 'sonner'
 
@@ -12,6 +13,7 @@ import { useServerFunctions } from '../../providers/ServerFunctions/index.js'
 import { useTranslation } from '../../providers/Translation/index.js'
 import { abortAndIgnore, handleAbortRef } from '../../utilities/abortAndIgnore.js'
 import { DocumentDrawerContextProvider } from './Provider.js'
+import { type DrawerSaveMode, resolveDrawerSaveMode } from './resolveDrawerSaveMode.js'
 
 export const DocumentDrawerContent: React.FC<DocumentDrawerProps> = ({
   id: docID,
@@ -111,7 +113,14 @@ export const DocumentDrawerContent: React.FC<DocumentDrawerProps> = ({
   // Fork #61: close-on-create-save depends on drawerContext.saveMode.
   //  - 'default'  → mirror upstream: reload the view with the new doc (stay open).
   //  - otherwise  → 'saveAndAdd' / 'createEdit' close the create drawer on save.
-  const saveMode = drawerContext?.saveMode ?? 'saveAndAdd'
+  // Resolved by the same rule as DocumentControls (#129), so the two never
+  // disagree; an unnamed mode only differs from #45 on an EDIT drawer, where
+  // nothing here branches on it.
+  const saveMode = resolveDrawerSaveMode({
+    draftsEnabled: hasDraftsEnabled(collectionConfig),
+    isCreateDrawer,
+    saveMode: drawerContext?.saveMode as DrawerSaveMode | undefined,
+  })
 
   const onSave = useCallback<DocumentDrawerProps['onSave']>(
     (args) => {

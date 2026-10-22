@@ -12,6 +12,7 @@ import { formatAdminURL, hasAutosaveEnabled, hasDraftsEnabled } from 'payload/sh
 import React, { Fragment } from 'react'
 
 import type { DocumentDrawerContextType } from '../DocumentDrawer/Provider.js'
+import type { DrawerSaveMode } from '../DocumentDrawer/resolveDrawerSaveMode.js'
 
 import { useFormInitializing, useFormProcessing } from '../../forms/Form/context.js'
 import { useConfig } from '../../providers/Config/index.js'
@@ -25,6 +26,7 @@ import { Button } from '../Button/index.js'
 import { CopyLocaleData } from '../CopyLocaleData/index.js'
 import { DeleteDocument } from '../DeleteDocument/index.js'
 import { useOptionalDocumentDrawerContext } from '../DocumentDrawer/Provider.js'
+import { resolveDrawerSaveMode } from '../DocumentDrawer/resolveDrawerSaveMode.js'
 import { DuplicateDocument } from '../DuplicateDocument/index.js'
 import { MoveDocToFolder } from '../FolderView/MoveDocToFolder/index.js'
 import { Gutter } from '../Gutter/index.js'
@@ -134,8 +136,8 @@ export const DocumentControls: React.FC<{
   const drawerCtx = useOptionalDocumentDrawerContext()
   const isCreateDrawer = drawerCtx?.isCreateDrawer ?? false
   // Fork #61: a drawer picks one of THREE save behaviors via
-  // drawerContext.saveMode. Absent → 'saveAndAdd' (the #45 default, so every
-  // existing relationship drawer is unchanged).
+  // drawerContext.saveMode. Absent → 'saveAndAdd' (the #45 default), except an
+  // edit drawer on a drafted collection, which defaults to 'createEdit' (#129).
   //  - 'saveAndAdd' : #45 — lone "Save & Add" (create) / "Save" (edit), autosave off.
   //  - 'default'    : upstream Payload — same controls as the full-page editor.
   //                   Faithful for non-autosave collections; for an AUTOSAVE
@@ -144,18 +146,18 @@ export const DocumentControls: React.FC<{
   //                   use 'createEdit' for those.
   //  - 'createEdit' : create drawer (no id) → explicit "Save Draft & Close" +
   //                   "Publish & Close" (labels via createLabels), autosave off;
-  //                   edit drawer (id exists) → autosave on + lone Publish.
+  //                   edit drawer (id exists) → the full page's controls
+  //                   (autosave + Publish; Save Draft too without autosave).
+  //
+  // Fork #129: with NO saveMode named, an edit drawer (id exists) on a drafted
+  // collection resolves to 'createEdit', never #45's lone Save, which wrote the
+  // live document past the draft workflow (resolveDrawerSaveMode).
   const drawerContextOpts = drawerCtx?.drawerContext as
     | {
         createLabels?: { publish?: string; saveDraft?: string }
-        saveMode?: 'createEdit' | 'default' | 'saveAndAdd'
+        saveMode?: DrawerSaveMode
       }
     | undefined
-  const saveMode = drawerContextOpts?.saveMode ?? 'saveAndAdd'
-  const drawerDefault = isInDrawer && saveMode === 'default'
-  const drawerSaveAndAdd = isInDrawer && saveMode === 'saveAndAdd'
-  const createEditCreate = isInDrawer && saveMode === 'createEdit' && isCreateDrawer
-  const createEditEdit = isInDrawer && saveMode === 'createEdit' && !isCreateDrawer
   const createLabels = drawerContextOpts?.createLabels
 
   const { config, getEntityConfig } = useConfig()
@@ -190,6 +192,16 @@ export const DocumentControls: React.FC<{
 
   const globalHasDraftsEnabled = hasDraftsEnabled(globalConfig)
   const collectionHasDraftsEnabled = hasDraftsEnabled(collectionConfig)
+
+  const saveMode = resolveDrawerSaveMode({
+    draftsEnabled: collectionHasDraftsEnabled || globalHasDraftsEnabled,
+    isCreateDrawer,
+    saveMode: drawerContextOpts?.saveMode,
+  })
+  const drawerDefault = isInDrawer && saveMode === 'default'
+  const drawerSaveAndAdd = isInDrawer && saveMode === 'saveAndAdd'
+  const createEditCreate = isInDrawer && saveMode === 'createEdit' && isCreateDrawer
+  const createEditEdit = isInDrawer && saveMode === 'createEdit' && !isCreateDrawer
 
   // Fork #91: a read-only viewer sees the ⋯ menu INERT (disabled trigger),
   // not hidden. The #45 create-drawer rule and the stock placement rules live
@@ -349,11 +361,23 @@ export const DocumentControls: React.FC<{
                     />
                   </Fragment>
                 ) : createEditEdit && (collectionHasDraftsEnabled || globalHasDraftsEnabled) ? (
-                  // 'createEdit' EDIT drawer: autosave handles drafts → lone Publish.
-                  <RenderCustomComponent
-                    CustomComponent={CustomPublishButton}
-                    Fallback={<PublishButton />}
-                  />
+                  // 'createEdit' EDIT drawer: the full page's controls. Autosave
+                  // writes the draft → lone Publish; a collection WITHOUT autosave
+                  // (or one that asks for it) also gets Save Draft (#129: since
+                  // this is now the default for any drafted edit drawer, it must
+                  // never leave a draft with no way to be saved).
+                  <Fragment>
+                    {(!autosaveEnabled || showSaveDraftButton) && (
+                      <RenderCustomComponent
+                        CustomComponent={CustomSaveDraftButton}
+                        Fallback={<SaveDraftButton />}
+                      />
+                    )}
+                    <RenderCustomComponent
+                      CustomComponent={CustomPublishButton}
+                      Fallback={<PublishButton />}
+                    />
+                  </Fragment>
                 ) : collectionHasDraftsEnabled || globalHasDraftsEnabled ? (
                   // Full-page editor AND 'default' drawer: stock controls.
                   <Fragment>
