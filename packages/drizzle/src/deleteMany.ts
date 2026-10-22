@@ -12,7 +12,7 @@ import { markWrite } from './utilities/readAfterWrite.js'
 
 export const deleteMany: DeleteMany = async function deleteMany(
   this: DrizzleAdapter,
-  { collection, req, where: whereArg },
+  { collection, req, returnIDs, where: whereArg },
 ) {
   const collectionConfig = this.payload.collections[collection].config
 
@@ -60,11 +60,18 @@ export const deleteMany: DeleteMany = async function deleteMany(
   // the transaction db (always primary) or falls back to shouldReadFromPrimary.
   const db = await getTransaction(this, req)
 
-  await this.deleteWhere({
+  const deletedIDs = await this.deleteWhere({
     db,
+    returningIDs: Boolean(returnIDs),
     tableName,
     where: whereToUse,
   })
 
   markWrite(this)
+
+  if (returnIDs) {
+    // The statement's own `RETURNING id`: only rows this delete removed (fork change #128). With
+    // joins the ids come from a read first, but the DELETE still returns only what it removed.
+    return { ids: deletedIDs || [] }
+  }
 }

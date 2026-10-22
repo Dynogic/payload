@@ -1475,6 +1475,7 @@ export type {
   DBIdentifierName,
   DeleteMany,
   DeleteManyArgs,
+  DeleteManyResult,
   DeleteOne,
   DeleteOneArgs,
   DeleteVersions,

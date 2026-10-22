@@ -416,16 +416,25 @@ export const deleteOperation = async <
       // Delete documents
       // /////////////////////////////////////
 
+      let removedIDs: null | Set<string> = null
+
       try {
-        await payload.db.deleteMany({
+        const deleted = await payload.db.deleteMany({
           collection: collectionConfig.slug,
           req,
+          returnIDs: true,
           where: {
             id: {
               in: ids,
             },
           },
         })
+
+        // An adapter that cannot say which ids it removed resolves nothing: every document in the
+        // batch is then taken as removed, as before fork change #128.
+        if (deleted) {
+          removedIDs = new Set(deleted.ids.map(String))
+        }
       } catch (error) {
         didBatchDeleteFail = true
 
@@ -449,6 +458,15 @@ export const deleteOperation = async <
 
       await Promise.all(
         deletable.map(async (entry) => {
+          // Found above, gone before the batch's delete: another writer removed it, and ran its own
+          // hooks. Reported as the NotFound a delete of a missing id raises, with no read and no
+          // afterDelete here; afterOperation never sees it either (fork change #128, closing the
+          // batched path's gap left by #127).
+          if (removedIDs && !removedIDs.has(String(entry.doc.id))) {
+            pushError(entry.doc.id, new NotFound(req.t))
+            return
+          }
+
           try {
             results[entry.index] = await runAfterDeleteWork(entry.doc)
           } catch (error) {

@@ -74,9 +74,11 @@ export type CountDistinct = (args: {
 
 export type DeleteWhere = (args: {
   db: PostgresDB | TransactionPg
+  /** Resolve the ids of the rows this statement removed (`DELETE … RETURNING id`, fork change #128). */
+  returningIDs?: boolean
   tableName: string
   where: SQL
-}) => Promise<void>
+}) => Promise<(number | string)[] | void>
 
 export type DropDatabase = (args: { adapter: BasePostgresAdapter }) => Promise<void>
 

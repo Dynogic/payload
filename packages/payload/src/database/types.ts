@@ -682,10 +682,25 @@ export type DeleteManyArgs = {
   collection: CollectionSlug
   joins?: JoinQuery
   req?: Partial<PayloadRequest>
+  /**
+   * Opt in to learning which documents THIS call removed (fork change #128). When `true`, the
+   * adapter resolves `{ ids }`: the ids of the documents this call deleted, and only those. A
+   * document that matched `where` but that another writer removed first is not in it. When omitted
+   * or `false`, the adapter resolves nothing, as before.
+   *
+   * An adapter that does not support it resolves `undefined` even when asked; callers must treat
+   * that as "unknown", not as "nothing was deleted".
+   */
+  returnIDs?: boolean
   where: Where
 }
 
-export type DeleteMany = (args: DeleteManyArgs) => Promise<void>
+export type DeleteManyResult = {
+  /** The ids of the documents this call removed (fork change #128). */
+  ids: (number | string)[]
+}
+
+export type DeleteMany = (args: DeleteManyArgs) => Promise<DeleteManyResult | void>
 
 export type Migration = {
   down: (args: unknown) => Promise<void>
