@@ -135,8 +135,10 @@ export interface Args {
   /**
    * We add a secondary sort based on `createdAt` to ensure that results are always returned in the same order when sorting by a non-unique field.
    * This is because MongoDB does not guarantee the order of results, however in very large datasets this could affect performance.
+   * Every sort also ends on `_id` (in the direction of its last key) unless it already sorts on `_id` / `id`, since `createdAt`
+   * itself can tie (fork #130).
    *
-   * Set to `true` to disable this behaviour.
+   * Set to `true` to disable this behaviour (both the `createdAt` fallback and the `_id` tiebreak).
    */
   disableFallbackSort?: boolean
   /** Set to true to disable hinting to MongoDB to use 'id' as index. This is currently done when counting documents for pagination. Disabling this optimization might fix some problems with AWS DocumentDB. Defaults to false */

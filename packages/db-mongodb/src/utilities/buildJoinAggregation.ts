@@ -17,7 +17,7 @@ import type { MongooseAdapter } from '../index.js'
 import type { CollectionModel } from '../types.js'
 
 import { buildQuery } from '../queries/buildQuery.js'
-import { buildSortParam } from '../queries/buildSortParam.js'
+import { buildSortParam, toMongoSort } from '../queries/buildSortParam.js'
 import { getCollection } from './getEntity.js'
 
 type BuildJoinAggregationArgs = {
@@ -112,10 +112,15 @@ export const buildJoinAggregation = async ({
       where: whereJoin,
     })
 
-    const sortProperty = Object.keys(sort)[0]! // assert because buildSortParam always returns at least 1 key.
-    const sortDirection = sort[sortProperty] === 'asc' ? 1 : -1
+    // Fork #130: the whole sort (its `_id` tiebreak included), not only its first key, so tied
+    // rows keep one order and a join page never repeats or skips one.
+    const $sort = toMongoSort(sort)
 
-    const projectSort = sortProperty !== '_id' && sortProperty !== 'relationTo'
+    // Every sort key the merged `$sortArray` below reads must survive the per-collection `$project`
+    // (`_id` is kept by `$project` itself, `relationTo` is projected anyway).
+    const projectedSortKeys = Object.keys($sort).filter(
+      (key) => key !== '_id' && key !== 'relationTo',
+    )
 
     const aliases: string[] = []
 
@@ -159,9 +164,7 @@ export const buildJoinAggregation = async ({
           pipeline: [
             ...basePipeline,
             {
-              $sort: {
-                [sortProperty]: sortDirection,
-              },
+              $sort,
             },
             {
               // Unfortunately, we can't use $skip here because we can lose data, instead we do $slice then
@@ -170,9 +173,7 @@ export const buildJoinAggregation = async ({
             {
               $project: {
                 value: '$_id',
-                ...(projectSort && {
-                  [sortProperty]: 1,
-                }),
+                ...Object.fromEntries(projectedSortKeys.map((key) => [key, 1])),
                 relationTo: 1,
               },
             },
@@ -229,9 +230,7 @@ export const buildJoinAggregation = async ({
         [`${as}.docs`]: {
           $sortArray: {
             input: `$${as}.docs`,
-            sortBy: {
-              [sortProperty]: sortDirection,
-            },
+            sortBy: $sort,
           },
         },
       },
@@ -319,8 +318,8 @@ export const buildJoinAggregation = async ({
         sort: useDrafts ? getQueryDraftsSort({ collectionConfig, sort: sortJoin }) : sortJoin,
         timestamps: true,
       })
-      const sortProperty = Object.keys(sort)[0]!
-      const sortDirection = sort[sortProperty] === 'asc' ? 1 : -1
+      // Fork #130: the whole sort, its `_id` tiebreak included (see the polymorphic join above).
+      const $sort = toMongoSort(sort)
 
       const $match = await JoinModel.buildQuery({
         locale,
@@ -337,7 +336,7 @@ export const buildJoinAggregation = async ({
       const pipeline: Exclude<PipelineStage, PipelineStage.Merge | PipelineStage.Out>[] = [
         { $match },
         {
-          $sort: { [sortProperty]: sortDirection },
+          $sort,
         },
       ]
 

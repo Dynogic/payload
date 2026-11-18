@@ -231,5 +231,31 @@ export const buildSortParam = ({
     return acc
   }, {})
 
+  // Fork #130: every sort ends on `_id`, so no two rows ever tie. A sort on any other key can tie
+  // (a folder upload creates dozens of documents in the same millisecond, so even the `createdAt`
+  // fallback above ties), and MongoDB returns tied rows in no fixed order: they swap places between
+  // two loads of the same page, or one shows on two pages and another on none. A unique field is no
+  // exception (a sparse unique index lets every document without the value tie on null). `_id`
+  // takes the direction of the sort's last key. `disableFallbackSort` turns this off too.
+  if (!adapter.disableFallbackSort && !('_id' in sorting)) {
+    const directions = Object.values(sorting)
+    sorting._id = directions[directions.length - 1] ?? 'desc'
+  }
+
   return sorting
+}
+
+/**
+ * Turns a `buildSortParam` result into MongoDB's numeric sort directions, for an aggregation
+ * `$sort` / `$sortArray` (fork #130: the whole sort, its `_id` tiebreak included, never only its
+ * first key).
+ */
+export const toMongoSort = (sort: Record<string, string>): Record<string, -1 | 1> => {
+  const mongoSort: Record<string, -1 | 1> = {}
+
+  for (const [key, direction] of Object.entries(sort)) {
+    mongoSort[key] = direction === 'desc' ? -1 : 1
+  }
+
+  return mongoSort
 }

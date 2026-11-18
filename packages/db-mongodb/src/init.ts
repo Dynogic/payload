@@ -15,6 +15,12 @@ import type { CollectionModel, GlobalModel } from './types.js'
 import { buildCollectionSchema } from './models/buildCollectionSchema.js'
 import { buildGlobalModel } from './models/buildGlobalModel.js'
 import { buildSchema } from './models/buildSchema.js'
+import {
+  applySortIndexes,
+  CollectionSortIndexes,
+  DraftSortIndexes,
+  VersionSortIndexes,
+} from './models/sortIndexes.js'
 import { getBuildQueryPlugin } from './queries/getBuildQueryPlugin.js'
 import { getDBName } from './utilities/getDBName.js'
 
@@ -31,6 +37,12 @@ export const init: Init = async function init(this: MongooseAdapter) {
     const schemaOptions = this.collectionsSchemaOptions?.[collection.slug]
 
     const schema = buildCollectionSchema(collection, this.payload, schemaOptions)
+
+    // Fork #130: the default sort's compound index (no `_id` tiebreak, no compound).
+    if (!this.disableFallbackSort && collection.timestamps !== false) {
+      applySortIndexes({ indexes: CollectionSortIndexes, schema })
+    }
+
     if (collection.versions) {
       const versionModelName = getDBName({ config: collection, versions: true })
 
@@ -51,6 +63,19 @@ export const init: Init = async function init(this: MongooseAdapter) {
         configFields: versionCollectionFields,
         payload: this.payload,
       })
+
+      // Fork #130: findVersions' and queryDrafts' default sorts walk compound indexes.
+      if (!this.disableFallbackSort) {
+        applySortIndexes({
+          indexes: [
+            ...VersionSortIndexes,
+            ...(typeof collection.versions === 'object' && collection.versions.drafts
+              ? DraftSortIndexes
+              : []),
+          ],
+          schema: versionSchema,
+        })
+      }
 
       versionSchema.plugin<any, PaginateOptions>(paginate, { useEstimatedCount: true }).plugin(
         getBuildQueryPlugin({
@@ -101,6 +126,11 @@ export const init: Init = async function init(this: MongooseAdapter) {
         configFields: versionGlobalFields,
         payload: this.payload,
       })
+
+      // Fork #130: findGlobalVersions' default sort walks a compound index.
+      if (!this.disableFallbackSort) {
+        applySortIndexes({ indexes: VersionSortIndexes, schema: versionSchema })
+      }
 
       versionSchema.plugin<any, PaginateOptions>(paginate, { useEstimatedCount: true }).plugin(
         getBuildQueryPlugin({

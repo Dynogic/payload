@@ -338,8 +338,10 @@ export async function resolveJoins({
       results.docs.sort((a, b) => {
         for (const [fieldName, sortOrder] of Object.entries(results.sort)) {
           const sort = sortOrder === 'asc' ? 1 : -1
-          const aValue = a[fieldName] as Date | number | string
-          const bValue = b[fieldName] as Date | number | string
+          // Fork #130: the sort's `_id` tiebreak reads the id (`transform` has moved `_id` to `id`).
+          const key = fieldName === '_id' ? 'id' : fieldName
+          const aValue = a[key] as Date | number | string
+          const bValue = b[key] as Date | number | string
           if (aValue < bValue) {
             return -1 * sort
           }

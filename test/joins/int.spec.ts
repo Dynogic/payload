@@ -1,6 +1,7 @@
 import type { MongooseAdapter } from '@payloadcms/db-mongodb'
 import type { Payload, TypeWithID } from 'payload'
 
+import { Types } from 'mongoose'
 import path from 'path'
 import { getFileByPath } from 'payload'
 import { fileURLToPath } from 'url'
@@ -1564,6 +1565,76 @@ describe('Joins Field', () => {
     await payload.delete({ collection: categoriesSlug, where: { name: { equals: 'totalDocs' } } })
   })
 
+  // Fork #130: joined rows that tie on every sort key keep one order, so a join page never repeats
+  // or skips one, both through the join aggregation and through resolveJoins.
+  itDatabase(
+    'should order joined rows that tie on every sort key by _id, page after page',
+    { db: 'mongo' },
+    async () => {
+      const db = payload.db as unknown as MongooseAdapter
+      const Posts = db.collections[postsSlug]!
+      const tiedCategory = await payload.create({
+        collection: categoriesSlug,
+        data: { name: 'tiedJoinRows' },
+      })
+
+      // Inserted directly, all in the same millisecond with one title, the ids in a shuffled order
+      // so the storage order never happens to match the `_id` order.
+      const ids = Array.from({ length: 12 }, () => new Types.ObjectId())
+      const idsDescending = ids
+        .map((id) => id.toHexString())
+        .sort()
+        .reverse()
+      const createdAt = new Date()
+      await Posts.insertMany(
+        [...ids]
+          .sort(() => Math.random() - 0.5)
+          .map((_id) => ({
+            _id,
+            category: new Types.ObjectId(String(tiedCategory.id)),
+            createdAt,
+            title: 'tied join row',
+            updatedAt: createdAt,
+          })),
+      )
+
+      const walk = async () => {
+        const seen: string[] = []
+        for (let page = 1; page <= 3; page++) {
+          const found = await payload.findByID({
+            id: tiedCategory.id,
+            collection: categoriesSlug,
+            depth: 0,
+            joins: { relatedPosts: { limit: 5, page, sort: 'title' } },
+          })
+          seen.push(
+            ...(found.relatedPosts?.docs ?? []).map((doc) =>
+              String(typeof doc === 'object' ? doc.id : doc),
+            ),
+          )
+        }
+        return seen
+      }
+
+      const useJoinAggregations = db.useJoinAggregations
+
+      try {
+        // `title` ties, the `createdAt` fallback ties, `_id` decides (descending, like createdAt)
+        expect(await walk()).toEqual(idsDescending)
+
+        db.useJoinAggregations = false
+        expect(await walk()).toEqual(idsDescending)
+      } finally {
+        db.useJoinAggregations = useJoinAggregations
+        await payload.delete({
+          collection: postsSlug,
+          where: { title: { equals: 'tied join row' } },
+        })
+        await payload.delete({ id: tiedCategory.id, collection: categoriesSlug })
+      }
+    },
+  )
+
   // Categories has join fields, so find goes through aggregatePaginate, which runs a separate count for totalDocs
   itDatabase(
     'should count filtered totalDocs from the matching index entries instead of reading every doc',
@@ -1618,7 +1689,8 @@ describe('Joins Field', () => {
 
       // Before the fix, the count was hinted onto the _id index and read every category in the collection:
       // { planSummary: 'IXSCAN { _id: 1 }', keysExamined: 1000+, docsExamined: 1000+ }
-      expect(countProfile?.planSummary).toBe('COUNT_SCAN { createdAt: 1 }')
+      // Fork #130: the createdAt index is the default sort's compound `{ createdAt: 1, _id: 1 }`
+      expect(countProfile?.planSummary).toBe('COUNT_SCAN { createdAt: 1, _id: 1 }')
       expect(countProfile?.keysExamined).toBe(3)
       expect(countProfile?.docsExamined).toBe(0)
     },

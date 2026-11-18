@@ -45,6 +45,19 @@ export const sanitizeCompoundIndexes = ({
         }
       }
 
+      // Fork change #130: `id` names the document's own id even when the collection declares no
+      // `id` field (a custom ID field is found above, as any field is). The database adapter maps it
+      // to its id column: MongoDB's `_id`, and the version document's `parent` in a versions
+      // collection. It lets an index end on the id, which every MongoDB sort ends on, so a scoped
+      // list sorts on the index (`['store', 'createdAt', 'id']` → `{ store: 1, createdAt: 1, _id: 1 }`).
+      if (!result && path === 'id') {
+        result = {
+          field: { name: 'id', type: 'text' } as FlattenedField,
+          localizedPath: 'id',
+          pathHasLocalized: false,
+        }
+      }
+
       if (!result) {
         throw new InvalidConfiguration(`Field ${path} was not found`)
       }

@@ -192,7 +192,7 @@ export const buildSchema = (args: {
             indexDefinition[field.localizedPath.replace('<locale>', locale.code)] = 1
           }
         } else {
-          indexDefinition[field.path] = 1
+          indexDefinition[compoundIndexPath(field.path)] = 1
         }
       }
 
@@ -203,6 +203,23 @@ export const buildSchema = (args: {
   }
 
   return schema
+}
+
+/**
+ * Fork #130: a compound index can name `id` (the document's id, `sanitizeCompoundIndexes`). MongoDB
+ * stores it as `_id`, and a version document holds its document's id in `parent` (the collection's
+ * index reaches the versions collection as `version.id` through `buildVersionCompoundIndexes`).
+ */
+const compoundIndexPath = (path: string): string => {
+  if (path === 'id') {
+    return '_id'
+  }
+
+  if (path === 'version.id') {
+    return 'parent'
+  }
+
+  return path
 }
 
 const array: FieldSchemaGenerator<ArrayField> = (

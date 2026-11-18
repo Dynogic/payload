@@ -1,5 +1,7 @@
+import type { MongooseAdapter } from '@payloadcms/db-mongodb'
 import type { CollectionSlug, Payload } from 'payload'
 
+import { Types } from 'mongoose'
 import path from 'path'
 import * as qs from 'qs-esm'
 import { fileURLToPath } from 'url'
@@ -9,6 +11,7 @@ import type { NextRESTClient } from '../__helpers/shared/NextRESTClient.js'
 import type { Draft, Orderable, OrderableJoin } from './payload-types.js'
 
 import { initPayloadInt } from '../__helpers/shared/initPayloadInt.js'
+import { isMongoose } from '../__helpers/shared/isMongoose.js'
 import { draftsSlug } from './collections/Drafts/index.js'
 import { nonUniqueSortSlug } from './collections/NonUniqueSort/index.js'
 import { orderableSlug } from './collections/Orderable/index.js'
@@ -279,6 +282,137 @@ describe('Sort', () => {
         expect(fetch2).toEqual(initialMap)
 
         expect(fetch3).toEqual(initialMap)
+      })
+
+      // Fork #130: rows that tie on EVERY sort key, `createdAt` included (a folder upload creates
+      // dozens of documents in the same millisecond). The sort ends on `_id`, so they keep one order:
+      // the same on every load, and a page walk shows each row exactly once. The ids are inserted
+      // in a shuffled order so the storage order never happens to match the `_id` order.
+      describe('Rows tied on every sort key (fork #130)', () => {
+        const tiedCount = 30
+        let idsAscending: string[] = []
+
+        const walk = async (sort?: string) => {
+          const seen: string[] = []
+          for (let page = 1; page <= 10; page++) {
+            const result = await payload.find({
+              collection: nonUniqueSortSlug,
+              depth: 0,
+              limit: 7,
+              page,
+              ...(sort ? { sort } : {}),
+              where: { title: { like: 'Tied ' } },
+            })
+            seen.push(...result.docs.map((doc) => String(doc.id)))
+            if (!result.hasNextPage) {
+              break
+            }
+          }
+          return seen
+        }
+
+        beforeAll(async () => {
+          if (!isMongoose(payload)) {
+            return
+          }
+          const db = payload.db as unknown as MongooseAdapter
+          const Model = db.collections[nonUniqueSortSlug]!
+          const ids = Array.from({ length: tiedCount }, () => new Types.ObjectId())
+          idsAscending = ids.map((id) => id.toHexString()).sort()
+          const shuffled = [...ids].sort(() => Math.random() - 0.5)
+          const createdAt = new Date()
+          await Model.insertMany(
+            shuffled.map((_id, i) => ({
+              _id,
+              createdAt,
+              order: 1,
+              title: `Tied ${i}`,
+              updatedAt: createdAt,
+            })),
+          )
+        })
+
+        afterAll(async () => {
+          if (!isMongoose(payload)) {
+            return
+          }
+          await payload.delete({
+            collection: nonUniqueSortSlug,
+            where: { title: { like: 'Tied ' } },
+          })
+        })
+
+        it.skipIf(!isMongoose())('the default sort orders them by _id, newest first', async () => {
+          const seen = await walk()
+          expect(seen).toEqual([...idsAscending].reverse())
+        })
+
+        it.skipIf(!isMongoose())(
+          '-createdAt and createdAt end on _id in their own direction',
+          async () => {
+            expect(await walk('-createdAt')).toEqual([...idsAscending].reverse())
+            expect(await walk('createdAt')).toEqual(idsAscending)
+          },
+        )
+
+        it.skipIf(!isMongoose())(
+          'a sort on a non-unique field ends on _id after the createdAt fallback',
+          async () => {
+            expect(await walk('order')).toEqual([...idsAscending].reverse())
+            expect(await walk('-order')).toEqual([...idsAscending].reverse())
+          },
+        )
+
+        it.skipIf(!isMongoose())('a sort on id itself is unchanged', async () => {
+          expect(await walk('id')).toEqual(idsAscending)
+          expect(await walk('-id')).toEqual([...idsAscending].reverse())
+        })
+
+        // The default sorts walk compound indexes, never a single `createdAt` / `updatedAt` one
+        it.skipIf(!isMongoose())(
+          'the default sorts have their compound indexes in the database',
+          async () => {
+            const db = payload.db as unknown as MongooseAdapter
+            const keysOf = async (Model: { listIndexes: () => Promise<{ key: object }[]> }) =>
+              (await Model.listIndexes()).map((index) => JSON.stringify(index.key))
+
+            const collectionIndexes = await keysOf(db.collections[nonUniqueSortSlug]!)
+            expect(collectionIndexes).toContain(JSON.stringify({ createdAt: 1, _id: 1 }))
+            expect(collectionIndexes).not.toContain(JSON.stringify({ createdAt: 1 }))
+
+            const versionIndexes = await keysOf(db.versions[draftsSlug]!)
+            expect(versionIndexes).toContain(JSON.stringify({ updatedAt: 1, createdAt: 1, _id: 1 }))
+            expect(versionIndexes).toContain(JSON.stringify({ createdAt: 1, _id: 1 }))
+            expect(versionIndexes).toContain(
+              JSON.stringify({ 'version.createdAt': 1, createdAt: 1, _id: 1 }),
+            )
+            expect(versionIndexes).not.toContain(JSON.stringify({ updatedAt: 1 }))
+            expect(versionIndexes).not.toContain(JSON.stringify({ 'version.createdAt': 1 }))
+          },
+        )
+
+        it.skipIf(!isMongoose())(
+          'an unfiltered default page reads only its own rows through the index',
+          async () => {
+            const db = payload.db as unknown as MongooseAdapter
+            const Model = db.collections[nonUniqueSortSlug]!
+
+            // The sort buildSortParam builds for no sort on a timestamped collection
+            const explain = (await Model.find({})
+              .sort({ createdAt: -1, _id: -1 })
+              .limit(10)
+              .explain('executionStats')) as unknown as {
+              executionStats: { totalDocsExamined: number }
+              queryPlanner: { winningPlan: object }
+            }
+
+            const plan = JSON.stringify(explain.queryPlanner.winningPlan)
+            expect(plan).toContain('IXSCAN')
+            expect(plan).not.toContain('"stage":"SORT"')
+            expect(plan).not.toContain('COLLSCAN')
+            expect(explain.executionStats.totalDocsExamined).toBeLessThanOrEqual(10)
+          },
+        )
       })
     })
 
