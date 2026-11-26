@@ -31,6 +31,7 @@ import {
   hiddenAccessSlug,
   hiddenFieldsSlug,
   hooksSlug,
+  nestedFieldAccessSlug,
   postReferencesSlug,
   publicUserEmail,
   publicUsersSlug,
@@ -106,6 +107,39 @@ describe('Access Control', () => {
 
       expect(updatedDoc.partiallyHiddenGroup.value).toStrictEqual('private_value')
       expect(updatedDoc.partiallyHiddenArray[0].value).toStrictEqual('private_value')
+    })
+
+    // fork #131
+    it('should keep an access-locked nested value when an update omits its array', async () => {
+      const doc = await payload.create({
+        collection: nestedFieldAccessSlug as CollectionSlug,
+        data: {
+          items: [
+            { image: { design: { template: 'band' }, state: 'auto' } },
+            { image: { design: { template: 'frame' }, state: 'yours' } },
+          ],
+          title: 'Before',
+        } as any,
+      })
+
+      await payload.update({
+        id: doc.id,
+        collection: nestedFieldAccessSlug as CollectionSlug,
+        data: { title: 'After' } as any,
+        overrideAccess: false,
+      })
+
+      const updatedDoc = (await payload.findByID({
+        id: doc.id,
+        collection: nestedFieldAccessSlug as CollectionSlug,
+      })) as any
+
+      expect(updatedDoc.title).toStrictEqual('After')
+      expect(updatedDoc.items.map((row: any) => row.image.design?.template)).toStrictEqual([
+        'band',
+        'frame',
+      ])
+      expect(updatedDoc.items.map((row: any) => row.image.state)).toStrictEqual(['auto', 'yours'])
     })
 
     it('should not affect hidden fields when patching data - update many', async () => {

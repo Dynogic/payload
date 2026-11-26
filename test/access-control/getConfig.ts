@@ -32,6 +32,7 @@ import {
   hiddenAccessCountSlug,
   hiddenAccessSlug,
   hiddenFieldsSlug,
+  nestedFieldAccessSlug,
   nonAdminEmail,
   postReferencesSlug,
   publicUserEmail,
@@ -729,6 +730,46 @@ export const getConfig: () => Partial<Config> = () => ({
           type: 'text',
           hidden: true,
           defaultValue: 'default value',
+        },
+      ],
+    },
+    {
+      // fork #131: an access-locked group inside a group inside an array row
+      slug: nestedFieldAccessSlug,
+      access: openAccess,
+      fields: [
+        {
+          name: 'title',
+          type: 'text',
+        },
+        {
+          name: 'items',
+          type: 'array',
+          fields: [
+            {
+              name: 'image',
+              type: 'group',
+              fields: [
+                {
+                  name: 'state',
+                  type: 'text',
+                },
+                {
+                  name: 'design',
+                  type: 'group',
+                  access: {
+                    update: () => false,
+                  },
+                  fields: [
+                    {
+                      name: 'template',
+                      type: 'text',
+                    },
+                  ],
+                },
+              ],
+            },
+          ],
         },
       ],
     },
