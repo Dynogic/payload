@@ -6,7 +6,7 @@ import type { ClientWidget, WidgetWidth } from 'payload'
 import { DndContext, DragOverlay, useDraggable, useDroppable } from '@dnd-kit/core'
 import { snapCenterToCursor } from '@dnd-kit/modifiers'
 import { ChevronIcon, Popup, PopupList, useTranslation, XIcon } from '@payloadcms/ui'
-import React, { useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 
 /**
  * Custom modifier that only applies snapCenterToCursor for pointer events.
@@ -29,6 +29,23 @@ import { useDashboardLayout } from './useDashboardLayout.js'
 import { closestInXAxis } from './utils/collisionDetection.js'
 import { useDashboardSensors } from './utils/sensors.js'
 import { WidgetEditControl } from './WidgetEditControl.js'
+
+/**
+ * The page's grabbing cursor while a widget is dragged: rendered inside the
+ * DragOverlay, so it mounts and unmounts with the `.drag-overlay` element
+ * (during a drag and its drop animation) and sets `modular-dashboard--dragging`
+ * on body for exactly that long (fork #132; it was `body:has(.drag-overlay) *`).
+ */
+const draggingBodyClass = 'modular-dashboard--dragging'
+function GrabbingCursor() {
+  useEffect(() => {
+    document.body.classList.add(draggingBodyClass)
+    return () => {
+      document.body.classList.remove(draggingBodyClass)
+    }
+  }, [])
+  return null
+}
 
 export type WidgetItem = {
   data?: Record<string, unknown>
@@ -203,6 +220,7 @@ export function ModularDashboardClient({
             // Uses custom modifier that only applies for pointer, not keyboard navigation.
             modifiers={[snapCenterToCursorOnlyForPointer]}
           >
+            <GrabbingCursor />
             {activeDragId
               ? (() => {
                   const draggedWidget = currentLayout?.find(

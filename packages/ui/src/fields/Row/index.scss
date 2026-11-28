@@ -24,11 +24,17 @@
       // If there is more than one child, add inline-margins to space them out.
       &:has(> *:nth-child(2)) {
         margin-inline: calc(var(--base) / -4); // add negative margin to counteract the gap.
+      }
 
-        > * {
-          flex: 0 1 calc(var(--field-width) - var(--base) * 0.5);
-          margin-inline: calc(var(--base) / 4);
-        }
+      // The children of a row with more than one child, said without a `:has()`:
+      // a child that is not the only child. Same elements, same specificity as
+      // the `&:has(> *:nth-child(2)) > *` this replaces, whose `*` subject put
+      // every element of the page in Chrome's :has() invalidation set, so any
+      // DOM insertion under a :has() anchor (body included) restyled the whole
+      // page (fork #132).
+      > *:not(:only-child) {
+        flex: 0 1 calc(var(--field-width) - var(--base) * 0.5);
+        margin-inline: calc(var(--base) / 4);
       }
     }
 

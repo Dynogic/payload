@@ -44,8 +44,13 @@
     }
   }
 
-  // Apply grabbing cursor to body when drag-overlay is present
-  body:has(.drag-overlay) * {
+  // Apply grabbing cursor to the whole page while the drag overlay is present.
+  // The class is set on body by the overlay's own content (GrabbingCursor in
+  // index.client.tsx), so it is on exactly while `.drag-overlay` is in the DOM.
+  // It replaces `body:has(.drag-overlay) *`, whose `*` subject put every
+  // element of the page in Chrome's :has() invalidation set, so any DOM
+  // insertion under a :has() anchor restyled the whole page (fork #132).
+  body.modular-dashboard--dragging * {
     cursor: grabbing;
   }
 
