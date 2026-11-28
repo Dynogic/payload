@@ -2286,7 +2286,7 @@ Explain on 20,000 documents (createdAt ties of 60 per millisecond), a 50-row pag
 
 **Not changed.** Every other `:has()` rule (each has a class, attribute or tag subject). varig replaces the dashboard view, so the cursor rule is not reachable there; the row rule is on every Payload `row` field.
 
-**Tests.** No Payload spec covers either rule. Built and checked in the compiled `next/dist/prod/styles.css`, `ui/dist/styles.css` and `ui/dist/fields/Row/index.scss` (no `body:has(.drag-overlay)`, no `:has(…)>*`); varig's gate `src/tests/conventions/has-invalidation.test.js` scans these files as installed and fails on any `:has()` rule with a featureless subject.
+**Tests.** No Payload spec covers either rule. Built and checked in the compiled `next/dist/prod/styles.css`, `ui/dist/styles.css` and `ui/dist/fields/Row/index.scss` (no `body:has(.drag-overlay)`, no `:has(…)>*`); varig's gate `src/tests/conventions/has-invalidation.test.js` scans these files as installed and fails on any `:has()` rule with a featureless subject (it failed on both rules against v3.90.2.15 and passes on v3.90.2.16). Visual, in varig on both themes: a row of two text fields (the storefront's Analytics card) and a row of two upload fields (the Brand kit's logos) screenshotted before and after, pixel-identical. Measured in varig (Chrome trace, the Designer's 80-lesson board): the largest style recalculation of a pan, zoom, drag or typing phase went from 8,000 to 8,500 elements (the whole page) to 270 to 1,500, with BlockNote's two such rules rewritten in varig the same day.
 
 **Consumer (varig).** No API change; the `@payloadcms/ui` and `@payloadcms/next` tarballs changed.
 
